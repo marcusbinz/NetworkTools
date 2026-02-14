@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v26';
+﻿const CACHE_NAME = 'network-tools-v27';
 const ASSETS = [
     './',
     './index.html',
@@ -27,7 +27,9 @@ const ASSETS = [
     './js/blacklist-check.js',
     './js/passwort-gen.js',
     './js/mein-netzwerk.js',
-    './js/ping-test.js'
+    './js/ping-test.js',
+    './css/netzwerk-wiki.css',
+    './js/netzwerk-wiki.js'
 ];
 
 // Install: cache all assets
@@ -60,6 +62,7 @@ self.addEventListener('fetch', event => {
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );
 });
+
 
 
 
