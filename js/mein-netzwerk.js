@@ -45,7 +45,7 @@ function init_mein_netzwerk(container) {
 
         <section class="card net-speed-card">
             <h3 class="net-section-title">Speed-Test</h3>
-            <p class="net-speed-desc">Misst die Download-Geschwindigkeit durch Laden einer Testdatei.</p>
+            <p class="net-speed-desc">Misst Download- und Upload-Geschwindigkeit über Cloudflare.</p>
             <button class="net-speed-btn" id="net-speed-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 Speed-Test starten
@@ -57,8 +57,25 @@ function init_mein_netzwerk(container) {
                 <span class="net-speed-status" id="net-speed-status">Lädt...</span>
             </div>
             <div class="net-speed-result" id="net-speed-result" style="display:none;">
-                <div class="net-speed-big" id="net-speed-value">—</div>
-                <div class="net-speed-unit">Mbit/s Download</div>
+                <div class="net-speed-dual">
+                    <div class="net-speed-col">
+                        <div class="net-speed-big" id="net-speed-down">—</div>
+                        <div class="net-speed-unit">Mbit/s</div>
+                        <div class="net-speed-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                            Download
+                        </div>
+                    </div>
+                    <div class="net-speed-divider"></div>
+                    <div class="net-speed-col">
+                        <div class="net-speed-big net-speed-upload" id="net-speed-up">—</div>
+                        <div class="net-speed-unit">Mbit/s</div>
+                        <div class="net-speed-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                            Upload
+                        </div>
+                    </div>
+                </div>
                 <div class="net-speed-details" id="net-speed-details"></div>
             </div>
         </section>
@@ -225,21 +242,30 @@ function init_mein_netzwerk(container) {
         const fill = document.getElementById('net-speed-bar-fill');
         const status = document.getElementById('net-speed-status');
 
-        // Use multiple test files of different sizes for accuracy
-        // We download a random chunk from a CDN to measure speed
-        const testSizes = [
-            { url: 'https://speed.cloudflare.com/__down?bytes=500000', bytes: 500000, label: 'Test 1/3 (500 KB)' },
-            { url: 'https://speed.cloudflare.com/__down?bytes=1000000', bytes: 1000000, label: 'Test 2/3 (1 MB)' },
-            { url: 'https://speed.cloudflare.com/__down?bytes=2000000', bytes: 2000000, label: 'Test 3/3 (2 MB)' },
+        // --- Download Tests ---
+        const downTests = [
+            { url: 'https://speed.cloudflare.com/__down?bytes=500000', bytes: 500000, label: 'Download 1/3 (500 KB)' },
+            { url: 'https://speed.cloudflare.com/__down?bytes=1000000', bytes: 1000000, label: 'Download 2/3 (1 MB)' },
+            { url: 'https://speed.cloudflare.com/__down?bytes=2000000', bytes: 2000000, label: 'Download 3/3 (2 MB)' },
         ];
 
-        const speeds = [];
+        // --- Upload Tests ---
+        const upTests = [
+            { bytes: 500000, label: 'Upload 1/3 (500 KB)' },
+            { bytes: 1000000, label: 'Upload 2/3 (1 MB)' },
+            { bytes: 2000000, label: 'Upload 3/3 (2 MB)' },
+        ];
+
+        const totalSteps = downTests.length + upTests.length;
+        const downSpeeds = [];
+        const upSpeeds = [];
 
         try {
-            for (let i = 0; i < testSizes.length; i++) {
-                const test = testSizes[i];
+            // --- Run Download ---
+            for (let i = 0; i < downTests.length; i++) {
+                const test = downTests[i];
                 status.textContent = test.label;
-                fill.style.width = ((i / testSizes.length) * 100) + '%';
+                fill.style.width = ((i / totalSteps) * 100) + '%';
 
                 const start = performance.now();
                 const res = await fetch(test.url + '&_cb=' + Date.now(), {
@@ -250,25 +276,54 @@ function init_mein_netzwerk(container) {
                 const end = performance.now();
 
                 const durationSec = (end - start) / 1000;
-                const bitsLoaded = test.bytes * 8;
-                const mbps = (bitsLoaded / durationSec) / 1000000;
-                speeds.push({ mbps, duration: durationSec, bytes: test.bytes });
+                const mbps = (test.bytes * 8 / durationSec) / 1000000;
+                downSpeeds.push(mbps);
+            }
+
+            // --- Run Upload ---
+            for (let i = 0; i < upTests.length; i++) {
+                const test = upTests[i];
+                const step = downTests.length + i;
+                status.textContent = test.label;
+                fill.style.width = ((step / totalSteps) * 100) + '%';
+
+                // Generate random data for upload
+                const data = new Uint8Array(test.bytes);
+                crypto.getRandomValues(data);
+
+                const start = performance.now();
+                await fetch('https://speed.cloudflare.com/__up', {
+                    method: 'POST',
+                    body: data,
+                    cache: 'no-store',
+                    signal: _netAbortController.signal,
+                });
+                const end = performance.now();
+
+                const durationSec = (end - start) / 1000;
+                const mbps = (test.bytes * 8 / durationSec) / 1000000;
+                upSpeeds.push(mbps);
             }
 
             fill.style.width = '100%';
             status.textContent = 'Fertig!';
 
-            // Use the best of the larger tests (ignore warmup)
-            const avgSpeed = speeds.slice(1).reduce((sum, s) => sum + s.mbps, 0) / (speeds.length - 1);
-            const maxSpeed = Math.max(...speeds.map(s => s.mbps));
+            // Average (skip first warmup test for accuracy)
+            const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
+            const avgUp = upSpeeds.slice(1).reduce((s, v) => s + v, 0) / (upSpeeds.length - 1);
+            const peakDown = Math.max(...downSpeeds);
+            const peakUp = Math.max(...upSpeeds);
+            const totalBytes = [...downTests, ...upTests].reduce((s, t) => s + t.bytes, 0);
 
             setTimeout(() => {
                 speedProgress.style.display = 'none';
                 speedResult.style.display = 'block';
-                document.getElementById('net-speed-value').textContent = avgSpeed.toFixed(1);
+                document.getElementById('net-speed-down').textContent = avgDown.toFixed(1);
+                document.getElementById('net-speed-up').textContent = avgUp.toFixed(1);
                 document.getElementById('net-speed-details').innerHTML = `
-                    <span>Peak: ${maxSpeed.toFixed(1)} Mbit/s</span>
-                    <span>Gesamt: ${((testSizes.reduce((s, t) => s + t.bytes, 0)) / 1000000).toFixed(1)} MB geladen</span>
+                    <span>↓ Peak: ${peakDown.toFixed(1)} Mbit/s</span>
+                    <span>↑ Peak: ${peakUp.toFixed(1)} Mbit/s</span>
+                    <span>${(totalBytes / 1000000).toFixed(1)} MB übertragen</span>
                 `;
             }, 500);
 
