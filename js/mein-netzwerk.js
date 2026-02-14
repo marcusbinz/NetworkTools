@@ -278,6 +278,17 @@ function init_mein_netzwerk(container) {
         'https://postman-echo.com/post',
     ];
 
+    // crypto.getRandomValues() has a 65536 byte limit per call
+    function generateRandomData(bytes) {
+        const data = new Uint8Array(bytes);
+        const chunkSize = 65536;
+        for (let offset = 0; offset < bytes; offset += chunkSize) {
+            const len = Math.min(chunkSize, bytes - offset);
+            crypto.getRandomValues(data.subarray(offset, offset + len));
+        }
+        return data;
+    }
+
     async function testUploadEndpoint(url, signal) {
         const tiny = new Uint8Array(1024);
         const res = await fetch(url, {
@@ -287,7 +298,6 @@ function init_mein_netzwerk(container) {
             signal,
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        // Consume response to complete the request
         await res.text();
         return url;
     }
@@ -301,18 +311,16 @@ function init_mein_netzwerk(container) {
         const fill = document.getElementById('net-speed-bar-fill');
         const status = document.getElementById('net-speed-status');
 
-        // Reset progress bar (in case previous run had error)
+        // Reset progress bar
         fill.style.width = '0%';
         fill.style.background = '';
 
-        // --- Download Tests ---
         const downTests = [
             { url: 'https://speed.cloudflare.com/__down?bytes=500000', bytes: 500000, label: 'Download 1/3 (500 KB)' },
             { url: 'https://speed.cloudflare.com/__down?bytes=1000000', bytes: 1000000, label: 'Download 2/3 (1 MB)' },
             { url: 'https://speed.cloudflare.com/__down?bytes=2000000', bytes: 2000000, label: 'Download 3/3 (2 MB)' },
         ];
 
-        // --- Upload Tests ---
         const upTests = [
             { bytes: 250000, label: 'Upload 1/3 (250 KB)' },
             { bytes: 500000, label: 'Upload 2/3 (500 KB)' },
@@ -322,10 +330,9 @@ function init_mein_netzwerk(container) {
         const totalSteps = downTests.length + upTests.length;
         const downSpeeds = [];
         const upSpeeds = [];
-        let uploadUrl = null;
 
         try {
-            // --- Run Download ---
+            // --- Download ---
             for (let i = 0; i < downTests.length; i++) {
                 const test = downTests[i];
                 status.textContent = test.label;
@@ -339,8 +346,7 @@ function init_mein_netzwerk(container) {
                 await res.arrayBuffer();
                 const end = performance.now();
 
-                const durationSec = (end - start) / 1000;
-                const mbps = (test.bytes * 8 / durationSec) / 1000000;
+                const mbps = (test.bytes * 8 / ((end - start) / 1000)) / 1000000;
                 downSpeeds.push(mbps);
             }
 
@@ -348,28 +354,26 @@ function init_mein_netzwerk(container) {
             status.textContent = 'Upload wird vorbereitet...';
             fill.style.width = ((downTests.length / totalSteps) * 100) + '%';
 
+            let uploadUrl = null;
             for (const ep of UPLOAD_ENDPOINTS) {
                 try {
                     uploadUrl = await testUploadEndpoint(ep, _netAbortController.signal);
                     break;
-                } catch { /* try next */ }
+                } catch (e) {
+                    if (e.name === 'AbortError') throw e;
+                }
             }
 
-            if (!uploadUrl) {
-                throw new Error('NO_UPLOAD_ENDPOINT');
-            }
+            if (!uploadUrl) throw new Error('NO_UPLOAD_ENDPOINT');
 
-            // --- Run Upload ---
+            // --- Upload ---
             for (let i = 0; i < upTests.length; i++) {
                 const test = upTests[i];
                 const step = downTests.length + i;
                 status.textContent = test.label;
                 fill.style.width = ((step / totalSteps) * 100) + '%';
 
-                // Generate random data for upload
-                const data = new Uint8Array(test.bytes);
-                crypto.getRandomValues(data);
-                const blob = new Blob([data], { type: 'application/octet-stream' });
+                const blob = new Blob([generateRandomData(test.bytes)], { type: 'application/octet-stream' });
 
                 const start = performance.now();
                 const res = await fetch(uploadUrl, {
@@ -378,18 +382,16 @@ function init_mein_netzwerk(container) {
                     cache: 'no-store',
                     signal: _netAbortController.signal,
                 });
-                await res.text(); // Consume response
+                await res.text();
                 const end = performance.now();
 
-                const durationSec = (end - start) / 1000;
-                const mbps = (test.bytes * 8 / durationSec) / 1000000;
+                const mbps = (test.bytes * 8 / ((end - start) / 1000)) / 1000000;
                 upSpeeds.push(mbps);
             }
 
             fill.style.width = '100%';
             status.textContent = 'Fertig!';
 
-            // Average (skip first warmup test for accuracy)
             const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
             const avgUp = upSpeeds.slice(1).reduce((s, v) => s + v, 0) / (upSpeeds.length - 1);
             const peakDown = Math.max(...downSpeeds);
@@ -409,7 +411,6 @@ function init_mein_netzwerk(container) {
         } catch (err) {
             if (err.name === 'AbortError') return;
 
-            // If upload failed but download worked, show partial results
             if (downSpeeds.length >= 2) {
                 const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
                 const peakDown = Math.max(...downSpeeds);
