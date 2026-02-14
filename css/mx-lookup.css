@@ -1,0 +1,231 @@
+/* === MX Lookup Tool Styles === */
+
+/* Input */
+.mx-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.mx-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#mx-domain {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#mx-domain:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#mx-domain::placeholder {
+    color: var(--input-placeholder);
+}
+
+.mx-search-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.mx-search-btn:active {
+    transform: scale(0.95);
+}
+
+.mx-examples {
+    margin-top: 12px;
+}
+
+/* Loading */
+.mx-loading {
+    animation: slideUp 0.3s ease-out;
+}
+
+.mx-spinner-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+    font-size: 14px;
+}
+
+.mx-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Result Card */
+.mx-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.mx-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.mx-result-header h3 {
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+.mx-record-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Section titles */
+.mx-section {
+    margin-bottom: 16px;
+}
+
+.mx-section:last-child {
+    margin-bottom: 0;
+}
+
+.mx-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mx-section-title svg {
+    opacity: 0.6;
+}
+
+/* MX Table */
+.mx-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.mx-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--card-border);
+    white-space: nowrap;
+}
+
+.mx-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text);
+}
+
+.mx-table tr:last-child td {
+    border-bottom: none;
+}
+
+.mx-prio-badge {
+    display: inline-block;
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.mx-server {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+    word-break: break-all;
+}
+
+.mx-ip {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+.mx-ttl {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* Extra DNS blocks */
+.mx-extra-block {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.mx-extra-block:last-child {
+    margin-bottom: 0;
+}
+
+.mx-extra-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.mx-extra-value {
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    word-break: break-all;
+    white-space: pre-line;
+    line-height: 1.6;
+}

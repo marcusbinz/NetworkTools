@@ -10,15 +10,14 @@ const TOOLS = [
         cssFile: 'css/ip-rechner.css',
         jsFile: 'js/ip-rechner.js',
     },
-    // Future tools:
-    // {
-    //     id: 'port-referenz',
-    //     label: 'Ports',
-    //     subtitle: 'Port-Referenz',
-    //     icon: '<svg ...>...</svg>',
-    //     cssFile: 'css/port-referenz.css',
-    //     jsFile: 'js/port-referenz.js',
-    // },
+    {
+        id: 'mx-lookup',
+        label: 'MX Lookup',
+        subtitle: 'MX Record Abfrage',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+        cssFile: 'css/mx-lookup.css',
+        jsFile: 'js/mx-lookup.js',
+    },
 ];
 
 // --- DOM References ---
