@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v31';
+﻿const CACHE_NAME = 'network-tools-v32';
 const ASSETS = [
     './',
     './index.html',
@@ -50,6 +50,13 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
+// Listen for skip-waiting message from app
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
 // Fetch: network-first for version.json, cache-first for everything else
 self.addEventListener('fetch', event => {
     if (event.request.url.includes('version.json')) {
@@ -62,6 +69,7 @@ self.addEventListener('fetch', event => {
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );
 });
+
 
 
 

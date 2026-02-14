@@ -250,16 +250,58 @@ window.addEventListener('hashchange', () => {
 renderDrawer();
 navigateTo(window.location.hash.slice(1) || 'passwort-gen');
 
-// Register Service Worker
+// Register Service Worker + Update Detection
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        // Check for SW updates every 60 seconds
+        setInterval(() => reg.update(), 60000);
+
+        // Detect when a new SW is installed and waiting
+        reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateBanner();
+                }
+            });
+        });
+    });
+
+    // If a waiting SW exists already on page load
+    navigator.serviceWorker.ready.then(reg => {
+        if (reg.waiting) showUpdateBanner();
+    });
 }
 
-// Load and display version
+// Update Banner
+function showUpdateBanner() {
+    const banner = document.getElementById('update-banner');
+    if (banner) banner.classList.add('visible');
+}
+
+document.getElementById('update-btn').addEventListener('click', () => {
+    // Tell waiting SW to take over, then reload
+    navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        }
+        window.location.reload();
+    });
+});
+
+// Load and display version + check for remote updates
 fetch('version.json?_cb=' + Date.now())
     .then(r => r.json())
     .then(v => {
         const el = document.getElementById('footer-version');
         if (el) el.textContent = `v${v.version} • Build ${v.build} • ${v.date}`;
+
+        // Compare with cached version to detect content updates
+        const cachedBuild = localStorage.getItem('network-tools-build');
+        if (cachedBuild && parseInt(cachedBuild) < v.build) {
+            showUpdateBanner();
+        }
+        localStorage.setItem('network-tools-build', v.build);
     })
     .catch(() => {});
