@@ -87,18 +87,37 @@ function initTool(toolId) {
     }
 }
 
+// --- External Links in Tab Bar ---
+const EXTERNAL_LINKS = [
+    {
+        label: 'MXToolbox',
+        url: 'https://mxtoolbox.com/',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+    },
+];
+
 // --- Tab Bar ---
 function renderTabBar() {
     const tabBar = document.getElementById('tab-bar');
-    tabBar.innerHTML = TOOLS.map(tool => `
+
+    const toolTabs = TOOLS.map(tool => `
         <button class="tab-item" data-tool="${tool.id}">
             <span class="tab-icon">${tool.icon}</span>
             <span class="tab-label">${tool.label}</span>
         </button>
     `).join('');
 
+    const externalTabs = EXTERNAL_LINKS.map(link => `
+        <a class="tab-item tab-external" href="${link.url}" target="_blank" rel="noopener">
+            <span class="tab-icon">${link.icon}</span>
+            <span class="tab-label">${link.label}</span>
+        </a>
+    `).join('');
+
+    tabBar.innerHTML = toolTabs + externalTabs;
+
     tabBar.addEventListener('click', (e) => {
-        const tab = e.target.closest('.tab-item');
+        const tab = e.target.closest('.tab-item:not(.tab-external)');
         if (tab) navigateTo(tab.dataset.tool);
     });
 }

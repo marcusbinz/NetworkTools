@@ -225,6 +225,16 @@ header h1 {
     font-weight: 500;
 }
 
+.tab-external {
+    text-decoration: none;
+    opacity: 0.55;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.tab-external:active {
+    opacity: 0.9;
+}
+
 /* Footer */
 footer {
     text-align: center;
