@@ -9,55 +9,97 @@ function init_passwort_gen(container) {
         special: '!@#$%^&*()_+-=[]{}|;:,.<>?',
     };
 
-    // --- Film Quotes Database ---
+    // --- Film Quotes Database (DE + EN) ---
     const FILM_QUOTES = {
         bond: {
             label: 'James Bond',
             color: '#3b82f6',
-            quotes: [
-                'The name is Bond James Bond',
-                'Shaken not stirred please',
-                'I never miss my target twice',
-                'Nobody does it better than me',
-                'The world is not enough for us',
-                'License to kill and thrill',
-                'Do you expect me to talk No I expect you to die',
-                'A martini shaken not stirred very dry',
-                'I think he got the point dont you',
-                'Keeping the British end up sir',
-            ]
+            quotes: {
+                en: [
+                    'The name is Bond James Bond',
+                    'Shaken not stirred please',
+                    'I never miss my target twice',
+                    'Nobody does it better than me',
+                    'The world is not enough for us',
+                    'License to kill and thrill',
+                    'Do you expect me to talk No I expect you to die',
+                    'A martini shaken not stirred very dry',
+                    'I think he got the point dont you',
+                    'Keeping the British end up sir',
+                ],
+                de: [
+                    'Mein Name ist Bond James Bond',
+                    'Geschuettelt nicht geruehrt bitte',
+                    'Ich verfehle mein Ziel niemals zweimal',
+                    'Niemand macht es besser als ich',
+                    'Die Welt ist nicht genug fuer uns',
+                    'Lizenz zum Toeten und Begeistern',
+                    'Erwarten Sie dass ich rede Nein ich erwarte dass Sie sterben',
+                    'Einen Martini geschuettelt nicht geruehrt sehr trocken',
+                    'Ich glaube er hat es verstanden oder nicht',
+                    'Halten wir die britische Seite oben Sir',
+                ],
+            }
         },
         potter: {
             label: 'Harry Potter',
             color: '#eab308',
-            quotes: [
-                'I solemnly swear that I am up to no good',
-                'It does not do to dwell on dreams and forget to live',
-                'After all this time always said Snape',
-                'Happiness can be found even in the darkest of times',
-                'It is our choices that show what we truly are',
-                'The boy who lived has come to die',
-                'Not my daughter you stupid witch',
-                'Expecto Patronum screamed Harry into the darkness',
-                'Turn to page three hundred and ninety four',
-                'Mischief managed whispered Harry quietly',
-            ]
+            quotes: {
+                en: [
+                    'I solemnly swear that I am up to no good',
+                    'It does not do to dwell on dreams and forget to live',
+                    'After all this time always said Snape',
+                    'Happiness can be found even in the darkest of times',
+                    'It is our choices that show what we truly are',
+                    'The boy who lived has come to die',
+                    'Not my daughter you stupid witch',
+                    'Expecto Patronum screamed Harry into the darkness',
+                    'Turn to page three hundred and ninety four',
+                    'Mischief managed whispered Harry quietly',
+                ],
+                de: [
+                    'Ich schwoere feierlich dass ich ein Tunichtgut bin',
+                    'Es tut nicht gut in Traeumen zu leben und das Leben zu vergessen',
+                    'Nach all dieser Zeit Immer sagte Snape leise',
+                    'Glueck kann selbst in den dunkelsten Zeiten gefunden werden',
+                    'Es sind unsere Entscheidungen die zeigen wer wir wirklich sind',
+                    'Der Junge der ueberlebte ist gekommen um zu sterben',
+                    'Nicht meine Tochter du dumme Hexe',
+                    'Expecto Patronum schrie Harry in die Dunkelheit hinein',
+                    'Schlagen Sie bitte Seite dreihundertvierundneunzig auf',
+                    'Unheil angerichtet fluesterte Harry ganz leise',
+                ],
+            }
         },
         mission: {
             label: 'Mission Impossible',
             color: '#ef4444',
-            quotes: [
-                'Your mission should you choose to accept it',
-                'This message will self destruct in five seconds',
-                'Desperate times require desperate measures my friend',
-                'The only thing that matters is what happens next',
-                'I am not going to lose you over this',
-                'Every search for a hero starts with something broken',
-                'How does it feel to be the hunted one',
-                'We are the last line of defense standing now',
-                'The impossible is what we do best together',
-                'Hunt you down wherever you are hiding tonight',
-            ]
+            quotes: {
+                en: [
+                    'Your mission should you choose to accept it',
+                    'This message will self destruct in five seconds',
+                    'Desperate times require desperate measures my friend',
+                    'The only thing that matters is what happens next',
+                    'I am not going to lose you over this',
+                    'Every search for a hero starts with something broken',
+                    'How does it feel to be the hunted one',
+                    'We are the last line of defense standing now',
+                    'The impossible is what we do best together',
+                    'Hunt you down wherever you are hiding tonight',
+                ],
+                de: [
+                    'Ihre Mission sollten Sie sich entscheiden sie anzunehmen',
+                    'Diese Nachricht wird sich in fuenf Sekunden selbst zerstoeren',
+                    'Verzweifelte Zeiten erfordern verzweifelte Massnahmen mein Freund',
+                    'Das Einzige was zaehlt ist was als Naechstes passiert',
+                    'Ich werde dich deswegen nicht verlieren auf keinen Fall',
+                    'Jede Suche nach einem Helden beginnt mit etwas Zerbrochenem',
+                    'Wie fuehlt es sich an der Gejagte zu sein',
+                    'Wir sind die letzte Verteidigungslinie die jetzt steht',
+                    'Das Unmoegliche ist das was wir am besten zusammen koennen',
+                    'Jage dich egal wo du dich heute Nacht versteckst',
+                ],
+            }
         }
     };
 
@@ -114,6 +156,12 @@ function init_passwort_gen(container) {
         <section class="card pw-quote-card">
             <label>Film-Zitat Passwort</label>
             <p class="pw-quote-desc">Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Leet-Speak Substitutionen.</p>
+
+            <label class="pw-film-label">Sprache</label>
+            <div class="pw-lang-chips" id="pw-lang-chips">
+                <span class="chip pw-lang-chip active" data-lang="de">Deutsch</span>
+                <span class="chip pw-lang-chip" data-lang="en">English</span>
+            </div>
 
             <label class="pw-film-label">Film wählen</label>
             <div class="pw-film-chips" id="pw-film-chips">
@@ -325,6 +373,18 @@ function init_passwort_gen(container) {
         return str.replace(/[&<>"']/g, c => map[c] || c);
     }
 
+    // --- Language Chips ---
+    const langChips = container.querySelectorAll('.pw-lang-chip');
+    let selectedLang = 'de';
+
+    langChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            langChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            selectedLang = chip.dataset.lang;
+        });
+    });
+
     // --- Film Chips ---
     const filmChips = container.querySelectorAll('.pw-film-chip');
     const quoteBtn = document.getElementById('pw-quote-btn');
@@ -363,11 +423,12 @@ function init_passwort_gen(container) {
         const film = FILM_QUOTES[selectedFilm];
         if (!film) return;
 
-        // Pick random quote
+        // Pick random quote in selected language
+        const quotes = film.quotes[selectedLang];
         const rnd = new Uint32Array(1);
         crypto.getRandomValues(rnd);
-        const quoteIndex = rnd[0] % film.quotes.length;
-        const quote = film.quotes[quoteIndex];
+        const quoteIndex = rnd[0] % quotes.length;
+        const quote = quotes[quoteIndex];
 
         // Extract first letters
         const words = quote.split(/\s+/);
@@ -416,8 +477,9 @@ function init_passwort_gen(container) {
         else strength = { label: 'Schwach', color: 'var(--red)', entropy };
 
         // Render source quote
+        const langLabel = selectedLang === 'de' ? 'Deutsch' : 'English';
         const sourceEl = document.getElementById('pw-quote-source');
-        sourceEl.innerHTML = `<span class="pw-quote-film" style="color:${film.color}">${film.label}</span> <span class="pw-quote-text">"${quote}"</span>`;
+        sourceEl.innerHTML = `<span class="pw-quote-film" style="color:${film.color}">${film.label} <span class="pw-quote-lang">(${langLabel})</span></span> <span class="pw-quote-text">"${quote}"</span>`;
 
         // Render breakdown
         const breakdownEl = document.getElementById('pw-quote-breakdown');

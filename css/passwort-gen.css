@@ -226,7 +226,29 @@
 }
 
 .pw-film-label {
-    margin-top: 0 !important;
+    margin-top: 4px !important;
+    margin-bottom: 10px !important;
+}
+
+/* Language chips */
+.pw-lang-chips {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.pw-lang-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.pw-lang-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
 }
 
 /* Film chips */
@@ -272,6 +294,14 @@
     letter-spacing: 0.5px;
     display: block;
     margin-bottom: 4px;
+}
+
+.pw-quote-lang {
+    font-weight: 400;
+    font-size: 10px;
+    opacity: 0.7;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .pw-quote-text {
