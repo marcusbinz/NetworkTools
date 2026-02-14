@@ -50,7 +50,7 @@ body {
     margin: 0 auto;
     padding: 16px;
     padding-top: env(safe-area-inset-top, 16px);
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 16px));
 }
 
 /* Header */
@@ -175,71 +175,146 @@ header h1 {
     }
 }
 
-/* Tab Bar */
-.tab-bar {
+/* Floating Action Button (App Launcher) */
+.launcher-fab {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.35);
+    z-index: 200;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.launcher-fab:active {
+    transform: scale(0.92);
+}
+
+.launcher-fab.active {
+    transform: rotate(45deg);
+    border-radius: 50%;
+}
+
+/* Drawer Overlay */
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 300;
+}
+
+.drawer-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Drawer */
+.drawer {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     background: var(--card);
-    border-top: 1px solid var(--card-border);
-    padding: 8px 4px;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    z-index: 100;
-    scrollbar-width: none;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 12px 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 400;
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
-.tab-bar::-webkit-scrollbar {
-    display: none;
+.drawer.open {
+    transform: translateY(0);
 }
 
-.tab-item {
-    flex: 0 0 auto;
-    min-width: 56px;
+.drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--card-border);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+}
+
+/* Drawer Grid */
+.drawer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.drawer-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    background: none;
-    border: none;
+    gap: 8px;
+    padding: 16px 8px;
+    background: var(--bg);
+    border: 2px solid transparent;
+    border-radius: 14px;
     color: var(--text-dim);
-    font-size: 10px;
     font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 4px 6px;
-    transition: color 0.2s;
+    transition: all 0.2s;
+    text-decoration: none;
 }
 
-.tab-item.active {
+.drawer-item:active {
+    transform: scale(0.95);
+}
+
+.drawer-item.active {
     color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
 }
 
-.tab-icon {
+.drawer-item-icon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.tab-icon svg {
-    width: 20px;
-    height: 20px;
+.drawer-item-icon svg {
+    width: 26px;
+    height: 26px;
 }
 
-.tab-label {
-    font-weight: 500;
+.drawer-item-label {
+    text-align: center;
+    line-height: 1.2;
 }
 
-.tab-external {
-    text-decoration: none;
-    opacity: 0.55;
-    transition: color 0.2s, opacity 0.2s;
+.drawer-item-external {
+    opacity: 0.6;
+    border-style: dashed;
+    border-color: var(--card-border);
 }
 
-.tab-external:active {
+.drawer-item-external:active {
     opacity: 0.9;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Footer */

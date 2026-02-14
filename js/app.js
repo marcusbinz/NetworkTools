@@ -120,12 +120,8 @@ function navigateTo(toolId) {
         initTool(tool.id);
     }
 
-    // Update tab bar
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.tool === tool.id);
-    });
-
     currentToolId = tool.id;
+    updateDrawerActive();
 }
 
 function initTool(toolId) {
@@ -135,40 +131,76 @@ function initTool(toolId) {
     }
 }
 
-// --- External Links in Tab Bar ---
+// --- External Links ---
 const EXTERNAL_LINKS = [
     {
         label: 'MXToolbox',
         url: 'https://mxtoolbox.com/',
-        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+        icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
     },
 ];
 
-// --- Tab Bar ---
-function renderTabBar() {
-    const tabBar = document.getElementById('tab-bar');
+// --- Drawer / App Launcher ---
+const fab = document.getElementById('launcher-fab');
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('drawer-overlay');
+const drawerGrid = document.getElementById('drawer-grid');
+let drawerOpen = false;
 
-    const toolTabs = TOOLS.map(tool => `
-        <button class="tab-item" data-tool="${tool.id}">
-            <span class="tab-icon">${tool.icon}</span>
-            <span class="tab-label">${tool.label}</span>
+function renderDrawer() {
+    const toolItems = TOOLS.map(tool => `
+        <button class="drawer-item" data-tool="${tool.id}">
+            <span class="drawer-item-icon">${tool.icon}</span>
+            <span class="drawer-item-label">${tool.label}</span>
         </button>
     `).join('');
 
-    const externalTabs = EXTERNAL_LINKS.map(link => `
-        <a class="tab-item tab-external" href="${link.url}" target="_blank" rel="noopener">
-            <span class="tab-icon">${link.icon}</span>
-            <span class="tab-label">${link.label}</span>
+    const externalItems = EXTERNAL_LINKS.map(link => `
+        <a class="drawer-item drawer-item-external" href="${link.url}" target="_blank" rel="noopener">
+            <span class="drawer-item-icon">${link.icon}</span>
+            <span class="drawer-item-label">${link.label}</span>
         </a>
     `).join('');
 
-    tabBar.innerHTML = toolTabs + externalTabs;
+    drawerGrid.innerHTML = toolItems + externalItems;
 
-    tabBar.addEventListener('click', (e) => {
-        const tab = e.target.closest('.tab-item:not(.tab-external)');
-        if (tab) navigateTo(tab.dataset.tool);
+    // Tool click handler
+    drawerGrid.addEventListener('click', (e) => {
+        const item = e.target.closest('.drawer-item:not(.drawer-item-external)');
+        if (item) {
+            navigateTo(item.dataset.tool);
+            closeDrawer();
+        }
     });
 }
+
+function openDrawer() {
+    drawerOpen = true;
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    fab.classList.add('active');
+    updateDrawerActive();
+}
+
+function closeDrawer() {
+    drawerOpen = false;
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    fab.classList.remove('active');
+}
+
+function toggleDrawer() {
+    drawerOpen ? closeDrawer() : openDrawer();
+}
+
+function updateDrawerActive() {
+    drawerGrid.querySelectorAll('.drawer-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.tool === currentToolId);
+    });
+}
+
+fab.addEventListener('click', toggleDrawer);
+overlay.addEventListener('click', closeDrawer);
 
 // --- Theme Toggle ---
 const themeToggle = document.getElementById('theme-toggle');
@@ -199,7 +231,7 @@ window.addEventListener('hashchange', () => {
 });
 
 // --- Init ---
-renderTabBar();
+renderDrawer();
 navigateTo(window.location.hash.slice(1) || TOOLS[0].id);
 
 // Register Service Worker
