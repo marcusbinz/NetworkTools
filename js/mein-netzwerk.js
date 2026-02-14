@@ -24,7 +24,7 @@ function init_mein_netzwerk(container) {
                     <span class="result-value" id="net-downlink">—</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">RTT</span>
+                    <span class="result-label">RTT (Round Trip)</span>
                     <span class="result-value" id="net-rtt">—</span>
                 </div>
                 <div class="result-item">
@@ -186,8 +186,8 @@ function init_mein_netzwerk(container) {
             } else {
                 document.getElementById('net-type').textContent = 'Offline';
             }
-            document.getElementById('net-downlink').textContent = 'Siehe Speed-Test';
-            document.getElementById('net-rtt').textContent = 'Siehe Latenz-Test';
+            document.getElementById('net-downlink').textContent = '→ Speed-Test';
+            document.getElementById('net-rtt').textContent = '→ Latenz-Test';
             document.getElementById('net-savedata').textContent = '—';
         }
     }
