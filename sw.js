@@ -1,4 +1,4 @@
-const CACHE_NAME = 'network-tools-v17';
+﻿const CACHE_NAME = 'network-tools-v22';
 const ASSETS = [
     './',
     './index.html',
@@ -48,9 +48,16 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
-// Fetch: cache-first strategy
+// Fetch: network-first for version.json, cache-first for everything else
 self.addEventListener('fetch', event => {
+    if (event.request.url.includes('version.json')) {
+        event.respondWith(
+            fetch(event.request).catch(() => caches.match(event.request))
+        );
+        return;
+    }
     event.respondWith(
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );
 });
+

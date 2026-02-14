@@ -246,3 +246,12 @@ navigateTo(window.location.hash.slice(1) || 'passwort-gen');
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
 }
+
+// Load and display version
+fetch('version.json?_cb=' + Date.now())
+    .then(r => r.json())
+    .then(v => {
+        const el = document.getElementById('footer-version');
+        if (el) el.textContent = `v${v.version} • Build ${v.build} • ${v.date}`;
+    })
+    .catch(() => {});

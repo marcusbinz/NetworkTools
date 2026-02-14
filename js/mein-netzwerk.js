@@ -20,7 +20,7 @@ function init_mein_netzwerk(container) {
                     <span class="result-value" id="net-type">—</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Eff. Bandbreite</span>
+                    <span class="result-label">Bandbreite (API)</span>
                     <span class="result-value" id="net-downlink">—</span>
                 </div>
                 <div class="result-item">
@@ -117,7 +117,7 @@ function init_mein_netzwerk(container) {
         const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 
         if (conn) {
-            // Connection type
+            // Determine connection type intelligently
             const typeMap = {
                 'wifi': 'WiFi',
                 'cellular': 'Mobilfunk',
@@ -127,30 +127,43 @@ function init_mein_netzwerk(container) {
                 'other': 'Sonstige',
                 'unknown': 'Unbekannt',
             };
-            const effectiveMap = {
-                'slow-2g': 'Slow 2G',
-                '2g': '2G',
-                '3g': '3G',
-                '4g': '4G / LTE+',
-            };
 
             let typeStr = '—';
+
             if (conn.type && conn.type !== 'unknown') {
+                // Real connection type is available (e.g. 'ethernet', 'wifi', 'cellular')
                 typeStr = typeMap[conn.type] || conn.type;
-            }
-            if (conn.effectiveType) {
-                const eff = effectiveMap[conn.effectiveType] || conn.effectiveType;
-                if (typeStr === '—') {
-                    typeStr = eff;
+            } else if (conn.effectiveType) {
+                // Only effectiveType available (browser estimate based on speed)
+                // effectiveType '4g' just means "fast" — NOT actual 4G/LTE
+                if (conn.effectiveType === '4g') {
+                    // High speed + no explicit type = likely wired or fast WiFi
+                    if (conn.downlink >= 10) {
+                        typeStr = 'Kabelgebunden / Schnell';
+                    } else {
+                        typeStr = 'Schnelle Verbindung';
+                    }
+                } else if (conn.effectiveType === '3g') {
+                    typeStr = 'Mittlere Verbindung';
                 } else {
-                    typeStr += ` (${eff})`;
+                    typeStr = 'Langsame Verbindung';
                 }
             }
+
+            // Add cellular sub-type if actually on mobile
+            if (conn.type === 'cellular' && conn.effectiveType) {
+                const cellMap = { 'slow-2g': '2G', '2g': '2G', '3g': '3G', '4g': 'LTE' };
+                typeStr += ` (${cellMap[conn.effectiveType] || conn.effectiveType})`;
+            }
+
             document.getElementById('net-type').textContent = typeStr;
 
-            // Downlink
+            // Downlink — browser estimate (capped at 10 Mbit/s by spec!)
             if (conn.downlink !== undefined) {
-                document.getElementById('net-downlink').textContent = conn.downlink + ' Mbit/s';
+                const dlText = conn.downlink >= 10
+                    ? '≥ 10 Mbit/s (API-Limit)'
+                    : conn.downlink + ' Mbit/s';
+                document.getElementById('net-downlink').textContent = dlText;
             }
 
             // RTT
