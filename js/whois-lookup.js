@@ -49,9 +49,6 @@ function init_whois_lookup(container) {
     const errorMsg = document.getElementById('whois-error-msg');
     const resultsContainer = document.getElementById('whois-results-container');
 
-    // --- RDAP Bootstrap Cache (TLD → RDAP server URL) ---
-    let rdapBootstrap = null;
-
     // CORS-verified RDAP servers (direct access without proxy)
     const RDAP_CORS_SERVERS = {
         'ch': 'https://rdap.nic.ch/domain/',
@@ -60,48 +57,35 @@ function init_whois_lookup(container) {
         'fr': 'https://rdap.nic.fr/domain/',
     };
 
-    // CORS proxy for RDAP servers that don't allow browser requests
+    // Known ccTLD RDAP servers (many NOT in IANA Bootstrap!)
+    // These need CORS proxy since they don't send Access-Control-Allow-Origin
+    const CCTLD_RDAP_SERVERS = {
+        'de': 'https://rdap.denic.de/domain/',
+        'at': 'https://rdap.nic.at/domain/',
+        'be': 'https://rdap.dns.be/domain/',
+        'eu': 'https://rdap.eu/domain/',
+        'it': 'https://rdap.nic.it/domain/',
+        'uk': 'https://rdap.nominet.uk/uk/domain/',
+        'se': 'https://rdap.iis.se/domain/',
+        'no': 'https://rdap.norid.no/domain/',
+        'dk': 'https://rdap.dk-hostmaster.dk/domain/',
+        'fi': 'https://rdap.fi/domain/',
+        'pl': 'https://rdap.dns.pl/domain/',
+        'cz': 'https://rdap.nic.cz/domain/',
+        'br': 'https://rdap.registro.br/domain/',
+        'jp': 'https://rdap.jprs.jp/domain/',
+        'kr': 'https://rdap.kisa.or.kr/domain/',
+        'cn': 'https://rdap.cnnic.cn/domain/',
+        'za': 'https://rdap.registry.net.za/domain/',
+        'nz': 'https://rdap.nzrs.net.nz/domain/',
+        'au': 'https://rdap.cctld.au/rdap/domain/',
+    };
+
+    // CORS proxy for RDAP servers that block browser requests
     const CORS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
 
-    // Load IANA RDAP Bootstrap (TLD → server mapping)
-    async function loadBootstrap() {
-        if (rdapBootstrap) return;
-        try {
-            const res = await fetch('https://data.iana.org/rdap/dns.json');
-            if (res.ok) {
-                const data = await res.json();
-                rdapBootstrap = {};
-                for (const [tlds, urls] of data.services) {
-                    for (const tld of tlds) {
-                        rdapBootstrap[tld] = urls[0];
-                    }
-                }
-            }
-        } catch (e) {
-            // Bootstrap not available — will rely on rdap.org + proxy fallback
-        }
-    }
-
-    // Find native RDAP server URL for a TLD via IANA Bootstrap
-    function getBootstrapUrl(domain) {
-        if (!rdapBootstrap) return null;
-        const parts = domain.split('.');
-        // Try compound TLD (co.uk, com.au, etc.)
-        if (parts.length >= 3) {
-            const compound = parts.slice(-2).join('.');
-            if (rdapBootstrap[compound]) {
-                return rdapBootstrap[compound].replace(/\/$/, '') + '/domain/' + domain;
-            }
-        }
-        const tld = parts[parts.length - 1];
-        if (rdapBootstrap[tld]) {
-            return rdapBootstrap[tld].replace(/\/$/, '') + '/domain/' + domain;
-        }
-        return null;
-    }
-
     // --- WHOIS via RDAP ---
-    // Strategy: rdap.org → CORS-verified servers → CORS-proxy + IANA bootstrap
+    // Strategy: CORS-verified → rdap.org → CORS-proxy + known ccTLD server
     async function queryRDAP(domain) {
         const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
         const parts = domain.split('.');
@@ -125,16 +109,15 @@ function init_whois_lookup(container) {
             if (e.name === 'AbortError') throw e;
         }
 
-        // 3. Fallback: IANA Bootstrap + CORS proxy for ccTLDs (.de, .at, .eu, etc.)
-        await loadBootstrap();
-        const nativeUrl = getBootstrapUrl(domain);
-        if (nativeUrl) {
+        // 3. Fallback: Known ccTLD server via CORS proxy
+        const ccServer = CCTLD_RDAP_SERVERS[tld];
+        if (ccServer) {
             try {
+                const nativeUrl = ccServer + domain;
                 const proxyUrl = CORS_PROXY + encodeURIComponent(nativeUrl);
                 const res = await fetch(proxyUrl, { signal });
                 if (res.ok) {
                     const data = await res.json();
-                    // codetabs returns error object on failure
                     if (data.Error || data.error) throw new Error(data.Error || data.error);
                     return data;
                 }
