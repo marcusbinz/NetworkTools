@@ -448,7 +448,7 @@ function init_netzwerk_wiki(container) {
             <label class="wiki-cat-label">Kategorie</label>
             <div class="wiki-cat-chips" id="wiki-cat-chips">
                 ${Object.entries(CATEGORIES).map(([key, cat]) =>
-                    `<span class="chip wiki-cat-chip${key === 'all' ? ' active' : ''}" data-cat="${key}">${cat.label}</span>`
+                    `<span class="chip wiki-cat-chip${key === 'all' ? ' active' : ''}" data-cat="${key}" data-color="${cat.color}">${cat.label}</span>`
                 ).join('')}
             </div>
         </section>
@@ -524,16 +524,35 @@ function init_netzwerk_wiki(container) {
 
     // --- Event Listeners ---
 
-    // Category chips
+    // Category chips — with per-category color
+    function updateChipColors() {
+        catChips.forEach(c => {
+            if (c.classList.contains('active')) {
+                const color = c.dataset.color;
+                c.style.color = color;
+                c.style.borderColor = color;
+                c.style.background = `${color}15`;
+            } else {
+                c.style.color = '';
+                c.style.borderColor = '';
+                c.style.background = '';
+            }
+        });
+    }
+
     catChips.forEach(chip => {
         chip.addEventListener('click', () => {
             catChips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
             selectedCat = chip.dataset.cat;
             expandedId = null;
+            updateChipColors();
             renderList();
         });
     });
+
+    // Apply initial chip colors
+    updateChipColors();
 
     // Search
     searchInput.addEventListener('input', () => {

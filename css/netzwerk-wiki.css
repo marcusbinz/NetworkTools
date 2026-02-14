@@ -56,9 +56,8 @@
 }
 
 .wiki-cat-chip.active {
-    background: var(--accent-glow);
-    border-color: var(--accent);
-    color: var(--accent);
+    /* Colors set dynamically via JS (per-category) */
+    font-weight: 600;
 }
 
 /* Result Card */
