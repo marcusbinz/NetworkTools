@@ -282,18 +282,22 @@ function init_mein_netzwerk(container) {
         return data;
     }
 
-    // Measure a single download and return Mbit/s
-    async function measureDownload(bytes, signal) {
-        const url = `https://speed.cloudflare.com/__down?bytes=${bytes}&_cb=${Date.now()}`;
+    // Download with PARALLEL streams to saturate fast connections
+    // Returns total Mbit/s across all streams
+    async function measureDownloadParallel(bytesPerStream, streams, signal) {
+        const urls = Array.from({ length: streams }, (_, i) =>
+            `https://speed.cloudflare.com/__down?bytes=${bytesPerStream}&_cb=${Date.now()}_${i}`
+        );
+        const totalBytes = bytesPerStream * streams;
         const start = performance.now();
-        const res = await fetch(url, { cache: 'no-store', signal });
-        await res.arrayBuffer();
+        await Promise.all(urls.map(url =>
+            fetch(url, { cache: 'no-store', signal }).then(r => r.arrayBuffer())
+        ));
         const ms = performance.now() - start;
-        return (bytes * 8) / (ms / 1000) / 1e6;
+        return (totalBytes * 8) / (ms / 1000) / 1e6;
     }
 
-    // Measure a single upload and return Mbit/s
-    // Uses Cloudflare speed endpoint with proper content type
+    // Upload measurement via Cloudflare
     async function measureUpload(bytes, signal) {
         const blob = new Blob([generateRandomData(bytes)]);
         const start = performance.now();
@@ -302,7 +306,6 @@ function init_mein_netzwerk(container) {
             body: blob,
             signal,
         });
-        // Even if CORS blocks reading the response, the upload happened
         try { await res.text(); } catch {}
         const ms = performance.now() - start;
         return (bytes * 8) / (ms / 1000) / 1e6;
@@ -319,24 +322,31 @@ function init_mein_netzwerk(container) {
         fill.style.width = '0%';
         fill.style.background = '';
 
-        // Progressive download sizes (ramp up for fast connections)
-        const downSizes = [1e6, 5e6, 10e6, 25e6];   // 1, 5, 10, 25 MB
-        const upSizes   = [1e6, 2e6, 5e6];           // 1, 2, 5 MB
+        // Download: parallel streams with increasing sizes
+        // Each round uses multiple simultaneous connections like speedtest.net
+        const downRounds = [
+            { bytesPerStream: 2e6,  streams: 4, label: 'Download 1/4 – Aufwärmen' },
+            { bytesPerStream: 5e6,  streams: 6, label: 'Download 2/4 – Messen' },
+            { bytesPerStream: 10e6, streams: 6, label: 'Download 3/4 – Messen' },
+            { bytesPerStream: 10e6, streams: 8, label: 'Download 4/4 – Maximum' },
+        ];
 
-        const totalSteps = downSizes.length + upSizes.length;
+        const upSizes = [1e6, 2e6, 5e6];
+        const totalSteps = downRounds.length + upSizes.length;
         const downSpeeds = [];
         const upSpeeds = [];
         let uploadWorks = true;
 
         try {
-            // --- Download Phase ---
-            for (let i = 0; i < downSizes.length; i++) {
-                const bytes = downSizes[i];
-                const mb = (bytes / 1e6).toFixed(0);
-                status.textContent = `Download ${i + 1}/${downSizes.length} (${mb} MB)`;
+            // --- Download Phase (parallel streams) ---
+            for (let i = 0; i < downRounds.length; i++) {
+                const round = downRounds[i];
+                status.textContent = round.label;
                 fill.style.width = ((i / totalSteps) * 100) + '%';
 
-                const mbps = await measureDownload(bytes, _netAbortController.signal);
+                const mbps = await measureDownloadParallel(
+                    round.bytesPerStream, round.streams, _netAbortController.signal
+                );
                 downSpeeds.push(mbps);
             }
 
@@ -344,7 +354,7 @@ function init_mein_netzwerk(container) {
             for (let i = 0; i < upSizes.length; i++) {
                 const bytes = upSizes[i];
                 const mb = (bytes / 1e6).toFixed(0);
-                const step = downSizes.length + i;
+                const step = downRounds.length + i;
                 status.textContent = `Upload ${i + 1}/${upSizes.length} (${mb} MB)`;
                 fill.style.width = ((step / totalSteps) * 100) + '%';
 
@@ -361,10 +371,9 @@ function init_mein_netzwerk(container) {
             fill.style.width = '100%';
             status.textContent = 'Fertig!';
 
-            // Skip first measurement (warmup) for average
-            const avgDown = downSpeeds.length > 1
-                ? downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1)
-                : downSpeeds[0] || 0;
+            // Skip warmup round (index 0), average the rest
+            const measured = downSpeeds.slice(1);
+            const avgDown = measured.reduce((s, v) => s + v, 0) / measured.length;
             const peakDown = Math.max(...downSpeeds);
 
             let avgUp = 0, peakUp = 0;
