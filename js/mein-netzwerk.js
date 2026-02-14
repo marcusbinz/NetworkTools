@@ -177,23 +177,62 @@ function init_mein_netzwerk(container) {
     updateConnectionInfo();
 
     // --- Public IP + Geolocation ---
+    const IP_APIS = [
+        {
+            url: 'https://api.ipify.org?format=json',
+            parseIP: (data) => data.ip,
+        },
+        {
+            url: 'https://api.seeip.org/jsonip',
+            parseIP: (data) => data.ip,
+        },
+        {
+            url: 'https://api64.ipify.org?format=json',
+            parseIP: (data) => data.ip,
+        },
+    ];
+
     async function loadIPInfo() {
         const loading = document.getElementById('net-ip-loading');
         const grid = document.getElementById('net-ip-grid');
 
         try {
-            // Get IPv4
-            const ipRes = await fetch('https://api.ipify.org?format=json', {
-                signal: _netAbortController.signal
-            });
-            const ipData = await ipRes.json();
-            const ip = ipData.ip;
+            // Try multiple IP APIs with fallback
+            let ip = null;
+            for (const api of IP_APIS) {
+                try {
+                    const res = await fetch(api.url, {
+                        signal: _netAbortController.signal,
+                        cache: 'no-store',
+                    });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    ip = api.parseIP(data);
+                    if (ip) break;
+                } catch (e) {
+                    if (e.name === 'AbortError') throw e;
+                    // Try next API
+                }
+            }
+
+            if (!ip) throw new Error('Keine IP-API erreichbar');
 
             // Get geolocation
-            const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
-                signal: _netAbortController.signal
-            });
-            const geo = await geoRes.json();
+            let geo = {};
+            try {
+                const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+                    signal: _netAbortController.signal,
+                    cache: 'no-store',
+                });
+                if (geoRes.ok) {
+                    geo = await geoRes.json();
+                    // ipapi.co rate limit returns { error: true }
+                    if (geo.error) geo = {};
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') throw e;
+                // Geolocation optional — continue without it
+            }
 
             loading.style.display = 'none';
             grid.style.display = 'grid';
@@ -222,7 +261,7 @@ function init_mein_netzwerk(container) {
             `;
         } catch (err) {
             if (err.name === 'AbortError') return;
-            loading.innerHTML = '<span style="color:var(--red)">IP konnte nicht ermittelt werden</span>';
+            loading.innerHTML = `<span style="color:var(--red)">IP konnte nicht ermittelt werden</span>`;
         }
     }
 
@@ -261,6 +300,10 @@ function init_mein_netzwerk(container) {
 
         const fill = document.getElementById('net-speed-bar-fill');
         const status = document.getElementById('net-speed-status');
+
+        // Reset progress bar (in case previous run had error)
+        fill.style.width = '0%';
+        fill.style.background = '';
 
         // --- Download Tests ---
         const downTests = [
@@ -367,7 +410,7 @@ function init_mein_netzwerk(container) {
             if (err.name === 'AbortError') return;
 
             // If upload failed but download worked, show partial results
-            if (downSpeeds.length >= 2 && err.message === 'NO_UPLOAD_ENDPOINT') {
+            if (downSpeeds.length >= 2) {
                 const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
                 const peakDown = Math.max(...downSpeeds);
 
@@ -383,7 +426,7 @@ function init_mein_netzwerk(container) {
                     `;
                 }, 300);
             } else {
-                status.textContent = 'Fehler beim Speed-Test';
+                status.textContent = 'Fehler: ' + (err.message || 'Netzwerk nicht erreichbar');
                 fill.style.background = 'var(--red)';
             }
         }
