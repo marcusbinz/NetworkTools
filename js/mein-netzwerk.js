@@ -175,9 +175,19 @@ function init_mein_netzwerk(container) {
                 conn.addEventListener('change', _netConnectionHandler);
             }
         } else {
-            document.getElementById('net-type').textContent = 'Nicht verfügbar';
-            document.getElementById('net-downlink').textContent = '—';
-            document.getElementById('net-rtt').textContent = '—';
+            // Safari / iOS: Network Information API not supported
+            // Detect platform and show what we can
+            const ua = navigator.userAgent;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+            const isOnline = navigator.onLine;
+
+            if (isOnline) {
+                document.getElementById('net-type').textContent = isMobile ? 'WiFi / Mobil' : 'Verbunden';
+            } else {
+                document.getElementById('net-type').textContent = 'Offline';
+            }
+            document.getElementById('net-downlink').textContent = 'Siehe Speed-Test';
+            document.getElementById('net-rtt').textContent = 'Siehe Latenz-Test';
             document.getElementById('net-savedata').textContent = '—';
         }
     }

@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v23';
+﻿const CACHE_NAME = 'network-tools-v24';
 const ASSETS = [
     './',
     './index.html',
@@ -60,5 +60,6 @@ self.addEventListener('fetch', event => {
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );
 });
+
 
 
