@@ -212,3 +212,105 @@
     color: var(--green);
     border-color: var(--green);
 }
+
+/* === Film Quote Section === */
+.pw-quote-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.pw-quote-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: -4px 0 16px 0;
+}
+
+.pw-film-label {
+    margin-top: 0 !important;
+}
+
+/* Film chips */
+.pw-film-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.pw-film-chip {
+    font-size: 12px;
+    padding: 5px 12px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.pw-film-chip.active {
+    font-weight: 600;
+}
+
+.pw-quote-btn {
+    background: linear-gradient(135deg, var(--purple), var(--accent)) !important;
+}
+
+/* Quote Result Card */
+.pw-quote-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.pw-quote-source {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pw-quote-film {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.pw-quote-text {
+    color: var(--text);
+    font-style: italic;
+}
+
+/* Breakdown */
+.pw-quote-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.pw-breakdown-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    background: var(--bg);
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+.pw-breakdown-word {
+    color: var(--text-dim);
+    font-size: 10px;
+}
+
+.pw-breakdown-arrow {
+    color: var(--text-dim);
+    font-size: 9px;
+}
+
+.pw-breakdown-item .pw-char-upper,
+.pw-breakdown-item .pw-char-lower,
+.pw-breakdown-item .pw-char-special {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+    font-size: 12px;
+}

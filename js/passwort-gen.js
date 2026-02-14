@@ -9,6 +9,64 @@ function init_passwort_gen(container) {
         special: '!@#$%^&*()_+-=[]{}|;:,.<>?',
     };
 
+    // --- Film Quotes Database ---
+    const FILM_QUOTES = {
+        bond: {
+            label: 'James Bond',
+            color: '#3b82f6',
+            quotes: [
+                'The name is Bond James Bond',
+                'Shaken not stirred please',
+                'I never miss my target twice',
+                'Nobody does it better than me',
+                'The world is not enough for us',
+                'License to kill and thrill',
+                'Do you expect me to talk No I expect you to die',
+                'A martini shaken not stirred very dry',
+                'I think he got the point dont you',
+                'Keeping the British end up sir',
+            ]
+        },
+        potter: {
+            label: 'Harry Potter',
+            color: '#eab308',
+            quotes: [
+                'I solemnly swear that I am up to no good',
+                'It does not do to dwell on dreams and forget to live',
+                'After all this time always said Snape',
+                'Happiness can be found even in the darkest of times',
+                'It is our choices that show what we truly are',
+                'The boy who lived has come to die',
+                'Not my daughter you stupid witch',
+                'Expecto Patronum screamed Harry into the darkness',
+                'Turn to page three hundred and ninety four',
+                'Mischief managed whispered Harry quietly',
+            ]
+        },
+        mission: {
+            label: 'Mission Impossible',
+            color: '#ef4444',
+            quotes: [
+                'Your mission should you choose to accept it',
+                'This message will self destruct in five seconds',
+                'Desperate times require desperate measures my friend',
+                'The only thing that matters is what happens next',
+                'I am not going to lose you over this',
+                'Every search for a hero starts with something broken',
+                'How does it feel to be the hunted one',
+                'We are the last line of defense standing now',
+                'The impossible is what we do best together',
+                'Hunt you down wherever you are hiding tonight',
+            ]
+        }
+    };
+
+    // Leet-Speak substitutions for passphrase generation
+    const LEET_MAP = {
+        'a': '@', 'e': '3', 'i': '!', 'o': '0', 's': '$',
+        't': '7', 'g': '9', 'b': '8', 'l': '1',
+    };
+
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card pw-input-card">
@@ -53,12 +111,39 @@ function init_passwort_gen(container) {
             </button>
         </section>
 
+        <section class="card pw-quote-card">
+            <label>Film-Zitat Passwort</label>
+            <p class="pw-quote-desc">Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Leet-Speak Substitutionen.</p>
+
+            <label class="pw-film-label">Film wählen</label>
+            <div class="pw-film-chips" id="pw-film-chips">
+                ${Object.entries(FILM_QUOTES).map(([key, film], i) =>
+                    `<span class="chip pw-film-chip${i === 0 ? ' active' : ''}" data-film="${key}" data-color="${film.color}">${film.label}</span>`
+                ).join('')}
+            </div>
+
+            <button class="pw-generate-btn pw-quote-btn" id="pw-quote-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Zitat-Passwort generieren
+            </button>
+        </section>
+
         <section class="card pw-result-card" id="pw-result-card" style="display:none;">
             <div class="pw-result-header">
                 <h3>Generierte Passwörter</h3>
                 <span class="pw-strength" id="pw-strength"></span>
             </div>
             <div id="pw-results"></div>
+        </section>
+
+        <section class="card pw-quote-result-card" id="pw-quote-result-card" style="display:none;">
+            <div class="pw-result-header">
+                <h3>Zitat-Passwort</h3>
+                <span class="pw-strength" id="pw-quote-strength"></span>
+            </div>
+            <div class="pw-quote-source" id="pw-quote-source"></div>
+            <div class="pw-quote-breakdown" id="pw-quote-breakdown"></div>
+            <div id="pw-quote-results"></div>
         </section>
 
         <section class="card error-card" id="pw-error-card" style="display:none;">
@@ -240,8 +325,138 @@ function init_passwort_gen(container) {
         return str.replace(/[&<>"']/g, c => map[c] || c);
     }
 
+    // --- Film Chips ---
+    const filmChips = container.querySelectorAll('.pw-film-chip');
+    const quoteBtn = document.getElementById('pw-quote-btn');
+    const quoteResultCard = document.getElementById('pw-quote-result-card');
+    let selectedFilm = 'bond';
+
+    function updateFilmChipColors() {
+        filmChips.forEach(c => {
+            const color = c.dataset.color;
+            if (c.classList.contains('active')) {
+                c.style.color = '#fff';
+                c.style.borderColor = color;
+                c.style.background = color;
+            } else {
+                c.style.color = color;
+                c.style.borderColor = `${color}50`;
+                c.style.background = `${color}10`;
+            }
+        });
+    }
+
+    filmChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            filmChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            selectedFilm = chip.dataset.film;
+            updateFilmChipColors();
+        });
+    });
+
+    // Init chip colors
+    updateFilmChipColors();
+
+    // --- Generate Quote Password ---
+    function generateQuotePassword() {
+        const film = FILM_QUOTES[selectedFilm];
+        if (!film) return;
+
+        // Pick random quote
+        const rnd = new Uint32Array(1);
+        crypto.getRandomValues(rnd);
+        const quoteIndex = rnd[0] % film.quotes.length;
+        const quote = film.quotes[quoteIndex];
+
+        // Extract first letters
+        const words = quote.split(/\s+/);
+        let initials = words.map(w => w[0]).join('');
+
+        // Build password with leet-speak substitutions
+        const rndCase = new Uint32Array(initials.length);
+        crypto.getRandomValues(rndCase);
+
+        let password = '';
+        const breakdown = [];
+
+        for (let i = 0; i < initials.length; i++) {
+            const ch = initials[i].toLowerCase();
+            const leetChar = LEET_MAP[ch];
+
+            if (leetChar && rndCase[i] % 3 === 0) {
+                // ~33% chance: leet substitution
+                password += leetChar;
+                breakdown.push({ word: words[i], char: leetChar, type: 'leet' });
+            } else if (rndCase[i] % 2 === 0) {
+                // ~50% remaining: uppercase
+                password += ch.toUpperCase();
+                breakdown.push({ word: words[i], char: ch.toUpperCase(), type: 'upper' });
+            } else {
+                // lowercase
+                password += ch;
+                breakdown.push({ word: words[i], char: ch, type: 'lower' });
+            }
+        }
+
+        // Append 2 random digits + 1 special char for extra strength
+        const extraRnd = new Uint32Array(3);
+        crypto.getRandomValues(extraRnd);
+        const digit1 = CHARSETS.digits[extraRnd[0] % CHARSETS.digits.length];
+        const digit2 = CHARSETS.digits[extraRnd[1] % CHARSETS.digits.length];
+        const specialChar = '!@#$%&*'[extraRnd[2] % 7];
+        password += digit1 + digit2 + specialChar;
+
+        // Calculate strength
+        const entropy = Math.floor(password.length * Math.log2(72)); // mixed charset ~72
+        let strength;
+        if (entropy >= 128) strength = { label: 'Sehr stark', color: 'var(--green)', entropy };
+        else if (entropy >= 80) strength = { label: 'Stark', color: 'var(--accent)', entropy };
+        else if (entropy >= 60) strength = { label: 'Mittel', color: 'var(--orange)', entropy };
+        else strength = { label: 'Schwach', color: 'var(--red)', entropy };
+
+        // Render source quote
+        const sourceEl = document.getElementById('pw-quote-source');
+        sourceEl.innerHTML = `<span class="pw-quote-film" style="color:${film.color}">${film.label}</span> <span class="pw-quote-text">"${quote}"</span>`;
+
+        // Render breakdown
+        const breakdownEl = document.getElementById('pw-quote-breakdown');
+        breakdownEl.innerHTML = breakdown.map(b => {
+            const cls = b.type === 'leet' ? 'pw-char-special' : b.type === 'upper' ? 'pw-char-upper' : 'pw-char-lower';
+            return `<span class="pw-breakdown-item"><span class="pw-breakdown-word">${b.word}</span><span class="pw-breakdown-arrow">&rarr;</span><span class="${cls}">${escapeHtml(b.char)}</span></span>`;
+        }).join('');
+
+        // Render strength
+        const strengthEl = document.getElementById('pw-quote-strength');
+        strengthEl.textContent = `${strength.label} (${strength.entropy} Bit)`;
+        strengthEl.style.color = strength.color;
+        strengthEl.style.background = strength.color + '15';
+        strengthEl.style.borderColor = strength.color + '40';
+
+        // Render password
+        const resultsEl = document.getElementById('pw-quote-results');
+        resultsEl.innerHTML = `
+            <div class="pw-password-row">
+                <div class="pw-password-text">${colorizePassword(password)}</div>
+                <button class="pw-copy-btn" id="pw-quote-copy" title="Kopieren">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+            </div>
+        `;
+
+        document.getElementById('pw-quote-copy').addEventListener('click', function() {
+            copyToClipboard(password, this);
+        });
+
+        quoteResultCard.style.display = 'block';
+        quoteResultCard.style.animation = 'none';
+        quoteResultCard.offsetHeight;
+        quoteResultCard.style.animation = 'slideUp 0.3s ease-out';
+    }
+
     // --- Event Listeners ---
     generateBtn.addEventListener('click', generate);
+    quoteBtn.addEventListener('click', generateQuotePassword);
 
     // Generate on load
     generate();
