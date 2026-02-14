@@ -1,4 +1,4 @@
-const CACHE_NAME = 'network-tools-v2';
+const CACHE_NAME = 'network-tools-v3';
 const ASSETS = [
     './',
     './index.html',
@@ -9,9 +9,11 @@ const ASSETS = [
     './css/shared.css',
     './css/ip-rechner.css',
     './css/mx-lookup.css',
+    './css/dns-lookup.css',
     './js/app.js',
     './js/ip-rechner.js',
-    './js/mx-lookup.js'
+    './js/mx-lookup.js',
+    './js/dns-lookup.js'
 ];
 
 // Install: cache all assets

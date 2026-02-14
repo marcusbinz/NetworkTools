@@ -1,0 +1,213 @@
+/* === DNS Lookup Tool Styles === */
+
+/* Input */
+.dns-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.dns-type-label {
+    margin-top: 16px !important;
+}
+
+.dns-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#dns-domain {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#dns-domain:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#dns-domain::placeholder {
+    color: var(--input-placeholder);
+}
+
+.dns-search-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.dns-search-btn:active {
+    transform: scale(0.95);
+}
+
+/* Type chips */
+.dns-type-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.dns-type-chip {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    padding: 5px 10px;
+    transition: all 0.2s;
+}
+
+.dns-type-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.dns-examples {
+    margin-top: 12px;
+}
+
+/* Loading */
+.dns-loading {
+    animation: slideUp 0.3s ease-out;
+}
+
+.dns-spinner-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+    font-size: 14px;
+}
+
+.dns-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Result Card */
+.dns-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.dns-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dns-result-header h3 {
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+.dns-total-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Sections */
+.dns-section {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.dns-section:last-child {
+    margin-bottom: 0;
+}
+
+.dns-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.dns-type-badge {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+.dns-section-count {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* Record rows */
+.dns-record-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px solid var(--card-border);
+}
+
+.dns-record-row:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.dns-record-data {
+    flex: 1;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    word-break: break-all;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
+.dns-record-ttl {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    white-space: nowrap;
+    padding-top: 2px;
+}
+
+.dns-mx-prio {
+    display: inline-block;
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+}
