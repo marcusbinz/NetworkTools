@@ -524,18 +524,18 @@ function init_netzwerk_wiki(container) {
 
     // --- Event Listeners ---
 
-    // Category chips — with per-category color
+    // Category chips — always show category color, active = filled background
     function updateChipColors() {
         catChips.forEach(c => {
+            const color = c.dataset.color;
             if (c.classList.contains('active')) {
-                const color = c.dataset.color;
-                c.style.color = color;
+                c.style.color = '#fff';
                 c.style.borderColor = color;
-                c.style.background = `${color}15`;
+                c.style.background = color;
             } else {
-                c.style.color = '';
-                c.style.borderColor = '';
-                c.style.background = '';
+                c.style.color = color;
+                c.style.borderColor = `${color}50`;
+                c.style.background = `${color}10`;
             }
         });
     }
