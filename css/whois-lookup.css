@@ -1,0 +1,152 @@
+/* === WHOIS Lookup Tool Styles === */
+
+/* Input */
+.whois-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.whois-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#whois-domain {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#whois-domain:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#whois-domain::placeholder {
+    color: var(--input-placeholder);
+}
+
+.whois-search-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.whois-search-btn:active {
+    transform: scale(0.95);
+}
+
+.whois-examples {
+    margin-top: 12px;
+}
+
+/* Loading */
+.whois-loading {
+    animation: slideUp 0.3s ease-out;
+}
+
+.whois-spinner-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+    font-size: 14px;
+}
+
+.whois-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Result Card */
+.whois-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.whois-result-header {
+    margin-bottom: 16px;
+}
+
+.whois-result-header h3 {
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+/* Sections */
+.whois-section {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.whois-section:last-child {
+    margin-bottom: 0;
+}
+
+.whois-section-header {
+    margin-bottom: 10px;
+}
+
+.whois-section-badge {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+/* Fields */
+.whois-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 6px 0;
+    border-top: 1px solid var(--card-border);
+}
+
+.whois-field:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.whois-field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+    padding-top: 1px;
+}
+
+.whois-field-value {
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    word-break: break-all;
+    text-align: right;
+}

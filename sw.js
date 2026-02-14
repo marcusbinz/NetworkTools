@@ -1,4 +1,4 @@
-const CACHE_NAME = 'network-tools-v4';
+const CACHE_NAME = 'network-tools-v5';
 const ASSETS = [
     './',
     './index.html',
@@ -10,10 +10,22 @@ const ASSETS = [
     './css/ip-rechner.css',
     './css/mx-lookup.css',
     './css/dns-lookup.css',
+    './css/whois-lookup.css',
+    './css/port-referenz.css',
+    './css/ipv6-rechner.css',
+    './css/blacklist-check.css',
+    './css/passwort-gen.css',
+    './css/ping-test.css',
     './js/app.js',
     './js/ip-rechner.js',
     './js/mx-lookup.js',
-    './js/dns-lookup.js'
+    './js/dns-lookup.js',
+    './js/whois-lookup.js',
+    './js/port-referenz.js',
+    './js/ipv6-rechner.js',
+    './js/blacklist-check.js',
+    './js/passwort-gen.js',
+    './js/ping-test.js'
 ];
 
 // Install: cache all assets

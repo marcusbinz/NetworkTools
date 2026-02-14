@@ -1,0 +1,194 @@
+/* === IPv6-Rechner Tool Styles === */
+
+/* Input */
+.v6-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.v6-prefix-label {
+    margin-top: 16px !important;
+}
+
+.v6-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#v6-input {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#v6-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#v6-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.v6-calc-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.v6-calc-btn:active {
+    transform: scale(0.95);
+}
+
+/* Prefix chips */
+.v6-prefix-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.v6-prefix-chip {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    padding: 5px 10px;
+    transition: all 0.2s;
+}
+
+.v6-prefix-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.v6-examples {
+    margin-top: 12px;
+}
+
+/* Result Card */
+.v6-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.v6-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.v6-result-header h3 {
+    font-size: 18px;
+    color: var(--accent);
+}
+
+.v6-type-badge {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+/* Format section */
+.v6-format-section {
+    margin-top: 16px;
+}
+
+.v6-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.v6-format-block {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+}
+
+.v6-format-block:last-child {
+    margin-bottom: 0;
+}
+
+.v6-format-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.v6-format-value {
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+    word-break: break-all;
+}
+
+/* Binary section */
+.v6-binary-section {
+    margin-top: 16px;
+}
+
+.v6-binary-grid {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.v6-binary-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.v6-binary-row:last-child {
+    border-bottom: none;
+}
+
+.v6-binary-hex {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    min-width: 36px;
+    text-align: right;
+}
+
+.v6-binary-bits {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+}
+
+.v6-binary-bits.v6-network-bits {
+    color: var(--accent);
+    font-weight: 600;
+}

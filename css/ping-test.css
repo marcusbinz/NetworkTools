@@ -1,0 +1,235 @@
+/* === Ping/Latenz-Test Tool Styles === */
+
+/* Input */
+.ping-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.ping-count-label {
+    margin-top: 16px !important;
+}
+
+.ping-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#ping-host {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#ping-host:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#ping-host::placeholder {
+    color: var(--input-placeholder);
+}
+
+.ping-start-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.ping-start-btn:active {
+    transform: scale(0.95);
+}
+
+.ping-start-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Count chips */
+.ping-count-chips {
+    display: flex;
+    gap: 6px;
+}
+
+.ping-count-chip {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    padding: 5px 12px;
+    transition: all 0.2s;
+}
+
+.ping-count-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.ping-examples {
+    margin-top: 12px;
+}
+
+/* Result Card */
+.ping-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.ping-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.ping-result-header h3 {
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+.ping-stop-btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    background: var(--red);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Stats */
+.ping-stats {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.ping-stat {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px;
+    background: var(--bg);
+    border-radius: 8px;
+}
+
+.ping-stat-highlight {
+    border: 1px solid var(--accent-glow);
+}
+
+.ping-stat-num {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+.ping-stat-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Progress */
+.ping-progress-row {
+    margin-bottom: 16px;
+}
+
+.ping-progress-text {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    text-align: right;
+}
+
+.ping-progress-bar {
+    height: 4px;
+    background: var(--bg);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ping-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Chart */
+.ping-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 80px;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+.ping-bar {
+    flex: 1;
+    min-width: 3px;
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+}
+
+.ping-bar-fail {
+    height: 100% !important;
+    background: var(--red) !important;
+    opacity: 0.3;
+}
+
+/* Log */
+.ping-log {
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.ping-log-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.ping-log-entry:last-child {
+    border-bottom: none;
+}
+
+.ping-log-num {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+}
+
+.ping-log-time {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
