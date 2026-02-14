@@ -16,7 +16,12 @@ function init_netzwerk_wiki(container) {
     // --- Wiki-Daten ---
     const WIKI_DATA = [
 
-        // ===== OSI-Modell (7) =====
+        // ===== OSI-Modell (8: Überblick + 7 Schichten) =====
+        {
+            id: 'osi-modell', title: 'OSI-Modell', subtitle: 'Open Systems Interconnection Model',
+            desc: 'Referenzmodell der ISO (1984) zur Beschreibung von Netzwerkkommunikation in 7 Schichten. Jede Schicht hat eine klar definierte Aufgabe und kommuniziert nur mit der direkt darüber- und darunterliegenden. Von unten nach oben: Physical → Data Link → Network → Transport → Session → Presentation → Application. In der Praxis wird oft das vereinfachte TCP/IP-Modell (4 Schichten) verwendet, das OSI-Modell bleibt aber die Grundlage für das Verständnis von Netzwerkarchitekturen.',
+            cat: 'osi', tags: ['iso', '7 schichten', 'referenzmodell', 'tcp/ip', 'netzwerkarchitektur', 'standard', 'iso 7498'],
+        },
         {
             id: 'osi-1', title: 'Schicht 1', subtitle: 'Bitübertragungsschicht (Physical Layer)',
             desc: 'Die unterste Schicht des OSI-Modells. Definiert elektrische, mechanische und funktionale Spezifikationen für die physische Verbindung. Hier werden Bits als elektrische Signale, Licht oder Funk übertragen. Beispiele: Ethernet-Kabel, Glasfaser, WLAN-Funkwellen, Hubs, Repeater.',
@@ -341,6 +346,11 @@ function init_netzwerk_wiki(container) {
             id: 'pat', title: 'PAT', subtitle: 'Port Address Translation',
             desc: 'Spezialform von NAT, bei der mehrere private IP-Adressen auf eine einzige öffentliche IP abgebildet werden — unterschieden durch Portnummern. Auch bekannt als NAT Overload oder Masquerading. Standard in Heimroutern. Jede ausgehende Verbindung erhält einen eindeutigen Quellport.',
             cat: 'adressierung', tags: ['nat', 'port', 'overload', 'masquerading', 'heimrouter', 'quellport'],
+        },
+        {
+            id: 'dnat', title: 'DNAT', subtitle: 'Destination NAT (Port-Forwarding)',
+            desc: 'Ändert die Ziel-IP-Adresse (und optional den Ziel-Port) eingehender Pakete. Ermöglicht den Zugriff auf interne Server aus dem Internet (Port-Forwarding). Beispiel: Port 443 am Router wird an den internen Webserver 192.168.1.10:443 weitergeleitet. Gegenstück zu SNAT (Source NAT), das die Quelladresse ändert. Wird in Firewalls und Routern über iptables/nftables oder NAT-Regeln konfiguriert.',
+            cat: 'adressierung', tags: ['nat', 'port-forwarding', 'zieladresse', 'snat', 'iptables', 'nftables', 'eingehend', 'weiterleitung'],
         },
         {
             id: 'private-ip', title: 'Private IPs', subtitle: 'Private IP-Bereiche (RFC 1918)',
