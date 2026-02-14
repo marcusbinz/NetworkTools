@@ -137,16 +137,11 @@ function init_mein_netzwerk(container) {
                 // Only effectiveType available (browser estimate based on speed)
                 // effectiveType '4g' just means "fast" — NOT actual 4G/LTE
                 if (conn.effectiveType === '4g') {
-                    // High speed + no explicit type = likely wired or fast WiFi
-                    if (conn.downlink >= 10) {
-                        typeStr = 'Kabelgebunden / Schnell';
-                    } else {
-                        typeStr = 'Schnelle Verbindung';
-                    }
+                    typeStr = conn.downlink >= 10 ? 'Kabelgebunden' : 'Schnell';
                 } else if (conn.effectiveType === '3g') {
-                    typeStr = 'Mittlere Verbindung';
+                    typeStr = 'Mittel';
                 } else {
-                    typeStr = 'Langsame Verbindung';
+                    typeStr = 'Langsam';
                 }
             }
 
@@ -158,10 +153,10 @@ function init_mein_netzwerk(container) {
 
             document.getElementById('net-type').textContent = typeStr;
 
-            // Downlink — browser estimate (capped at 10 Mbit/s by spec!)
+            // Downlink — browser estimate (capped at 10 Mbit/s by spec)
             if (conn.downlink !== undefined) {
                 const dlText = conn.downlink >= 10
-                    ? '≥ 10 Mbit/s (API-Limit)'
+                    ? '≥ 10 Mbit/s'
                     : conn.downlink + ' Mbit/s';
                 document.getElementById('net-downlink').textContent = dlText;
             }
