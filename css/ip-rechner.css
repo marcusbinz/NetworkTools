@@ -1,0 +1,431 @@
+/* === IP-Rechner Tool Styles === */
+
+/* Input Card */
+.input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.input-card label:not(:first-child) {
+    margin-top: 16px;
+}
+
+#ip-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#ip-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#ip-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+#cidr-select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+#cidr-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* My IP Button */
+.my-ip-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.my-ip-btn:active {
+    transform: scale(0.98);
+}
+
+.my-ip-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Quick Examples */
+.quick-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.chip {
+    padding: 6px 12px;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.chip:active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Result Card */
+.result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* IP Type Badge */
+.ip-type-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.ip-type-badge.private {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.ip-type-badge.public {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--orange);
+    border: 1px solid rgba(251, 146, 60, 0.3);
+}
+
+.ip-type-badge.special {
+    background: rgba(167, 139, 250, 0.15);
+    color: var(--purple);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+/* Binary Section */
+.binary-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+}
+
+.binary-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.binary-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.binary-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 45px;
+}
+
+.binary-value {
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.binary-value .net-bit {
+    color: var(--accent);
+}
+
+.binary-value .host-bit {
+    color: var(--orange);
+}
+
+.binary-value .dot {
+    color: var(--text-dim);
+    margin: 0 2px;
+}
+
+/* Subnet Visualization */
+.viz-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.viz-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.viz-bar-container {
+    padding: 0 4px;
+}
+
+.viz-bar {
+    display: flex;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    gap: 2px;
+}
+
+.viz-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: width 0.4s ease;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.viz-seg-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding: 0 4px;
+}
+
+.viz-net {
+    background: var(--purple);
+    border-radius: 8px 0 0 8px;
+}
+
+.viz-first { background: var(--green); }
+.viz-hosts { background: var(--accent); }
+.viz-last  { background: var(--green); }
+
+.viz-broadcast {
+    background: var(--orange);
+    border-radius: 0 8px 8px 0;
+}
+
+.viz-addresses {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding: 0 4px;
+}
+
+.viz-addr {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+}
+
+.viz-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+    justify-content: center;
+}
+
+.viz-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.viz-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.viz-dot-net  { background: var(--purple); }
+.viz-dot-hosts { background: var(--accent); }
+.viz-dot-bc   { background: var(--orange); }
+
+/* Bit bar */
+.viz-bits-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+}
+
+.viz-bits-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.viz-bits-bar {
+    display: flex;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    gap: 2px;
+}
+
+.viz-bits-net {
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.4s ease;
+    border-radius: 6px 0 0 6px;
+}
+
+.viz-bits-host {
+    background: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.4s ease;
+    border-radius: 0 6px 6px 0;
+}
+
+.viz-bits-net span,
+.viz-bits-host span {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.viz-bits-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* Geolocation Card */
+.geo-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.geo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.geo-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.geo-loading {
+    font-size: 13px;
+    color: var(--accent);
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.geo-flag {
+    font-size: 48px;
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1;
+}
+
+.map-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--accent);
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    transition: opacity 0.2s;
+}
+
+.map-link:active {
+    opacity: 0.8;
+}
+
+.geo-error p {
+    color: var(--orange);
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Error Card */
+.error-card {
+    border-color: rgba(248, 113, 113, 0.3);
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.error-card p {
+    color: var(--red);
+    font-size: 14px;
+    text-align: center;
+}
