@@ -297,18 +297,22 @@ function init_mein_netzwerk(container) {
         return (totalBytes * 8) / (ms / 1000) / 1e6;
     }
 
-    // Upload measurement via Cloudflare
-    async function measureUpload(bytes, signal) {
-        const blob = new Blob([generateRandomData(bytes)]);
+    // Upload measurement via Cloudflare (parallel streams)
+    async function measureUploadParallel(bytesPerStream, streams, signal) {
+        const blobs = Array.from({ length: streams }, () =>
+            new Blob([generateRandomData(bytesPerStream)])
+        );
+        const totalBytes = bytesPerStream * streams;
         const start = performance.now();
-        const res = await fetch('https://speed.cloudflare.com/__up', {
-            method: 'POST',
-            body: blob,
-            signal,
-        });
-        try { await res.text(); } catch {}
+        await Promise.all(blobs.map(blob =>
+            fetch('https://speed.cloudflare.com/__up', {
+                method: 'POST',
+                body: blob,
+                signal,
+            }).then(r => { try { r.text(); } catch {} })
+        ));
         const ms = performance.now() - start;
-        return (bytes * 8) / (ms / 1000) / 1e6;
+        return (totalBytes * 8) / (ms / 1000) / 1e6;
     }
 
     async function runSpeedTest() {
@@ -323,16 +327,21 @@ function init_mein_netzwerk(container) {
         fill.style.background = '';
 
         // Download: parallel streams with increasing sizes
-        // Each round uses multiple simultaneous connections like speedtest.net
+        // Browsers allow ~6 connections per host but we use cache-bust params
+        // to maximize throughput on gigabit connections
         const downRounds = [
-            { bytesPerStream: 2e6,  streams: 4, label: 'Download 1/4 – Aufwärmen' },
-            { bytesPerStream: 5e6,  streams: 6, label: 'Download 2/4 – Messen' },
-            { bytesPerStream: 10e6, streams: 6, label: 'Download 3/4 – Messen' },
-            { bytesPerStream: 10e6, streams: 8, label: 'Download 4/4 – Maximum' },
+            { bytesPerStream: 5e6,  streams: 6,  label: 'Download 1/4 – Aufwärmen' },
+            { bytesPerStream: 10e6, streams: 12, label: 'Download 2/4 – Messen' },
+            { bytesPerStream: 10e6, streams: 16, label: 'Download 3/4 – Messen' },
+            { bytesPerStream: 10e6, streams: 16, label: 'Download 4/4 – Maximum' },
         ];
 
-        const upSizes = [1e6, 2e6, 5e6];
-        const totalSteps = downRounds.length + upSizes.length;
+        const upRounds = [
+            { bytesPerStream: 1e6, streams: 4, label: 'Upload 1/3 – Aufwärmen' },
+            { bytesPerStream: 2e6, streams: 6, label: 'Upload 2/3 – Messen' },
+            { bytesPerStream: 2e6, streams: 8, label: 'Upload 3/3 – Maximum' },
+        ];
+        const totalSteps = downRounds.length + upRounds.length;
         const downSpeeds = [];
         const upSpeeds = [];
         let uploadWorks = true;
@@ -350,16 +359,17 @@ function init_mein_netzwerk(container) {
                 downSpeeds.push(mbps);
             }
 
-            // --- Upload Phase ---
-            for (let i = 0; i < upSizes.length; i++) {
-                const bytes = upSizes[i];
-                const mb = (bytes / 1e6).toFixed(0);
+            // --- Upload Phase (parallel streams) ---
+            for (let i = 0; i < upRounds.length; i++) {
+                const round = upRounds[i];
                 const step = downRounds.length + i;
-                status.textContent = `Upload ${i + 1}/${upSizes.length} (${mb} MB)`;
+                status.textContent = round.label;
                 fill.style.width = ((step / totalSteps) * 100) + '%';
 
                 try {
-                    const mbps = await measureUpload(bytes, _netAbortController.signal);
+                    const mbps = await measureUploadParallel(
+                        round.bytesPerStream, round.streams, _netAbortController.signal
+                    );
                     upSpeeds.push(mbps);
                 } catch (e) {
                     if (e.name === 'AbortError') throw e;
