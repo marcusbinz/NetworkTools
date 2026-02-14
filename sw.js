@@ -1,4 +1,4 @@
-const CACHE_NAME = 'network-tools-v9';
+const CACHE_NAME = 'network-tools-v10';
 const ASSETS = [
     './',
     './index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
     './css/ipv6-rechner.css',
     './css/blacklist-check.css',
     './css/passwort-gen.css',
+    './css/mein-netzwerk.css',
     './css/ping-test.css',
     './js/app.js',
     './js/ip-rechner.js',
@@ -25,6 +26,7 @@ const ASSETS = [
     './js/ipv6-rechner.js',
     './js/blacklist-check.js',
     './js/passwort-gen.js',
+    './js/mein-netzwerk.js',
     './js/ping-test.js'
 ];
 

@@ -1,0 +1,378 @@
+// === Mein Netzwerk Tool ===
+
+let _netAbortController = null;
+let _netConnectionHandler = null;
+
+function init_mein_netzwerk(container) {
+    container.innerHTML = `
+        <section class="card net-status-card">
+            <div class="net-status-row">
+                <span class="net-status-dot" id="net-status-dot"></span>
+                <span class="net-status-text" id="net-status-text">Prüfe Verbindung...</span>
+            </div>
+        </section>
+
+        <section class="card net-info-card">
+            <h3 class="net-section-title">Verbindung</h3>
+            <div class="result-grid" id="net-connection-grid">
+                <div class="result-item">
+                    <span class="result-label">Typ</span>
+                    <span class="result-value" id="net-type">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Eff. Bandbreite</span>
+                    <span class="result-value" id="net-downlink">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">RTT (Round Trip)</span>
+                    <span class="result-value" id="net-rtt">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Datensparmodus</span>
+                    <span class="result-value" id="net-savedata">—</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="card net-ip-card">
+            <h3 class="net-section-title">Öffentliche IP</h3>
+            <div class="net-ip-loading" id="net-ip-loading">
+                <span class="net-spinner"></span>
+                <span>IP wird ermittelt...</span>
+            </div>
+            <div class="result-grid" id="net-ip-grid" style="display:none;"></div>
+        </section>
+
+        <section class="card net-speed-card">
+            <h3 class="net-section-title">Speed-Test</h3>
+            <p class="net-speed-desc">Misst die Download-Geschwindigkeit durch Laden einer Testdatei.</p>
+            <button class="net-speed-btn" id="net-speed-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Speed-Test starten
+            </button>
+            <div class="net-speed-progress" id="net-speed-progress" style="display:none;">
+                <div class="net-speed-bar-bg">
+                    <div class="net-speed-bar-fill" id="net-speed-bar-fill"></div>
+                </div>
+                <span class="net-speed-status" id="net-speed-status">Lädt...</span>
+            </div>
+            <div class="net-speed-result" id="net-speed-result" style="display:none;">
+                <div class="net-speed-big" id="net-speed-value">—</div>
+                <div class="net-speed-unit">Mbit/s Download</div>
+                <div class="net-speed-details" id="net-speed-details"></div>
+            </div>
+        </section>
+
+        <section class="card net-latency-card">
+            <h3 class="net-section-title">Latenz-Übersicht</h3>
+            <p class="net-speed-desc">Misst die Antwortzeit zu verschiedenen Servern.</p>
+            <button class="net-latency-btn" id="net-latency-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Latenz messen
+            </button>
+            <div class="net-latency-results" id="net-latency-results" style="display:none;"></div>
+        </section>
+    `;
+
+    // --- DOM refs ---
+    const statusDot = document.getElementById('net-status-dot');
+    const statusText = document.getElementById('net-status-text');
+
+    _netAbortController = new AbortController();
+
+    // --- Online/Offline Status ---
+    function updateOnlineStatus() {
+        if (navigator.onLine) {
+            statusDot.className = 'net-status-dot net-online';
+            statusText.textContent = 'Online';
+        } else {
+            statusDot.className = 'net-status-dot net-offline';
+            statusText.textContent = 'Offline';
+        }
+    }
+
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // --- Connection API ---
+    function updateConnectionInfo() {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+        if (conn) {
+            // Connection type
+            const typeMap = {
+                'wifi': 'WiFi',
+                'cellular': 'Mobilfunk',
+                'ethernet': 'Ethernet',
+                'bluetooth': 'Bluetooth',
+                'none': 'Keine',
+                'other': 'Sonstige',
+                'unknown': 'Unbekannt',
+            };
+            const effectiveMap = {
+                'slow-2g': 'Slow 2G',
+                '2g': '2G',
+                '3g': '3G',
+                '4g': '4G / LTE+',
+            };
+
+            let typeStr = '—';
+            if (conn.type && conn.type !== 'unknown') {
+                typeStr = typeMap[conn.type] || conn.type;
+            }
+            if (conn.effectiveType) {
+                const eff = effectiveMap[conn.effectiveType] || conn.effectiveType;
+                if (typeStr === '—') {
+                    typeStr = eff;
+                } else {
+                    typeStr += ` (${eff})`;
+                }
+            }
+            document.getElementById('net-type').textContent = typeStr;
+
+            // Downlink
+            if (conn.downlink !== undefined) {
+                document.getElementById('net-downlink').textContent = conn.downlink + ' Mbit/s';
+            }
+
+            // RTT
+            if (conn.rtt !== undefined) {
+                document.getElementById('net-rtt').textContent = conn.rtt + ' ms';
+            }
+
+            // Save data
+            document.getElementById('net-savedata').textContent = conn.saveData ? 'Aktiv' : 'Aus';
+
+            // Listen for changes
+            if (conn.addEventListener) {
+                _netConnectionHandler = updateConnectionInfo;
+                conn.addEventListener('change', _netConnectionHandler);
+            }
+        } else {
+            document.getElementById('net-type').textContent = 'Nicht verfügbar';
+            document.getElementById('net-downlink').textContent = '—';
+            document.getElementById('net-rtt').textContent = '—';
+            document.getElementById('net-savedata').textContent = '—';
+        }
+    }
+
+    updateConnectionInfo();
+
+    // --- Public IP + Geolocation ---
+    async function loadIPInfo() {
+        const loading = document.getElementById('net-ip-loading');
+        const grid = document.getElementById('net-ip-grid');
+
+        try {
+            // Get IPv4
+            const ipRes = await fetch('https://api.ipify.org?format=json', {
+                signal: _netAbortController.signal
+            });
+            const ipData = await ipRes.json();
+            const ip = ipData.ip;
+
+            // Get geolocation
+            const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+                signal: _netAbortController.signal
+            });
+            const geo = await geoRes.json();
+
+            loading.style.display = 'none';
+            grid.style.display = 'grid';
+
+            grid.innerHTML = `
+                <div class="result-item full-width">
+                    <span class="result-label">IPv4-Adresse</span>
+                    <span class="result-value">${ip}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Land</span>
+                    <span class="result-value">${geo.country_name || '—'}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Stadt</span>
+                    <span class="result-value">${geo.city || '—'}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ISP</span>
+                    <span class="result-value">${geo.org || '—'}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ASN</span>
+                    <span class="result-value">${geo.asn || '—'}</span>
+                </div>
+            `;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            loading.innerHTML = '<span style="color:var(--red)">IP konnte nicht ermittelt werden</span>';
+        }
+    }
+
+    loadIPInfo();
+
+    // --- Speed Test ---
+    const speedBtn = document.getElementById('net-speed-btn');
+    const speedProgress = document.getElementById('net-speed-progress');
+    const speedResult = document.getElementById('net-speed-result');
+
+    async function runSpeedTest() {
+        speedBtn.disabled = true;
+        speedBtn.textContent = 'Läuft...';
+        speedProgress.style.display = 'block';
+        speedResult.style.display = 'none';
+
+        const fill = document.getElementById('net-speed-bar-fill');
+        const status = document.getElementById('net-speed-status');
+
+        // Use multiple test files of different sizes for accuracy
+        // We download a random chunk from a CDN to measure speed
+        const testSizes = [
+            { url: 'https://speed.cloudflare.com/__down?bytes=500000', bytes: 500000, label: 'Test 1/3 (500 KB)' },
+            { url: 'https://speed.cloudflare.com/__down?bytes=1000000', bytes: 1000000, label: 'Test 2/3 (1 MB)' },
+            { url: 'https://speed.cloudflare.com/__down?bytes=2000000', bytes: 2000000, label: 'Test 3/3 (2 MB)' },
+        ];
+
+        const speeds = [];
+
+        try {
+            for (let i = 0; i < testSizes.length; i++) {
+                const test = testSizes[i];
+                status.textContent = test.label;
+                fill.style.width = ((i / testSizes.length) * 100) + '%';
+
+                const start = performance.now();
+                const res = await fetch(test.url + '&_cb=' + Date.now(), {
+                    cache: 'no-store',
+                    signal: _netAbortController.signal,
+                });
+                await res.arrayBuffer();
+                const end = performance.now();
+
+                const durationSec = (end - start) / 1000;
+                const bitsLoaded = test.bytes * 8;
+                const mbps = (bitsLoaded / durationSec) / 1000000;
+                speeds.push({ mbps, duration: durationSec, bytes: test.bytes });
+            }
+
+            fill.style.width = '100%';
+            status.textContent = 'Fertig!';
+
+            // Use the best of the larger tests (ignore warmup)
+            const avgSpeed = speeds.slice(1).reduce((sum, s) => sum + s.mbps, 0) / (speeds.length - 1);
+            const maxSpeed = Math.max(...speeds.map(s => s.mbps));
+
+            setTimeout(() => {
+                speedProgress.style.display = 'none';
+                speedResult.style.display = 'block';
+                document.getElementById('net-speed-value').textContent = avgSpeed.toFixed(1);
+                document.getElementById('net-speed-details').innerHTML = `
+                    <span>Peak: ${maxSpeed.toFixed(1)} Mbit/s</span>
+                    <span>Gesamt: ${((testSizes.reduce((s, t) => s + t.bytes, 0)) / 1000000).toFixed(1)} MB geladen</span>
+                `;
+            }, 500);
+
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+            status.textContent = 'Fehler beim Speed-Test';
+            fill.style.background = 'var(--red)';
+        }
+
+        speedBtn.disabled = false;
+        speedBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            Erneut testen
+        `;
+    }
+
+    speedBtn.addEventListener('click', runSpeedTest);
+
+    // --- Latency Test ---
+    const latencyBtn = document.getElementById('net-latency-btn');
+    const latencyResults = document.getElementById('net-latency-results');
+
+    const LATENCY_TARGETS = [
+        { name: 'Cloudflare', host: 'https://1.1.1.1' },
+        { name: 'Google', host: 'https://www.google.com' },
+        { name: 'Amazon AWS', host: 'https://aws.amazon.com' },
+        { name: 'GitHub', host: 'https://github.com' },
+        { name: 'Cloudflare CDN', host: 'https://cdnjs.cloudflare.com' },
+    ];
+
+    async function runLatencyTest() {
+        latencyBtn.disabled = true;
+        latencyBtn.textContent = 'Messe...';
+        latencyResults.style.display = 'block';
+        latencyResults.innerHTML = '';
+
+        for (const target of LATENCY_TARGETS) {
+            const row = document.createElement('div');
+            row.className = 'net-latency-row';
+            row.innerHTML = `
+                <span class="net-latency-name">${target.name}</span>
+                <span class="net-latency-value"><span class="net-spinner-sm"></span></span>
+            `;
+            latencyResults.appendChild(row);
+
+            // Measure 3 pings, take median
+            const times = [];
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const start = performance.now();
+                    await fetch(target.host + '/favicon.ico?_cb=' + Date.now(), {
+                        mode: 'no-cors',
+                        cache: 'no-store',
+                        signal: _netAbortController.signal,
+                    });
+                    times.push(Math.round(performance.now() - start));
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    const elapsed = Math.round(performance.now() - performance.now());
+                    times.push(null);
+                }
+                // Small delay between pings
+                await new Promise(r => setTimeout(r, 200));
+            }
+
+            const validTimes = times.filter(t => t !== null);
+            if (validTimes.length > 0) {
+                validTimes.sort((a, b) => a - b);
+                const median = validTimes[Math.floor(validTimes.length / 2)];
+                const color = median < 50 ? 'var(--green)' : median < 150 ? 'var(--orange)' : 'var(--red)';
+                const bar = Math.min(100, (median / 300) * 100);
+                row.querySelector('.net-latency-value').innerHTML = `
+                    <div class="net-latency-bar-bg">
+                        <div class="net-latency-bar-fill" style="width:${bar}%; background:${color}"></div>
+                    </div>
+                    <span style="color:${color}">${median} ms</span>
+                `;
+            } else {
+                row.querySelector('.net-latency-value').innerHTML = `<span style="color:var(--red)">Timeout</span>`;
+            }
+        }
+
+        latencyBtn.disabled = false;
+        latencyBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            Erneut messen
+        `;
+    }
+
+    latencyBtn.addEventListener('click', runLatencyTest);
+}
+
+function teardown_mein_netzwerk() {
+    if (_netAbortController) {
+        _netAbortController.abort();
+        _netAbortController = null;
+    }
+    if (_netConnectionHandler) {
+        const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (conn && conn.removeEventListener) {
+            conn.removeEventListener('change', _netConnectionHandler);
+        }
+        _netConnectionHandler = null;
+    }
+    window.removeEventListener('online', () => {});
+    window.removeEventListener('offline', () => {});
+}
