@@ -49,16 +49,51 @@ function init_whois_lookup(container) {
     const errorMsg = document.getElementById('whois-error-msg');
     const resultsContainer = document.getElementById('whois-results-container');
 
+    // --- RDAP servers with CORS support (verified) ---
+    // Many ccTLD RDAP servers block browser CORS requests.
+    // These are known to work with Access-Control-Allow-Origin: *
+    const RDAP_CORS_SERVERS = {
+        'ch': 'https://rdap.nic.ch/domain/',
+        'li': 'https://rdap.nic.ch/domain/',
+        'nl': 'https://rdap.sidn.nl/domain/',
+        'fr': 'https://rdap.nic.fr/domain/',
+    };
+
+    // TLDs where RDAP has no CORS — inform user to try external tool
+    const NO_CORS_TLDS = ['de', 'at', 'be', 'eu', 'it', 'dk', 'se', 'no', 'fi', 'pl', 'cz', 'ru', 'jp', 'kr', 'cn', 'br', 'za', 'uk'];
+
     // --- WHOIS via RDAP (free, no CORS issues) ---
     // RDAP is the modern replacement for WHOIS, provided by registries
     async function queryRDAP(domain) {
-        // Try RDAP first (works for most TLDs)
-        const rdapUrl = `https://rdap.org/domain/${encodeURIComponent(domain)}`;
-        const res = await fetch(rdapUrl, {
-            signal: _whoisAbortController ? _whoisAbortController.signal : undefined
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
+        const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
+        const parts = domain.split('.');
+        const tld = parts[parts.length - 1];
+
+        // 1. Try CORS-verified TLD-specific server first
+        if (RDAP_CORS_SERVERS[tld]) {
+            try {
+                const res = await fetch(RDAP_CORS_SERVERS[tld] + domain, { signal });
+                if (res.ok) return res.json();
+            } catch (e) {
+                if (e.name === 'AbortError') throw e;
+                // Fall through to rdap.org
+            }
+        }
+
+        // 2. Try rdap.org (universal, has CORS, supports .com/.net/.org/etc.)
+        try {
+            const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, { signal });
+            if (res.ok) return res.json();
+            // If 404: TLD not in rdap.org
+            if (res.status === 404 && NO_CORS_TLDS.includes(tld)) {
+                throw new Error(`NO_CORS:${tld}`);
+            }
+            throw new Error(`HTTP ${res.status}`);
+        } catch (e) {
+            if (e.name === 'AbortError') throw e;
+            if (e.message.startsWith('NO_CORS:')) throw e;
+            throw e;
+        }
     }
 
     // --- Parse RDAP response ---
@@ -241,8 +276,16 @@ function init_whois_lookup(container) {
         } catch (err) {
             if (err.name === 'AbortError') return;
             loadingCard.style.display = 'none';
-            if (err.message.includes('404')) {
-                showError(`Keine WHOIS-Daten für "${domain}" gefunden. Die TLD wird möglicherweise nicht unterstützt.`);
+            if (err.message.startsWith('NO_CORS:')) {
+                const tld = err.message.split(':')[1];
+                showError(
+                    `.${tld}-Domains werden vom zuständigen RDAP-Server leider nicht für Browser-Abfragen freigegeben (CORS-Sperre). ` +
+                    `Verwende für .${tld}-Domains einen externen Dienst wie whois.domaintools.com oder den MXToolbox-Link im Drawer.`
+                );
+            } else if (err.message.includes('404') || err.message.includes('400')) {
+                showError(`Keine WHOIS-Daten für "${domain}" gefunden. Die Domain existiert möglicherweise nicht.`);
+            } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                showError(`RDAP-Server nicht erreichbar für "${domain}". Bitte prüfe deine Internetverbindung.`);
             } else {
                 showError(`Fehler bei der Abfrage: ${err.message}`);
             }
