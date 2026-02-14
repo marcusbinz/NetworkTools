@@ -24,7 +24,7 @@ function init_mein_netzwerk(container) {
                     <span class="result-value" id="net-downlink">—</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">RTT (Round Trip)</span>
+                    <span class="result-label">RTT</span>
                     <span class="result-value" id="net-rtt">—</span>
                 </div>
                 <div class="result-item">
