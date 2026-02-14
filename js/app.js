@@ -232,7 +232,7 @@ window.addEventListener('hashchange', () => {
 
 // --- Init ---
 renderDrawer();
-navigateTo(window.location.hash.slice(1) || TOOLS[0].id);
+navigateTo(window.location.hash.slice(1) || 'passwort-gen');
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
