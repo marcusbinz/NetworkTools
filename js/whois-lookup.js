@@ -49,9 +49,10 @@ function init_whois_lookup(container) {
     const errorMsg = document.getElementById('whois-error-msg');
     const resultsContainer = document.getElementById('whois-results-container');
 
-    // --- RDAP servers with CORS support (verified) ---
-    // Many ccTLD RDAP servers block browser CORS requests.
-    // These are known to work with Access-Control-Allow-Origin: *
+    // --- RDAP Bootstrap Cache (TLD → RDAP server URL) ---
+    let rdapBootstrap = null;
+
+    // CORS-verified RDAP servers (direct access without proxy)
     const RDAP_CORS_SERVERS = {
         'ch': 'https://rdap.nic.ch/domain/',
         'li': 'https://rdap.nic.ch/domain/',
@@ -59,41 +60,91 @@ function init_whois_lookup(container) {
         'fr': 'https://rdap.nic.fr/domain/',
     };
 
-    // TLDs where RDAP has no CORS — inform user to try external tool
-    const NO_CORS_TLDS = ['de', 'at', 'be', 'eu', 'it', 'dk', 'se', 'no', 'fi', 'pl', 'cz', 'ru', 'jp', 'kr', 'cn', 'br', 'za', 'uk'];
+    // CORS proxy for RDAP servers that don't allow browser requests
+    const CORS_PROXY = 'https://api.codetabs.com/v1/proxy/?quest=';
 
-    // --- WHOIS via RDAP (free, no CORS issues) ---
-    // RDAP is the modern replacement for WHOIS, provided by registries
+    // Load IANA RDAP Bootstrap (TLD → server mapping)
+    async function loadBootstrap() {
+        if (rdapBootstrap) return;
+        try {
+            const res = await fetch('https://data.iana.org/rdap/dns.json');
+            if (res.ok) {
+                const data = await res.json();
+                rdapBootstrap = {};
+                for (const [tlds, urls] of data.services) {
+                    for (const tld of tlds) {
+                        rdapBootstrap[tld] = urls[0];
+                    }
+                }
+            }
+        } catch (e) {
+            // Bootstrap not available — will rely on rdap.org + proxy fallback
+        }
+    }
+
+    // Find native RDAP server URL for a TLD via IANA Bootstrap
+    function getBootstrapUrl(domain) {
+        if (!rdapBootstrap) return null;
+        const parts = domain.split('.');
+        // Try compound TLD (co.uk, com.au, etc.)
+        if (parts.length >= 3) {
+            const compound = parts.slice(-2).join('.');
+            if (rdapBootstrap[compound]) {
+                return rdapBootstrap[compound].replace(/\/$/, '') + '/domain/' + domain;
+            }
+        }
+        const tld = parts[parts.length - 1];
+        if (rdapBootstrap[tld]) {
+            return rdapBootstrap[tld].replace(/\/$/, '') + '/domain/' + domain;
+        }
+        return null;
+    }
+
+    // --- WHOIS via RDAP ---
+    // Strategy: rdap.org → CORS-verified servers → CORS-proxy + IANA bootstrap
     async function queryRDAP(domain) {
         const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
         const parts = domain.split('.');
         const tld = parts[parts.length - 1];
 
-        // 1. Try CORS-verified TLD-specific server first
+        // 1. Try CORS-verified TLD-specific server (no proxy needed)
         if (RDAP_CORS_SERVERS[tld]) {
             try {
                 const res = await fetch(RDAP_CORS_SERVERS[tld] + domain, { signal });
                 if (res.ok) return res.json();
             } catch (e) {
                 if (e.name === 'AbortError') throw e;
-                // Fall through to rdap.org
             }
         }
 
-        // 2. Try rdap.org (universal, has CORS, supports .com/.net/.org/etc.)
+        // 2. Try rdap.org (has CORS, works for .com/.net/.org/many gTLDs)
         try {
             const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, { signal });
             if (res.ok) return res.json();
-            // If 404: TLD not in rdap.org
-            if (res.status === 404 && NO_CORS_TLDS.includes(tld)) {
-                throw new Error(`NO_CORS:${tld}`);
-            }
-            throw new Error(`HTTP ${res.status}`);
         } catch (e) {
             if (e.name === 'AbortError') throw e;
-            if (e.message.startsWith('NO_CORS:')) throw e;
-            throw e;
         }
+
+        // 3. Fallback: IANA Bootstrap + CORS proxy for ccTLDs (.de, .at, .eu, etc.)
+        await loadBootstrap();
+        const nativeUrl = getBootstrapUrl(domain);
+        if (nativeUrl) {
+            try {
+                const proxyUrl = CORS_PROXY + encodeURIComponent(nativeUrl);
+                const res = await fetch(proxyUrl, { signal });
+                if (res.ok) {
+                    const data = await res.json();
+                    // codetabs returns error object on failure
+                    if (data.Error || data.error) throw new Error(data.Error || data.error);
+                    return data;
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') throw e;
+                throw new Error(`PROXY_FAILED:${tld}`);
+            }
+        }
+
+        throw new Error(`UNSUPPORTED:${tld}`);
     }
 
     // --- Parse RDAP response ---
@@ -276,12 +327,12 @@ function init_whois_lookup(container) {
         } catch (err) {
             if (err.name === 'AbortError') return;
             loadingCard.style.display = 'none';
-            if (err.message.startsWith('NO_CORS:')) {
+            if (err.message.startsWith('UNSUPPORTED:')) {
                 const tld = err.message.split(':')[1];
-                showError(
-                    `.${tld}-Domains werden vom zuständigen RDAP-Server leider nicht für Browser-Abfragen freigegeben (CORS-Sperre). ` +
-                    `Verwende für .${tld}-Domains einen externen Dienst wie whois.domaintools.com oder den MXToolbox-Link im Drawer.`
-                );
+                showError(`Für .${tld}-Domains konnte kein RDAP-Server gefunden werden. Versuche einen externen Dienst wie whois.domaintools.com.`);
+            } else if (err.message.startsWith('PROXY_FAILED:')) {
+                const tld = err.message.split(':')[1];
+                showError(`Die Abfrage für .${tld}-Domains ist fehlgeschlagen. Der CORS-Proxy ist möglicherweise überlastet — bitte später erneut versuchen.`);
             } else if (err.message.includes('404') || err.message.includes('400')) {
                 showError(`Keine WHOIS-Daten für "${domain}" gefunden. Die Domain existiert möglicherweise nicht.`);
             } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
