@@ -272,34 +272,40 @@ function init_mein_netzwerk(container) {
     const speedProgress = document.getElementById('net-speed-progress');
     const speedResult = document.getElementById('net-speed-result');
 
-    // Upload test endpoints (try multiple, use first that works)
-    const UPLOAD_ENDPOINTS = [
-        'https://httpbin.org/post',
-        'https://postman-echo.com/post',
-    ];
-
-    // crypto.getRandomValues() has a 65536 byte limit per call
+    // Generate random data in chunks (crypto.getRandomValues max 65536 bytes)
     function generateRandomData(bytes) {
         const data = new Uint8Array(bytes);
-        const chunkSize = 65536;
-        for (let offset = 0; offset < bytes; offset += chunkSize) {
-            const len = Math.min(chunkSize, bytes - offset);
-            crypto.getRandomValues(data.subarray(offset, offset + len));
+        const chunk = 65536;
+        for (let i = 0; i < bytes; i += chunk) {
+            crypto.getRandomValues(data.subarray(i, i + Math.min(chunk, bytes - i)));
         }
         return data;
     }
 
-    async function testUploadEndpoint(url, signal) {
-        const tiny = new Uint8Array(1024);
-        const res = await fetch(url, {
+    // Measure a single download and return Mbit/s
+    async function measureDownload(bytes, signal) {
+        const url = `https://speed.cloudflare.com/__down?bytes=${bytes}&_cb=${Date.now()}`;
+        const start = performance.now();
+        const res = await fetch(url, { cache: 'no-store', signal });
+        await res.arrayBuffer();
+        const ms = performance.now() - start;
+        return (bytes * 8) / (ms / 1000) / 1e6;
+    }
+
+    // Measure a single upload and return Mbit/s
+    // Uses Cloudflare speed endpoint with proper content type
+    async function measureUpload(bytes, signal) {
+        const blob = new Blob([generateRandomData(bytes)]);
+        const start = performance.now();
+        const res = await fetch('https://speed.cloudflare.com/__up', {
             method: 'POST',
-            body: tiny,
-            cache: 'no-store',
+            body: blob,
             signal,
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        await res.text();
-        return url;
+        // Even if CORS blocks reading the response, the upload happened
+        try { await res.text(); } catch {}
+        const ms = performance.now() - start;
+        return (bytes * 8) / (ms / 1000) / 1e6;
     }
 
     async function runSpeedTest() {
@@ -310,103 +316,85 @@ function init_mein_netzwerk(container) {
 
         const fill = document.getElementById('net-speed-bar-fill');
         const status = document.getElementById('net-speed-status');
-
-        // Reset progress bar
         fill.style.width = '0%';
         fill.style.background = '';
 
-        const downTests = [
-            { url: 'https://speed.cloudflare.com/__down?bytes=500000', bytes: 500000, label: 'Download 1/3 (500 KB)' },
-            { url: 'https://speed.cloudflare.com/__down?bytes=1000000', bytes: 1000000, label: 'Download 2/3 (1 MB)' },
-            { url: 'https://speed.cloudflare.com/__down?bytes=2000000', bytes: 2000000, label: 'Download 3/3 (2 MB)' },
-        ];
+        // Progressive download sizes (ramp up for fast connections)
+        const downSizes = [1e6, 5e6, 10e6, 25e6];   // 1, 5, 10, 25 MB
+        const upSizes   = [1e6, 2e6, 5e6];           // 1, 2, 5 MB
 
-        const upTests = [
-            { bytes: 250000, label: 'Upload 1/3 (250 KB)' },
-            { bytes: 500000, label: 'Upload 2/3 (500 KB)' },
-            { bytes: 1000000, label: 'Upload 3/3 (1 MB)' },
-        ];
-
-        const totalSteps = downTests.length + upTests.length;
+        const totalSteps = downSizes.length + upSizes.length;
         const downSpeeds = [];
         const upSpeeds = [];
+        let uploadWorks = true;
 
         try {
-            // --- Download ---
-            for (let i = 0; i < downTests.length; i++) {
-                const test = downTests[i];
-                status.textContent = test.label;
+            // --- Download Phase ---
+            for (let i = 0; i < downSizes.length; i++) {
+                const bytes = downSizes[i];
+                const mb = (bytes / 1e6).toFixed(0);
+                status.textContent = `Download ${i + 1}/${downSizes.length} (${mb} MB)`;
                 fill.style.width = ((i / totalSteps) * 100) + '%';
 
-                const start = performance.now();
-                const res = await fetch(test.url + '&_cb=' + Date.now(), {
-                    cache: 'no-store',
-                    signal: _netAbortController.signal,
-                });
-                await res.arrayBuffer();
-                const end = performance.now();
-
-                const mbps = (test.bytes * 8 / ((end - start) / 1000)) / 1000000;
+                const mbps = await measureDownload(bytes, _netAbortController.signal);
                 downSpeeds.push(mbps);
             }
 
-            // --- Find working upload endpoint ---
-            status.textContent = 'Upload wird vorbereitet...';
-            fill.style.width = ((downTests.length / totalSteps) * 100) + '%';
-
-            let uploadUrl = null;
-            for (const ep of UPLOAD_ENDPOINTS) {
-                try {
-                    uploadUrl = await testUploadEndpoint(ep, _netAbortController.signal);
-                    break;
-                } catch (e) {
-                    if (e.name === 'AbortError') throw e;
-                }
-            }
-
-            if (!uploadUrl) throw new Error('NO_UPLOAD_ENDPOINT');
-
-            // --- Upload ---
-            for (let i = 0; i < upTests.length; i++) {
-                const test = upTests[i];
-                const step = downTests.length + i;
-                status.textContent = test.label;
+            // --- Upload Phase ---
+            for (let i = 0; i < upSizes.length; i++) {
+                const bytes = upSizes[i];
+                const mb = (bytes / 1e6).toFixed(0);
+                const step = downSizes.length + i;
+                status.textContent = `Upload ${i + 1}/${upSizes.length} (${mb} MB)`;
                 fill.style.width = ((step / totalSteps) * 100) + '%';
 
-                const blob = new Blob([generateRandomData(test.bytes)], { type: 'application/octet-stream' });
-
-                const start = performance.now();
-                const res = await fetch(uploadUrl, {
-                    method: 'POST',
-                    body: blob,
-                    cache: 'no-store',
-                    signal: _netAbortController.signal,
-                });
-                await res.text();
-                const end = performance.now();
-
-                const mbps = (test.bytes * 8 / ((end - start) / 1000)) / 1000000;
-                upSpeeds.push(mbps);
+                try {
+                    const mbps = await measureUpload(bytes, _netAbortController.signal);
+                    upSpeeds.push(mbps);
+                } catch (e) {
+                    if (e.name === 'AbortError') throw e;
+                    uploadWorks = false;
+                    break;
+                }
             }
 
             fill.style.width = '100%';
             status.textContent = 'Fertig!';
 
-            const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
-            const avgUp = upSpeeds.slice(1).reduce((s, v) => s + v, 0) / (upSpeeds.length - 1);
+            // Skip first measurement (warmup) for average
+            const avgDown = downSpeeds.length > 1
+                ? downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1)
+                : downSpeeds[0] || 0;
             const peakDown = Math.max(...downSpeeds);
-            const peakUp = Math.max(...upSpeeds);
+
+            let avgUp = 0, peakUp = 0;
+            if (upSpeeds.length > 1) {
+                avgUp = upSpeeds.slice(1).reduce((s, v) => s + v, 0) / (upSpeeds.length - 1);
+                peakUp = Math.max(...upSpeeds);
+            } else if (upSpeeds.length === 1) {
+                avgUp = upSpeeds[0];
+                peakUp = upSpeeds[0];
+            }
 
             setTimeout(() => {
                 speedProgress.style.display = 'none';
                 speedResult.style.display = 'block';
                 document.getElementById('net-speed-down').textContent = avgDown.toFixed(1);
-                document.getElementById('net-speed-up').textContent = avgUp.toFixed(1);
-                document.getElementById('net-speed-details').innerHTML = `
-                    <span>↓ Peak: ${peakDown.toFixed(1)} Mbit/s</span>
-                    <span>↑ Peak: ${peakUp.toFixed(1)} Mbit/s</span>
-                `;
-            }, 500);
+
+                if (uploadWorks && upSpeeds.length > 0) {
+                    document.getElementById('net-speed-up').textContent = avgUp.toFixed(1);
+                    document.getElementById('net-speed-details').innerHTML = `
+                        <span>↓ Peak: ${peakDown.toFixed(1)} Mbit/s</span>
+                        <span>↑ Peak: ${peakUp.toFixed(1)} Mbit/s</span>
+                    `;
+                } else {
+                    document.getElementById('net-speed-up').textContent = '—';
+                    document.getElementById('net-speed-details').innerHTML = `
+                        <span>↓ Peak: ${peakDown.toFixed(1)} Mbit/s</span>
+                        <span style="color:var(--orange)">Upload nicht verfügbar</span>
+                    `;
+                }
+            }, 400);
 
         } catch (err) {
             if (err.name === 'AbortError') return;
@@ -414,7 +402,6 @@ function init_mein_netzwerk(container) {
             if (downSpeeds.length >= 2) {
                 const avgDown = downSpeeds.slice(1).reduce((s, v) => s + v, 0) / (downSpeeds.length - 1);
                 const peakDown = Math.max(...downSpeeds);
-
                 fill.style.width = '100%';
                 setTimeout(() => {
                     speedProgress.style.display = 'none';
