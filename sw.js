@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v53';
+﻿const CACHE_NAME = 'network-tools-v54';
 const ASSETS = [
     './',
     './index.html',
@@ -31,7 +31,9 @@ const ASSETS = [
     './css/netzwerk-wiki.css',
     './js/netzwerk-wiki.js',
     './css/email-header.css',
-    './js/email-header.js'
+    './js/email-header.js',
+    './css/netzwerk-befehle.css',
+    './js/netzwerk-befehle.js'
 ];
 
 // Install: cache all assets
