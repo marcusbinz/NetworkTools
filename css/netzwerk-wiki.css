@@ -207,3 +207,151 @@
     font-size: 14px;
     padding: 24px 0;
 }
+
+/* Content area wrapper */
+.wiki-content-area {
+    display: block;
+}
+
+/* Detail Panel (hidden on mobile) */
+.wiki-detail-panel {
+    display: none;
+}
+
+/* ============================================
+   DESKTOP: Master-Detail Layout
+   ============================================ */
+@media (min-width: 768px) {
+
+    .wiki-content-area {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .wiki-list {
+        flex: 1;
+        min-width: 0;
+        max-height: 70vh;
+        border-right: 1px solid var(--card-border);
+        padding-right: 20px;
+    }
+
+    /* Hide accordion on desktop */
+    .wiki-row.expanded .wiki-detail {
+        max-height: 0;
+        padding: 0;
+    }
+
+    /* Selected row highlight */
+    .wiki-row.expanded .wiki-row-header {
+        background: var(--accent-glow);
+        margin: 0 -4px;
+        padding-left: 4px;
+        padding-right: 4px;
+        border-radius: 6px;
+    }
+
+    /* Hide expand arrow on desktop */
+    .wiki-expand-icon {
+        display: none;
+    }
+
+    /* Detail Panel */
+    .wiki-detail-panel {
+        display: block;
+        flex: 1;
+        position: sticky;
+        top: 24px;
+        min-height: 200px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .wiki-detail-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        height: 200px;
+        color: var(--text-dim);
+        opacity: 0.5;
+    }
+
+    .wiki-detail-empty p {
+        font-size: 14px;
+    }
+
+    .wiki-detail-content {
+        animation: slideUp 0.2s ease-out;
+    }
+
+    .wiki-detail-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .wiki-detail-layer {
+        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--purple);
+        line-height: 1;
+    }
+
+    .wiki-detail-title {
+        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .wiki-detail-subtitle {
+        font-size: 14px;
+        color: var(--text-dim);
+        display: block;
+        margin-top: 2px;
+    }
+
+    .wiki-detail-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 5px;
+        border: 1px solid;
+        margin-bottom: 16px;
+    }
+
+    .wiki-detail-desc {
+        font-size: 14px;
+        color: var(--text);
+        line-height: 1.75;
+        border-left: 3px solid var(--accent);
+        padding-left: 16px;
+    }
+
+    .wiki-detail-desc p {
+        margin: 0;
+    }
+
+    .wiki-detail-tags {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .wiki-detail-tag {
+        font-size: 11px;
+        font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        color: var(--text-dim);
+        background: var(--bg);
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--card-border);
+    }
+}

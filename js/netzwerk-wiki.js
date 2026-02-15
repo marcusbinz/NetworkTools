@@ -468,7 +468,15 @@ function init_netzwerk_wiki(container) {
                 <h3>Netzwerk-Wiki</h3>
                 <span class="wiki-count" id="wiki-count">${WIKI_DATA.length} Einträge</span>
             </div>
-            <div class="wiki-list" id="wiki-list"></div>
+            <div class="wiki-content-area">
+                <div class="wiki-list" id="wiki-list"></div>
+                <div class="wiki-detail-panel" id="wiki-detail-panel">
+                    <div class="wiki-detail-empty">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <p>Eintrag auswählen</p>
+                    </div>
+                </div>
+            </div>
         </section>
     `;
 
@@ -477,9 +485,15 @@ function init_netzwerk_wiki(container) {
     const catChips = document.querySelectorAll('.wiki-cat-chip');
     const wikiList = document.getElementById('wiki-list');
     const wikiCount = document.getElementById('wiki-count');
+    const detailPanel = document.getElementById('wiki-detail-panel');
 
     let selectedCat = 'all';
     let expandedId = null;
+
+    // Check if desktop layout (detail panel visible)
+    function isDesktop() {
+        return window.matchMedia('(min-width: 768px)').matches;
+    }
 
     // --- Render ---
     function renderList() {
@@ -570,13 +584,59 @@ function init_netzwerk_wiki(container) {
         renderList();
     });
 
+    // --- Detail Panel (Desktop) ---
+    function renderDetailPanel() {
+        if (!expandedId) {
+            detailPanel.innerHTML = `
+                <div class="wiki-detail-empty">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <p>Eintrag auswählen</p>
+                </div>`;
+            return;
+        }
+        const entry = WIKI_DATA.find(e => e.id === expandedId);
+        if (!entry) return;
+        const cat = CATEGORIES[entry.cat] || CATEGORIES.all;
+        const layerHtml = entry.layer
+            ? `<span class="wiki-detail-layer">${entry.layer}</span>`
+            : '';
+
+        detailPanel.innerHTML = `
+            <div class="wiki-detail-content">
+                <div class="wiki-detail-title-row">
+                    ${layerHtml}
+                    <div>
+                        <h3 class="wiki-detail-title">${entry.title}</h3>
+                        <span class="wiki-detail-subtitle">${entry.subtitle}</span>
+                    </div>
+                </div>
+                <span class="wiki-detail-badge" style="color:${cat.color}; background:${cat.color}15; border-color:${cat.color}40">${cat.label}</span>
+                <div class="wiki-detail-desc">
+                    <p>${entry.desc}</p>
+                </div>
+                ${entry.tags.length ? `
+                <div class="wiki-detail-tags">
+                    ${entry.tags.map(t => `<span class="wiki-detail-tag">${t}</span>`).join('')}
+                </div>` : ''}
+            </div>`;
+    }
+
     // Expand / collapse (event delegation)
     wikiList.addEventListener('click', (e) => {
         const row = e.target.closest('.wiki-row');
         if (!row) return;
         const id = row.dataset.id;
-        expandedId = expandedId === id ? null : id;
-        renderList();
+
+        if (isDesktop()) {
+            // Desktop: select row, show in detail panel
+            expandedId = expandedId === id ? null : id;
+            renderList();
+            renderDetailPanel();
+        } else {
+            // Mobile: accordion behavior
+            expandedId = expandedId === id ? null : id;
+            renderList();
+        }
     });
 
     // Initial render
