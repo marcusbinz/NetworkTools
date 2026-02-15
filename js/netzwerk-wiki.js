@@ -578,45 +578,121 @@ function init_netzwerk_wiki(container) {
         const c = entry.cableColor || '#6b7280';
 
         if (entry.cableType === 'copper') {
-            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="30" width="100" height="40" rx="6" fill="${c}" opacity="0.9"/>
-                <line x1="10" y1="40" x2="90" y2="40" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
-                <line x1="10" y1="50" x2="90" y2="50" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
-                <line x1="10" y1="60" x2="90" y2="60" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
-                <rect x="100" y="25" width="50" height="50" rx="3" fill="#d4d4d8" stroke="#a1a1aa" stroke-width="1.5"/>
-                <rect x="108" y="20" width="34" height="10" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="1"/>
-                <line x1="112" y1="30" x2="112" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <line x1="118" y1="30" x2="118" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <line x1="124" y1="30" x2="124" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <line x1="130" y1="30" x2="130" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <line x1="136" y1="30" x2="136" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <line x1="142" y1="30" x2="142" y2="45" stroke="#fbbf24" stroke-width="2"/>
-                <rect x="115" y="55" width="20" height="12" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="1"/>
-                <text x="100" y="95" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">${entry.title}</text>
+            // Realistisches aufgeschnittenes Kupferkabel mit verdrillten Aderpaaren
+            // Farben nach TIA-568B: Orange, Grün, Blau, Braun (je Ader + weiße Ringel-Ader)
+            const pairColors = [
+                ['#f97316','#fed7aa'], // orange / weiß-orange
+                ['#22c55e','#bbf7d0'], // grün / weiß-grün
+                ['#3b82f6','#bfdbfe'], // blau / weiß-blau
+                ['#92400e','#fde68a'], // braun / weiß-braun
+            ];
+            let pairs = '';
+            const pairY = [22, 38, 54, 70];
+            pairColors.forEach((pc, i) => {
+                const y = pairY[i];
+                // Twisted pair: zwei Adern verdrillt als Sinuskurve
+                const a1 = `M90,${y}C100,${y-4} 108,${y+4} 116,${y-4}C124,${y+4} 132,${y-4} 140,${y+4}C148,${y-4} 156,${y+4} 164,${y}`;
+                const a2 = `M90,${y}C100,${y+4} 108,${y-4} 116,${y+4}C124,${y-4} 132,${y+4} 140,${y-4}C148,${y+4} 156,${y-4} 164,${y}`;
+                pairs += `<path d="${a1}" fill="none" stroke="${pc[1]}" stroke-width="3.5" stroke-linecap="round"/>`;
+                pairs += `<path d="${a2}" fill="none" stroke="${pc[0]}" stroke-width="3.5" stroke-linecap="round"/>`;
+            });
+            return `<svg viewBox="0 0 200 92" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="csheath-${entry.id}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${c}" stop-opacity="0.85"/>
+                        <stop offset="50%" stop-color="${c}"/>
+                        <stop offset="100%" stop-color="${c}" stop-opacity="0.7"/>
+                    </linearGradient>
+                </defs>
+                <!-- Kabelmantel -->
+                <rect x="2" y="6" width="88" height="80" rx="10" fill="url(#csheath-${entry.id})"/>
+                <rect x="4" y="8" width="30" height="76" rx="8" fill="${c}" opacity="0.15"/>
+                <!-- Aufgerissene Mantelkante -->
+                <path d="M88,6 C92,10 90,18 93,26 C89,34 93,42 90,50 C93,58 89,66 92,74 C90,80 92,86 88,86" fill="none" stroke="${c}" stroke-width="2" opacity="0.7"/>
+                <!-- Verdrillte Aderpaare -->
+                ${pairs}
+                <!-- Glanzlicht auf Mantel -->
+                <rect x="8" y="10" width="12" height="72" rx="6" fill="#fff" opacity="0.10"/>
             </svg>`;
         }
 
         if (entry.cableType === 'fiber') {
-            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="38" width="100" height="24" rx="12" fill="${c}" opacity="0.9"/>
-                <line x1="10" y1="50" x2="90" y2="50" stroke="#fff" stroke-width="1" opacity="0.4"/>
-                <rect x="100" y="30" width="55" height="40" rx="4" fill="#d4d4d8" stroke="#a1a1aa" stroke-width="1.5"/>
-                <circle cx="140" cy="50" r="6" fill="#f8fafc" stroke="#71717a" stroke-width="1.5"/>
-                <circle cx="140" cy="50" r="2" fill="${c}"/>
-                <rect x="105" y="35" width="8" height="30" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="0.8"/>
-                <rect x="165" y="38" width="24" height="24" rx="4" fill="${c}" stroke="${c}" stroke-width="1"/>
-                <text x="100" y="95" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">${entry.title}</text>
+            // Realistisches Glasfaserkabel mit sichtbaren Fasern und LC-Duplex-Stecker
+            // Fasern fächern aus dem Mantel heraus, Stecker am Ende
+            const fiberShades = [c, c, c, c];
+            let fibers = '';
+            const fiberY = [30, 40, 50, 60];
+            fiberY.forEach((y, i) => {
+                // Sanfte Kurve aus dem Mantel heraus
+                const curve = `M82,${46 + (i-1.5)*3} C100,${46 + (i-1.5)*3} 110,${y} 132,${y}`;
+                fibers += `<path d="${curve}" fill="none" stroke="${fiberShades[i]}" stroke-width="2" stroke-linecap="round" opacity="0.9"/>`;
+                fibers += `<path d="${curve}" fill="none" stroke="#fff" stroke-width="0.5" stroke-linecap="round" opacity="0.3"/>`;
+            });
+            return `<svg viewBox="0 0 200 92" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="fsheath-${entry.id}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="${c}" stop-opacity="0.8"/>
+                        <stop offset="50%" stop-color="${c}"/>
+                        <stop offset="100%" stop-color="${c}" stop-opacity="0.65"/>
+                    </linearGradient>
+                    <linearGradient id="fstecker-${entry.id}" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#e2e8f0"/>
+                        <stop offset="100%" stop-color="#94a3b8"/>
+                    </linearGradient>
+                </defs>
+                <!-- Kabelmantel -->
+                <rect x="2" y="22" width="82" height="48" rx="24" fill="url(#fsheath-${entry.id})"/>
+                <rect x="4" y="24" width="28" height="44" rx="22" fill="#fff" opacity="0.08"/>
+                <!-- Fasern -->
+                ${fibers}
+                <!-- LC-Stecker Gehäuse -->
+                <rect x="132" y="26" width="18" height="18" rx="3" fill="url(#fstecker-${entry.id})" stroke="#94a3b8" stroke-width="1"/>
+                <rect x="132" y="48" width="18" height="18" rx="3" fill="url(#fstecker-${entry.id})" stroke="#94a3b8" stroke-width="1"/>
+                <!-- LC-Stecker Ferrule (Spitze) -->
+                <rect x="150" y="30" width="10" height="10" rx="2" fill="#d1d5db" stroke="#94a3b8" stroke-width="0.8"/>
+                <circle cx="155" cy="35" r="2.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.6"/>
+                <circle cx="155" cy="35" r="1" fill="${c}"/>
+                <rect x="150" y="52" width="10" height="10" rx="2" fill="#d1d5db" stroke="#94a3b8" stroke-width="0.8"/>
+                <circle cx="155" cy="57" r="2.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.6"/>
+                <circle cx="155" cy="57" r="1" fill="${c}"/>
+                <!-- Stecker-Clip oben -->
+                <rect x="135" y="22" width="12" height="4" rx="1" fill="#cbd5e1" stroke="#94a3b8" stroke-width="0.5"/>
+                <rect x="135" y="66" width="12" height="4" rx="1" fill="#cbd5e1" stroke="#94a3b8" stroke-width="0.5"/>
+                <!-- Beschriftung LC -->
+                <text x="141" y="80" text-anchor="middle" font-size="8" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.6">LC</text>
             </svg>`;
         }
 
         if (entry.cableType === 'coax') {
-            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="35" width="100" height="30" rx="15" fill="${c}" opacity="0.9"/>
-                <circle cx="150" cy="50" r="30" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
-                <circle cx="150" cy="50" r="22" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/>
-                <circle cx="150" cy="50" r="15" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1"/>
-                <circle cx="150" cy="50" r="6" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
-                <text x="150" y="95" text-anchor="middle" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">Querschnitt</text>
+            // Realistischer Koaxial-Querschnitt + seitliche Kabelansicht
+            return `<svg viewBox="0 0 200 92" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="coax-outer-${entry.id}" cx="50%" cy="50%" r="50%">
+                        <stop offset="70%" stop-color="#374151"/>
+                        <stop offset="100%" stop-color="#1f2937"/>
+                    </radialGradient>
+                    <radialGradient id="coax-diel-${entry.id}" cx="40%" cy="40%" r="60%">
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#e5e7eb"/>
+                    </radialGradient>
+                </defs>
+                <!-- Seitliche Kabelansicht -->
+                <rect x="2" y="30" width="70" height="32" rx="16" fill="#374151"/>
+                <rect x="4" y="32" width="20" height="28" rx="14" fill="#4b5563" opacity="0.4"/>
+                <line x1="10" y1="46" x2="68" y2="46" stroke="#6b7280" stroke-width="0.5" opacity="0.5"/>
+                <!-- Querschnitt -->
+                <!-- Außenmantel -->
+                <circle cx="130" cy="46" r="34" fill="url(#coax-outer-${entry.id})" stroke="#4b5563" stroke-width="1.5"/>
+                <!-- Schirmgeflecht -->
+                <circle cx="130" cy="46" r="27" fill="none" stroke="#9ca3af" stroke-width="4" stroke-dasharray="3,2" opacity="0.8"/>
+                <circle cx="130" cy="46" r="27" fill="#6b7280" opacity="0.15"/>
+                <!-- Dielektrikum -->
+                <circle cx="130" cy="46" r="19" fill="url(#coax-diel-${entry.id})" stroke="#d1d5db" stroke-width="0.8"/>
+                <!-- Innenleiter (Kupfer) -->
+                <circle cx="130" cy="46" r="6" fill="#d97706" stroke="#b45309" stroke-width="1.5"/>
+                <circle cx="128" cy="44" r="2" fill="#fbbf24" opacity="0.5"/>
+                <!-- Beschriftungen -->
+                <text x="130" y="88" text-anchor="middle" font-size="7" fill="currentColor" font-family="system-ui,sans-serif" opacity="0.5">Querschnitt</text>
             </svg>`;
         }
 
