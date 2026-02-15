@@ -236,9 +236,8 @@
     height: auto;
 }
 
-/* Mobile: hint that image is tappable */
-.wiki-cable-mobile::after {
-    content: 'Antippen zum Vergr\00f6\00dfern';
+/* Mobile: hint label styled (text set in JS) */
+.wiki-cable-hint {
     display: block;
     font-size: 10px;
     color: var(--text-dim);
@@ -459,7 +458,7 @@
     }
 
     /* Desktop: cable illustration not clickable, no lightbox hint */
-    .wiki-cable-mobile::after {
+    .wiki-cable-hint {
         display: none;
     }
 
