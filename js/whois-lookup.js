@@ -130,6 +130,63 @@ function init_whois_lookup(container) {
         throw new Error(`UNSUPPORTED:${tld}`);
     }
 
+    // --- DNS Resolution via Google DNS-over-HTTPS ---
+    async function queryDNS(domain) {
+        const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
+        const result = { ipv4: [], ipv6: [] };
+
+        // Parallel A + AAAA queries
+        const [aRes, aaaaRes] = await Promise.allSettled([
+            fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`, { signal }),
+            fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=AAAA`, { signal })
+        ]);
+
+        // Parse A records (IPv4)
+        if (aRes.status === 'fulfilled' && aRes.value.ok) {
+            try {
+                const data = await aRes.value.json();
+                if (data.Answer) {
+                    result.ipv4 = data.Answer
+                        .filter(a => a.type === 1)
+                        .map(a => a.data);
+                }
+            } catch (e) { /* ignore parse errors */ }
+        }
+
+        // Parse AAAA records (IPv6)
+        if (aaaaRes.status === 'fulfilled' && aaaaRes.value.ok) {
+            try {
+                const data = await aaaaRes.value.json();
+                if (data.Answer) {
+                    result.ipv6 = data.Answer
+                        .filter(a => a.type === 28)
+                        .map(a => a.data);
+                }
+            } catch (e) { /* ignore parse errors */ }
+        }
+
+        return result;
+    }
+
+    // --- IP Geolocation + ASN via ip-api.com ---
+    // Free tier: 45 req/min, HTTP only (no HTTPS on free), CORS enabled
+    async function queryIPInfo(ip) {
+        const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
+        try {
+            const res = await fetch(
+                `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,regionName,city,zip,lat,lon,isp,org,as,asname,reverse,hosting`,
+                { signal }
+            );
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'success') return data;
+            }
+        } catch (e) {
+            if (e.name === 'AbortError') throw e;
+        }
+        return null;
+    }
+
     // --- Parse RDAP response ---
     function parseRDAP(data) {
         const result = {};
@@ -213,8 +270,43 @@ function init_whois_lookup(container) {
     }
 
     // --- Render Results ---
-    function renderResults(info) {
+    function renderResults(info, dnsInfo, ipInfo) {
         const sections = [];
+
+        // === IP Address section (NEW) ===
+        if (dnsInfo && (dnsInfo.ipv4.length > 0 || dnsInfo.ipv6.length > 0)) {
+            const ipFields = [];
+            dnsInfo.ipv4.forEach(ip => {
+                ipFields.push({ label: 'IPv4', value: ip });
+            });
+            dnsInfo.ipv6.forEach(ip => {
+                ipFields.push({ label: 'IPv6', value: ip });
+            });
+            sections.push(renderSection('IP-Adressen', '#2dd4bf', ipFields));
+        }
+
+        // === Hosting / Location section (NEW) ===
+        if (ipInfo) {
+            const hostFields = [];
+            if (ipInfo.isp) hostFields.push({ label: 'ISP', value: ipInfo.isp });
+            if (ipInfo.org) hostFields.push({ label: 'Organisation', value: ipInfo.org });
+            if (ipInfo.as) hostFields.push({ label: 'ASN', value: ipInfo.as });
+            // Location
+            const locParts = [];
+            if (ipInfo.city) locParts.push(ipInfo.city);
+            if (ipInfo.regionName) locParts.push(ipInfo.regionName);
+            if (ipInfo.country) locParts.push(ipInfo.country);
+            if (locParts.length > 0) {
+                hostFields.push({ label: 'Standort', value: locParts.join(', ') });
+            }
+            if (ipInfo.reverse) hostFields.push({ label: 'Reverse DNS', value: ipInfo.reverse });
+            if (ipInfo.hosting !== undefined) {
+                hostFields.push({ label: 'Hosting', value: ipInfo.hosting ? 'Ja (Datacenter)' : 'Nein (Privat/Business)' });
+            }
+            if (hostFields.length > 0) {
+                sections.push(renderSection('Hosting & Standort', 'var(--red)', hostFields));
+            }
+        }
 
         // Registration section
         const regFields = [];
@@ -299,29 +391,57 @@ function init_whois_lookup(container) {
         errorCard.style.display = 'none';
 
         try {
-            const data = await queryRDAP(domain);
-            loadingCard.style.display = 'none';
+            // Run RDAP + DNS queries in parallel
+            const [rdapData, dnsInfo] = await Promise.allSettled([
+                queryRDAP(domain),
+                queryDNS(domain)
+            ]);
 
-            const info = parseRDAP(data);
+            // Check if aborted
+            if (_whoisAbortController && _whoisAbortController.signal.aborted) return;
+
+            // RDAP must succeed
+            if (rdapData.status === 'rejected') {
+                throw rdapData.reason;
+            }
+
+            const info = parseRDAP(rdapData.value);
+            const dns = dnsInfo.status === 'fulfilled' ? dnsInfo.value : { ipv4: [], ipv6: [] };
+
+            // Show initial results immediately (without IP info)
             document.getElementById('whois-result-domain').textContent = domain;
-            renderResults(info);
+            loadingCard.style.display = 'none';
+            renderResults(info, dns, null);
             resultCard.style.display = 'block';
+
+            // Now fetch IP geolocation (if we have an IPv4 address)
+            if (dns.ipv4.length > 0) {
+                try {
+                    const ipInfo = await queryIPInfo(dns.ipv4[0]);
+                    // Re-render with IP info added
+                    if (ipInfo && !(_whoisAbortController && _whoisAbortController.signal.aborted)) {
+                        renderResults(info, dns, ipInfo);
+                    }
+                } catch (e) {
+                    // IP info is optional, don't break on failure
+                }
+            }
 
         } catch (err) {
             if (err.name === 'AbortError') return;
             loadingCard.style.display = 'none';
-            if (err.message.startsWith('UNSUPPORTED:')) {
+            if (err.message && err.message.startsWith('UNSUPPORTED:')) {
                 const tld = err.message.split(':')[1];
                 showError(`Für .${tld}-Domains konnte kein RDAP-Server gefunden werden. Versuche einen externen Dienst wie whois.domaintools.com.`);
-            } else if (err.message.startsWith('PROXY_FAILED:')) {
+            } else if (err.message && err.message.startsWith('PROXY_FAILED:')) {
                 const tld = err.message.split(':')[1];
                 showError(`Die Abfrage für .${tld}-Domains ist fehlgeschlagen. Der CORS-Proxy ist möglicherweise überlastet — bitte später erneut versuchen.`);
-            } else if (err.message.includes('404') || err.message.includes('400')) {
+            } else if (err.message && (err.message.includes('404') || err.message.includes('400'))) {
                 showError(`Keine WHOIS-Daten für "${domain}" gefunden. Die Domain existiert möglicherweise nicht.`);
-            } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+            } else if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
                 showError(`RDAP-Server nicht erreichbar für "${domain}". Bitte prüfe deine Internetverbindung.`);
             } else {
-                showError(`Fehler bei der Abfrage: ${err.message}`);
+                showError(`Fehler bei der Abfrage: ${err.message || err}`);
             }
         }
     }
