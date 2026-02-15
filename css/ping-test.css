@@ -151,6 +151,31 @@
     margin-top: 2px;
 }
 
+/* Packet stats */
+.ping-pkt-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    padding: 8px 0;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.ping-pkt-stats strong {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.ping-pkt-sep {
+    color: var(--card-border);
+    font-size: 10px;
+}
+
 /* Progress */
 .ping-progress-row {
     margin-bottom: 16px;

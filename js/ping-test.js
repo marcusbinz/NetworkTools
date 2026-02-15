@@ -58,6 +58,15 @@ function init_ping_test(container) {
                 </div>
             </div>
 
+            <!-- Packet stats -->
+            <div class="ping-pkt-stats" id="ping-pkt-stats">
+                <span><strong id="ping-pkt-sent">0</strong> Gesendet</span>
+                <span class="ping-pkt-sep">\u2022</span>
+                <span><strong id="ping-pkt-recv">0</strong> Empfangen</span>
+                <span class="ping-pkt-sep">\u2022</span>
+                <span><strong id="ping-pkt-lost" style="color:var(--green)">0</strong> Verloren</span>
+            </div>
+
             <!-- Progress -->
             <div class="ping-progress-row">
                 <span class="ping-progress-text" id="ping-progress-text">0 / 10</span>
@@ -153,10 +162,18 @@ function init_ping_test(container) {
         document.getElementById('ping-stat-avg').textContent = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) + ' ms' : '—';
         document.getElementById('ping-stat-max').textContent = times.length > 0 ? Math.max(...times) + ' ms' : '—';
 
-        const lossRate = results.length > 0 ? Math.round(((results.length - successful.length) / results.length) * 100) : 0;
+        const lost = results.length - successful.length;
+        const lossRate = results.length > 0 ? Math.round((lost / results.length) * 100) : 0;
         const lossEl = document.getElementById('ping-stat-loss');
         lossEl.textContent = lossRate + '%';
         lossEl.style.color = lossRate > 0 ? 'var(--red)' : 'var(--green)';
+
+        // Packet counters
+        document.getElementById('ping-pkt-sent').textContent = results.length;
+        document.getElementById('ping-pkt-recv').textContent = successful.length;
+        const pktLostEl = document.getElementById('ping-pkt-lost');
+        pktLostEl.textContent = lost;
+        pktLostEl.style.color = lost > 0 ? 'var(--red)' : 'var(--green)';
     }
 
     // --- Update chart ---
@@ -235,9 +252,8 @@ function init_ping_test(container) {
         stopBtn.style.display = 'inline-block';
         startBtn.disabled = true;
 
-        // Use HTTP for private/local IPs (no TLS overhead), HTTPS for public
         const isLocal = isPrivateHost(host);
-        const url = isLocal ? `http://${host}` : `https://${host}`;
+        const url = `https://${host}`;
 
         // Show hint
         const hintEl = document.getElementById('ping-hint');
