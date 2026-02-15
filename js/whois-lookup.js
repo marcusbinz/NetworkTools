@@ -168,55 +168,85 @@ function init_whois_lookup(container) {
         return result;
     }
 
-    // --- IP Geolocation + ASN (multi-provider fallback) ---
+    // --- IP Info: ASN via RIPE Stat (never blocked) + Geo via ipwho.is (optional) ---
     async function queryIPInfo(ip) {
         const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
+        const result = { country: '', regionName: '', city: '', isp: '', org: '', as: '', domain: '', netname: '' };
 
-        // Provider 1: ipwho.is (HTTPS, CORS, free)
+        // 1. RIPE Stat — official Internet Registry, HTTPS + CORS, never blocked
+        //    This gives us ASN + holder name (most important info)
+        try {
+            const [prefixRes, whoisRes] = await Promise.allSettled([
+                fetch(`https://stat.ripe.net/data/prefix-overview/data.json?resource=${ip}`, { signal }),
+                fetch(`https://stat.ripe.net/data/whois/data.json?resource=${ip}`, { signal })
+            ]);
+
+            // ASN + Holder from prefix-overview
+            if (prefixRes.status === 'fulfilled' && prefixRes.value.ok) {
+                const pData = await prefixRes.value.json();
+                if (pData.data && pData.data.asns && pData.data.asns.length > 0) {
+                    const asn = pData.data.asns[0];
+                    result.as = `AS${asn.asn} ${asn.holder || ''}`.trim();
+                    result.isp = asn.holder || '';
+                }
+            }
+
+            // Netname + Country + Org from whois
+            if (whoisRes.status === 'fulfilled' && whoisRes.value.ok) {
+                const wData = await whoisRes.value.json();
+                if (wData.data && wData.data.records) {
+                    // First record is the inetnum block
+                    const firstRecord = wData.data.records[0] || [];
+                    firstRecord.forEach(entry => {
+                        if (entry.key === 'netname') result.netname = entry.value;
+                        if (entry.key === 'country') result.country = entry.value;
+                        if (entry.key === 'descr' && !result.org) result.org = entry.value;
+                    });
+                    // Look for org record (usually second block)
+                    if (wData.data.records.length > 1) {
+                        const orgRecord = wData.data.records.find(rec =>
+                            rec.some(e => e.key === 'organisation' || e.key === 'org-name')
+                        );
+                        if (orgRecord) {
+                            const orgName = orgRecord.find(e => e.key === 'org-name');
+                            if (orgName) result.org = orgName.value;
+                            const orgCountry = orgRecord.find(e => e.key === 'country');
+                            if (orgCountry && !result.country) result.country = orgCountry.value;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            if (e.name === 'AbortError') throw e;
+            console.warn('WHOIS: RIPE Stat failed:', e.message);
+        }
+
+        // 2. Geo-Enrichment via ipwho.is (optional — may be blocked by ad-blockers)
         try {
             const res = await fetch(`https://ipwho.is/${ip}`, { signal });
             if (res.ok) {
                 const data = await res.json();
-                if (data.success && data.connection) {
-                    return {
-                        country: data.country || '',
-                        regionName: data.region || '',
-                        city: data.city || '',
-                        isp: data.connection.isp || '',
-                        org: data.connection.org || '',
-                        as: `AS${data.connection.asn} ${data.connection.org}`,
-                        domain: data.connection.domain || '',
-                    };
+                if (data.success) {
+                    result.city = data.city || '';
+                    result.regionName = data.region || '';
+                    result.country = data.country || result.country;
+                    if (data.connection) {
+                        result.domain = data.connection.domain || '';
+                        // Use ipwho.is ISP if RIPE didn't provide one
+                        if (!result.isp) result.isp = data.connection.isp || '';
+                        if (!result.as) result.as = `AS${data.connection.asn} ${data.connection.org || ''}`.trim();
+                    }
                 }
             }
         } catch (e) {
             if (e.name === 'AbortError') throw e;
-            console.warn('WHOIS: ipwho.is failed:', e.message);
+            // Geo is optional — RIPE data is enough
+            console.warn('WHOIS: ipwho.is geo failed (optional):', e.message);
         }
 
-        // Provider 2: ipapi.co (HTTPS, free, 1000 req/day)
-        try {
-            const res = await fetch(`https://ipapi.co/${ip}/json/`, { signal });
-            if (res.ok) {
-                const data = await res.json();
-                if (!data.error) {
-                    return {
-                        country: data.country_name || '',
-                        regionName: data.region || '',
-                        city: data.city || '',
-                        isp: data.org || '',
-                        org: data.org || '',
-                        as: data.asn ? `${data.asn} ${data.org || ''}` : '',
-                        domain: '',
-                    };
-                }
-            }
-        } catch (e) {
-            if (e.name === 'AbortError') throw e;
-            console.warn('WHOIS: ipapi.co failed:', e.message);
-        }
-
-        return null;
+        // Return null only if we got nothing at all
+        if (!result.as && !result.isp && !result.country) return null;
+        return result;
     }
 
     // --- Parse RDAP response ---
@@ -317,12 +347,13 @@ function init_whois_lookup(container) {
             sections.push(renderSection('IP-Adressen', '#2dd4bf', ipFields));
         }
 
-        // === Hosting / Location section (NEW) ===
+        // === Hosting / Location section ===
         if (ipInfo) {
             const hostFields = [];
-            if (ipInfo.isp) hostFields.push({ label: 'ISP', value: ipInfo.isp });
+            if (ipInfo.isp) hostFields.push({ label: 'ISP / Hoster', value: ipInfo.isp });
             if (ipInfo.org && ipInfo.org !== ipInfo.isp) hostFields.push({ label: 'Organisation', value: ipInfo.org });
             if (ipInfo.as) hostFields.push({ label: 'ASN', value: ipInfo.as });
+            if (ipInfo.netname) hostFields.push({ label: 'Netzwerk', value: ipInfo.netname });
             // Location
             const locParts = [];
             if (ipInfo.city) locParts.push(ipInfo.city);
