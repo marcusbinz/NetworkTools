@@ -233,3 +233,24 @@
     font-weight: 600;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
 }
+
+/* Hint */
+.ping-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: rgba(96, 165, 250, 0.08);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--text-dim);
+}
+
+.ping-hint svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+}

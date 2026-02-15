@@ -71,6 +71,9 @@ function init_ping_test(container) {
 
             <!-- Log -->
             <div class="ping-log" id="ping-log"></div>
+
+            <!-- Hint -->
+            <div class="ping-hint" id="ping-hint"></div>
         </section>
 
         <section class="card error-card" id="ping-error-card" style="display:none;">
@@ -90,6 +93,21 @@ function init_ping_test(container) {
     let pingCount = 10;
     let results = [];
     let isRunning = false;
+
+    // --- Private/local IP detection ---
+    function isPrivateHost(host) {
+        // 10.x.x.x
+        if (/^10\./.test(host)) return true;
+        // 172.16-31.x.x
+        if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)) return true;
+        // 192.168.x.x
+        if (/^192\.168\./.test(host)) return true;
+        // localhost / 127.x
+        if (host === 'localhost' || /^127\./.test(host)) return true;
+        // link-local
+        if (/^169\.254\./.test(host)) return true;
+        return false;
+    }
 
     // --- Count chips ---
     countChips.forEach(chip => {
@@ -217,7 +235,21 @@ function init_ping_test(container) {
         stopBtn.style.display = 'inline-block';
         startBtn.disabled = true;
 
-        const url = `https://${host}`;
+        // Use HTTP for private/local IPs (no TLS overhead), HTTPS for public
+        const isLocal = isPrivateHost(host);
+        const url = isLocal ? `http://${host}` : `https://${host}`;
+
+        // Show hint
+        const hintEl = document.getElementById('ping-hint');
+        if (isLocal) {
+            hintEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' +
+                '<span><strong>Lokale Adresse erkannt.</strong> Browser k\u00f6nnen keinen echten ICMP-Ping senden. ' +
+                'Die Messung erfolgt per HTTP-Request und enth\u00e4lt zus\u00e4tzlichen Overhead (TCP/HTTP). ' +
+                'Die Werte weichen daher deutlich von einem Konsolen-Ping ab.</span>';
+        } else {
+            hintEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> ' +
+                '<span>Kein echter ICMP-Ping \u2014 Messung per HTTPS-Request (inkl. DNS + TLS + HTTP Overhead).</span>';
+        }
 
         try {
             let i = 0;
