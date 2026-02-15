@@ -165,7 +165,7 @@ function init_netzwerk_befehle(container) {
             }
         },
 
-        // ===== KONFIGURATION (4) =====
+        // ===== KONFIGURATION (5) =====
         {
             id: 'ipconfig', name: 'ipconfig / ip', cat: 'config',
             desc: 'IP-Konfiguration und Netzwerkadapter anzeigen/\u00e4ndern',
@@ -282,6 +282,44 @@ function init_netzwerk_befehle(container) {
                     { cmd: 'hostname -f',                         desc: 'FQDN anzeigen' },
                     { cmd: 'hostnamectl',                         desc: 'Ausf\u00fchrliche System-/Hostname-Info' },
                     { cmd: 'hostnamectl set-hostname server01',   desc: 'Hostname permanent \u00e4ndern' },
+                ]
+            }
+        },
+        {
+            id: 'proxy', name: 'proxy', cat: 'config',
+            desc: 'Proxy-Einstellungen anzeigen, setzen oder entfernen',
+            win: {
+                cmd: 'netsh winhttp',
+                syntax: 'netsh winhttp [show|set|reset] proxy ...',
+                switches: [
+                    { flag: 'show proxy',              desc: 'Aktuellen Proxy anzeigen' },
+                    { flag: 'set proxy <Proxy:Port>',  desc: 'Proxy setzen' },
+                    { flag: 'set proxy <Proxy> bypass-list="<Liste>"', desc: 'Proxy mit Ausnahmen' },
+                    { flag: 'reset proxy',             desc: 'Proxy entfernen (Direktverbindung)' },
+                    { flag: 'set HTTP_PROXY=...',      desc: 'Umgebungsvariable (CMD/PowerShell)' },
+                ],
+                examples: [
+                    { cmd: 'netsh winhttp show proxy',                          desc: 'Proxy-Status anzeigen' },
+                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080',       desc: 'Proxy konfigurieren' },
+                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080 bypass-list="*.local;10.*"', desc: 'Proxy mit Ausnahmen' },
+                    { cmd: 'netsh winhttp reset proxy',                         desc: 'Proxy entfernen' },
+                ]
+            },
+            linux: {
+                cmd: 'export http_proxy / https_proxy',
+                syntax: 'export http_proxy=http://<Proxy:Port>',
+                switches: [
+                    { flag: 'export http_proxy=...',   desc: 'HTTP-Proxy setzen' },
+                    { flag: 'export https_proxy=...',  desc: 'HTTPS-Proxy setzen' },
+                    { flag: 'export no_proxy=...',     desc: 'Ausnahmen (kommagetrennt)' },
+                    { flag: 'unset http_proxy',        desc: 'Proxy entfernen' },
+                    { flag: 'env | grep -i proxy',     desc: 'Aktuelle Proxy-Variablen anzeigen' },
+                ],
+                examples: [
+                    { cmd: 'export http_proxy=http://proxy.firma.de:8080',      desc: 'HTTP-Proxy setzen' },
+                    { cmd: 'export https_proxy=http://proxy.firma.de:8080',     desc: 'HTTPS-Proxy setzen' },
+                    { cmd: 'export no_proxy=localhost,127.0.0.1,.local',        desc: 'Ausnahmen definieren' },
+                    { cmd: 'unset http_proxy https_proxy',                      desc: 'Proxy entfernen' },
                 ]
             }
         },
