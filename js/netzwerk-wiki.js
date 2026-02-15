@@ -11,6 +11,7 @@ function init_netzwerk_wiki(container) {
         geraete:      { label: 'Geräte',        color: 'var(--green)' },
         adressierung: { label: 'Adressierung',  color: 'var(--red)' },
         sicherheit:   { label: 'Sicherheit',    color: '#2dd4bf' },
+        email:        { label: 'E-Mail',        color: '#f472b6' },
     };
 
     // --- Wiki-Daten ---
@@ -182,71 +183,85 @@ function init_netzwerk_wiki(container) {
             id: 'cat5', title: 'Cat 5', subtitle: 'Kategorie 5',
             desc: 'Älterer Ethernet-Standard mit Frequenzen bis 100 MHz. Unterstützt Fast Ethernet (100 Mbit/s) über 100 Meter. 4 verdrillte Adernpaare (Twisted Pair), meist ungeschirmt (UTP). Heute durch Cat 5e ersetzt — für Neuinstallationen nicht mehr empfohlen.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '100mbit', '100mhz', 'utp', 'fast ethernet'],
+            cableType: 'copper', cableColor: '#6b7280',
         },
         {
             id: 'cat5e', title: 'Cat 5e', subtitle: 'Kategorie 5 Enhanced',
             desc: 'Verbesserte Version von Cat 5 mit strengeren Spezifikationen gegen Übersprechen (Crosstalk). Unterstützt Gigabit Ethernet (1 Gbit/s) über 100 Meter bei 100 MHz. Weit verbreitet in bestehenden Installationen. Mindeststandard für Gigabit-Netzwerke.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '1gbit', '100mhz', 'gigabit', 'crosstalk'],
+            cableType: 'copper', cableColor: '#3b82f6',
         },
         {
             id: 'cat6', title: 'Cat 6', subtitle: 'Kategorie 6',
             desc: 'Standard für Frequenzen bis 250 MHz. Unterstützt 1 Gbit/s über 100 Meter und 10 Gbit/s über kurze Distanzen (bis 55 Meter). Bessere Isolation durch Trennkreuz (Spline) zwischen den Adernpaaren. Gängige Wahl für Büro- und Heimnetzwerke.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '10gbit', '250mhz', 'spline', 'büro'],
+            cableType: 'copper', cableColor: '#3b82f6',
         },
         {
             id: 'cat6a', title: 'Cat 6a', subtitle: 'Kategorie 6a — Augmented',
             desc: 'Erweiterter Cat-6-Standard mit Frequenzen bis 500 MHz und 10 Gbit/s über volle 100 Meter. Bessere Schirmung (typisch S/FTP) reduziert Alien Crosstalk. Standard für Neuinstallationen in Bürogebäuden und Rechenzentren. Rückwärtskompatibel mit Cat 5e und Cat 6.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '10gbit', '500mhz', 'augmented', 's/ftp', 'rechenzentrum'],
+            cableType: 'copper', cableColor: '#3b82f6',
         },
         {
             id: 'cat7', title: 'Cat 7', subtitle: 'Kategorie 7',
             desc: 'Vollständig geschirmtes Kabel (S/FTP) mit Frequenzen bis 600 MHz. Unterstützt 10 Gbit/s über 100 Meter. Jedes Adernpaar einzeln geschirmt plus Gesamtschirmung. Verwendet GG45- oder TERA-Stecker (nicht RJ-45 kompatibel ohne Adapter). In der Praxis oft durch Cat 6a ersetzt.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '10gbit', '600mhz', 's/ftp', 'gg45', 'geschirmt'],
+            cableType: 'copper', cableColor: '#22c55e',
         },
         {
             id: 'cat8', title: 'Cat 8', subtitle: 'Kategorie 8',
             desc: 'Höchste Kupfer-Kategorie mit Frequenzen bis 2.000 MHz (2 GHz). Unterstützt 25 Gbit/s und 40 Gbit/s über kurze Distanzen (30 Meter). Konzipiert für Rechenzentren und Switch-zu-Switch-Verbindungen. Für typische LAN-Installationen überdimensioniert.',
             cat: 'kabel', tags: ['kupfer', 'twisted pair', '40gbit', '25gbit', '2000mhz', '2ghz', 'rechenzentrum', 'datacenter'],
+            cableType: 'copper', cableColor: '#3b82f6',
         },
         {
-            id: 'om1', title: 'OM1', subtitle: 'Multimode Glasfaser 62,5/125 µm',
-            desc: 'Älteste Multimode-Glasfaser mit großem Kern (62,5 µm). Unterstützt Gigabit Ethernet bis 275 Meter und Fast Ethernet bis 2 km. Orange Ummantelung. Für LED-basierte Sender ausgelegt. Für Neuinstallationen nicht mehr empfohlen — durch OM3/OM4 abgelöst.',
+            id: 'om1', title: 'OM1', subtitle: 'Multimode Glasfaser 62,5/125 \u00b5m',
+            desc: 'Älteste Multimode-Glasfaser mit großem Kern (62,5 \u00b5m). Unterstützt Gigabit Ethernet bis 275 Meter und Fast Ethernet bis 2 km. Orange Ummantelung. Für LED-basierte Sender ausgelegt. Für Neuinstallationen nicht mehr empfohlen — durch OM3/OM4 abgelöst.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'multimode', 'led', '62.5', 'orange'],
+            cableType: 'fiber', cableColor: '#f97316',
         },
         {
-            id: 'om2', title: 'OM2', subtitle: 'Multimode Glasfaser 50/125 µm',
-            desc: 'Multimode-Glasfaser mit 50 µm Kern. Unterstützt Gigabit Ethernet bis 550 Meter. Verbesserte Bandbreite gegenüber OM1 durch kleineren Kern. Orange Ummantelung. Wird in bestehenden Installationen noch angetroffen, für Neuinstallationen OM3 oder höher empfohlen.',
+            id: 'om2', title: 'OM2', subtitle: 'Multimode Glasfaser 50/125 \u00b5m',
+            desc: 'Multimode-Glasfaser mit 50 \u00b5m Kern. Unterstützt Gigabit Ethernet bis 550 Meter. Verbesserte Bandbreite gegenüber OM1 durch kleineren Kern. Orange Ummantelung. Wird in bestehenden Installationen noch angetroffen, für Neuinstallationen OM3 oder höher empfohlen.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'multimode', '50', 'orange'],
+            cableType: 'fiber', cableColor: '#f97316',
         },
         {
             id: 'om3', title: 'OM3', subtitle: 'Multimode Glasfaser (Laser-optimiert)',
-            desc: 'Laser-optimierte Multimode-Glasfaser (50/125 µm). Unterstützt 10 Gbit/s bis 300 Meter und 40/100 Gbit/s über kurze Distanzen. Aqua-farbige Ummantelung. Für VCSEL-Laser (Vertical Cavity) optimiert. Gängiger Standard für Gebäude- und Campus-Verkabelung.',
+            desc: 'Laser-optimierte Multimode-Glasfaser (50/125 \u00b5m). Unterstützt 10 Gbit/s bis 300 Meter und 40/100 Gbit/s über kurze Distanzen. Aqua-farbige Ummantelung. Für VCSEL-Laser (Vertical Cavity) optimiert. Gängiger Standard für Gebäude- und Campus-Verkabelung.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'multimode', 'laser', '10gbit', 'vcsel', 'aqua'],
+            cableType: 'fiber', cableColor: '#06b6d4',
         },
         {
             id: 'om4', title: 'OM4', subtitle: 'Multimode Glasfaser (Hochleistung)',
             desc: 'Hochleistungs-Multimode-Glasfaser für 10 Gbit/s bis 400 Meter und 100 Gbit/s bis 150 Meter. Aqua-farbige Ummantelung (wie OM3). Höhere modale Bandbreite als OM3. Empfohlen für Rechenzentren und Backbone-Verbindungen innerhalb von Gebäuden.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'multimode', '100gbit', 'rechenzentrum', 'aqua', 'backbone'],
+            cableType: 'fiber', cableColor: '#06b6d4',
         },
         {
             id: 'om5', title: 'OM5', subtitle: 'Multimode Breitband (Wideband)',
             desc: 'Neueste Multimode-Kategorie, optimiert für SWDM (Short Wavelength Division Multiplexing) mit mehreren Wellenlängen. Unterstützt 100 Gbit/s und mehr über weitere Distanzen. Limettengrüne Ummantelung. Rückwärtskompatibel mit OM3/OM4-Infrastruktur.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'multimode', 'swdm', 'breitband', 'limettengrün', 'wideband'],
+            cableType: 'fiber', cableColor: '#84cc16',
         },
         {
             id: 'os1', title: 'OS1', subtitle: 'Singlemode Glasfaser (Indoor)',
-            desc: 'Singlemode-Glasfaser mit 9/125 µm Kern für Innenbereich-Verkabelung. Unterstützt Entfernungen bis 10 km bei 1 Gbit/s und 10 Gbit/s. Gelbe Ummantelung. Geringe Dämpfung (max. 1,0 dB/km). Für Gebäude-Backbones und mittlere Distanzen.',
+            desc: 'Singlemode-Glasfaser mit 9/125 \u00b5m Kern für Innenbereich-Verkabelung. Unterstützt Entfernungen bis 10 km bei 1 Gbit/s und 10 Gbit/s. Gelbe Ummantelung. Geringe Dämpfung (max. 1,0 dB/km). Für Gebäude-Backbones und mittlere Distanzen.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'singlemode', 'indoor', '9/125', 'gelb', '10km'],
+            cableType: 'fiber', cableColor: '#eab308',
         },
         {
             id: 'os2', title: 'OS2', subtitle: 'Singlemode Glasfaser (Outdoor)',
             desc: 'Singlemode-Glasfaser für Außen- und Langstreckenverbindungen. Unterstützt Entfernungen bis 200 km mit geeigneten Transceivern. Extrem geringe Dämpfung (max. 0,4 dB/km). Gelbe Ummantelung. Standard für WAN-Verbindungen, Carrier-Netze und Telekommunikation.',
             cat: 'kabel', tags: ['glasfaser', 'fiber', 'singlemode', 'outdoor', 'langstrecke', 'wan', 'gelb', '200km', 'carrier'],
+            cableType: 'fiber', cableColor: '#eab308',
         },
         {
             id: 'koaxial', title: 'Koaxial', subtitle: 'Koaxialkabel (RG-58, RG-6)',
             desc: 'Kabel mit einem zentralen Leiter, umgeben von Isolierung, Schirmung und Außenmantel. RG-58: dünn, 10Base2 (historisch). RG-6: Kabelfernsehen und Internet (DOCSIS). Gute Abschirmung gegen elektromagnetische Störungen. Im LAN durch Twisted Pair ersetzt, in der Breitband-Versorgung weiterhin im Einsatz.',
             cat: 'kabel', tags: ['kupfer', 'rg-58', 'rg-6', 'docsis', 'kabelfernsehen', 'breitband', '10base2', 'schirmung'],
+            cableType: 'coax', cableColor: '#1f2937',
         },
 
         // ===== Netzwerkgeräte (11) =====
@@ -444,6 +459,68 @@ function init_netzwerk_wiki(container) {
             desc: 'Erfordert mindestens zwei verschiedene Authentifizierungsfaktoren: Wissen (Passwort, PIN), Besitz (Smartphone, Token, Smartcard) und/oder Inhärenz (Fingerabdruck, Gesicht). Schützt gegen gestohlene Passwörter. Methoden: TOTP (zeitbasierte Einmalcodes), FIDO2/WebAuthn (passwortlos), SMS (unsicher), Push-Benachrichtigungen.',
             cat: 'sicherheit', tags: ['authentifizierung', 'passwort', 'totp', 'fido2', 'webauthn', 'token', 'zwei-faktor', '2fa'],
         },
+
+        // ===== E-Mail (12) =====
+        {
+            id: 'mx-record', title: 'MX Record', subtitle: 'Mail Exchange DNS-Eintrag',
+            desc: 'DNS-Eintrag vom Typ MX, der festlegt, welcher Mailserver f\u00fcr den E-Mail-Empfang einer Domain zust\u00e4ndig ist. Enth\u00e4lt einen Priorit\u00e4tswert (niedrig = bevorzugt) und den Hostnamen des Mailservers. Beispiel: example.com MX 10 mail.example.com. Mehrere MX-Records erm\u00f6glichen Failover und Lastverteilung.',
+            cat: 'email', tags: ['dns', 'mailserver', 'priorit\u00e4t', 'domain', 'empfang', 'failover'],
+        },
+        {
+            id: 'spf', title: 'SPF', subtitle: 'Sender Policy Framework',
+            desc: 'DNS-TXT-Eintrag, der festlegt, welche IP-Adressen und Server berechtigt sind, E-Mails im Namen einer Domain zu versenden. Empfangende Mailserver pr\u00fcfen den SPF-Record und k\u00f6nnen nicht autorisierte Absender ablehnen. Syntax: "v=spf1 ip4:203.0.113.0/24 include:_spf.google.com -all". Mechanismen: ip4, ip6, include, a, mx. Qualifier: + (Pass), - (Fail), ~ (Softfail), ? (Neutral).',
+            cat: 'email', tags: ['dns', 'txt-record', 'authentifizierung', 'absender', 'autorisierung', 'anti-spoofing'],
+        },
+        {
+            id: 'dkim', title: 'DKIM', subtitle: 'DomainKeys Identified Mail',
+            desc: 'E-Mail-Authentifizierungsverfahren, bei dem der sendende Mailserver eine digitale Signatur in den E-Mail-Header einf\u00fcgt (DKIM-Signature). Der \u00f6ffentliche Schl\u00fcssel wird als DNS-TXT-Record ver\u00f6ffentlicht (selector._domainkey.example.com). Empf\u00e4nger k\u00f6nnen damit pr\u00fcfen, dass die Nachricht tats\u00e4chlich vom angegebenen Absender stammt und unterwegs nicht ver\u00e4ndert wurde.',
+            cat: 'email', tags: ['signatur', 'kryptografie', 'dns', 'header', 'public key', 'selector', 'integrit\u00e4t'],
+        },
+        {
+            id: 'dmarc', title: 'DMARC', subtitle: 'Domain-based Message Authentication, Reporting & Conformance',
+            desc: 'Richtlinie als DNS-TXT-Record (_dmarc.example.com), die SPF und DKIM kombiniert und festlegt, wie empfangende Server mit nicht authentifizierten E-Mails umgehen sollen. Policies: none (nur beobachten), quarantine (Spam-Ordner), reject (ablehnen). Erm\u00f6glicht Reporting: Empf\u00e4nger senden Aggregate- und Forensic-Reports an den Domain-Inhaber.',
+            cat: 'email', tags: ['policy', 'spf', 'dkim', 'reporting', 'authentifizierung', 'reject', 'quarantine'],
+        },
+        {
+            id: 'email-smtp', title: 'SMTP', subtitle: 'Simple Mail Transfer Protocol (E-Mail-Versand)',
+            desc: 'Protokoll zum Versenden von E-Mails zwischen Mailservern (Port 25) und vom Client zum Server (Port 587 mit STARTTLS, Port 465 mit implizitem TLS). Arbeitet nach dem Store-and-Forward-Prinzip: jeder Server in der Kette nimmt die Mail an und leitet sie weiter. Befehle: HELO/EHLO, MAIL FROM, RCPT TO, DATA, QUIT.',
+            cat: 'email', tags: ['port25', 'port587', 'port465', 'versand', 'relay', 'store-and-forward', 'mta'],
+        },
+        {
+            id: 'email-imap', title: 'IMAP', subtitle: 'Internet Message Access Protocol (E-Mail-Abruf)',
+            desc: 'Protokoll zum Abrufen und Verwalten von E-Mails, bei dem Nachrichten auf dem Server verbleiben und synchronisiert werden. Ideal f\u00fcr den Zugriff von mehreren Ger\u00e4ten. Unterst\u00fctzt Ordnerstruktur, Flags (gelesen/ungelesen), serverseitige Suche und IDLE-Push. Port 143 (STARTTLS) und Port 993 (IMAPS mit TLS).',
+            cat: 'email', tags: ['port143', 'port993', 'abruf', 'synchronisation', 'ordner', 'idle', 'push'],
+        },
+        {
+            id: 'email-pop3', title: 'POP3', subtitle: 'Post Office Protocol Version 3 (E-Mail-Abholen)',
+            desc: 'Einfaches Protokoll zum Herunterladen von E-Mails vom Server. Standardm\u00e4\u00dfig werden Nachrichten nach dem Download vom Server gel\u00f6scht \u2014 nicht f\u00fcr Multi-Ger\u00e4te-Zugriff geeignet. Port 110 (unverschl\u00fcsselt) und Port 995 (POP3S mit TLS). Wird zunehmend durch IMAP abgel\u00f6st, aber noch in einfachen Szenarien verbreitet.',
+            cat: 'email', tags: ['port110', 'port995', 'download', 'l\u00f6schen', 'einfach', 'offline'],
+        },
+        {
+            id: 'starttls', title: 'STARTTLS', subtitle: 'Opportunistische TLS-Verschl\u00fcsselung',
+            desc: 'Erweiterungsbefehl, der eine bestehende unverschl\u00fcsselte Verbindung nachtr\u00e4glich auf TLS hochstuft (Upgrade). Wird bei SMTP (Port 587), IMAP (Port 143) und POP3 (Port 110) eingesetzt. Im Gegensatz zu implizitem TLS (eigener Port) startet die Verbindung zun\u00e4chst im Klartext. Risiko: Anf\u00e4llig f\u00fcr Downgrade-Angriffe, wenn nicht erzwungen (DANE/MTA-STS).',
+            cat: 'email', tags: ['tls', 'verschl\u00fcsselung', 'upgrade', 'smtp', 'imap', 'dane', 'mta-sts'],
+        },
+        {
+            id: 'email-header-wiki', title: 'E-Mail-Header', subtitle: 'Technische Metadaten einer E-Mail',
+            desc: 'Versteckte Kopfzeilen einer E-Mail mit technischen Informationen zum Routing und zur Authentifizierung. Wichtige Felder: Received (Routing-Pfad, von unten nach oben lesen), From/To/Subject, Date, Message-ID, Return-Path, Authentication-Results (SPF/DKIM/DMARC-Ergebnis). N\u00fctzlich f\u00fcr Spam-Analyse und Zustellungsprobleme.',
+            cat: 'email', tags: ['received', 'routing', 'from', 'message-id', 'authentication-results', 'analyse', 'metadaten'],
+        },
+        {
+            id: 'spam-filter', title: 'Spam-Filter', subtitle: 'Unerw\u00fcnschte E-Mail-Erkennung',
+            desc: 'Systeme zur automatischen Erkennung und Filterung unerw\u00fcnschter E-Mails. Methoden: DNS-Blacklists (RBL/DNSBL), Bayesian-Filter (statistische Textanalyse), Header-Analyse, SPF/DKIM/DMARC-Pr\u00fcfung, Greylisting (tempor\u00e4re Ablehnung), Content-Filter und Machine Learning. SpamAssassin und rspamd sind verbreitete Open-Source-L\u00f6sungen.',
+            cat: 'email', tags: ['blacklist', 'rbl', 'bayesian', 'greylisting', 'spamassassin', 'rspamd', 'content-filter'],
+        },
+        {
+            id: 'ptr-record', title: 'PTR Record', subtitle: 'Reverse-DNS-Eintrag',
+            desc: 'DNS-Eintrag f\u00fcr Reverse-Lookups: ordnet einer IP-Adresse einen Hostnamen zu (Gegenst\u00fcck zum A/AAAA-Record). Wird in der in-addr.arpa-Zone (IPv4) bzw. ip6.arpa-Zone (IPv6) konfiguriert. Kritisch f\u00fcr Mailserver: Viele Empf\u00e4nger pr\u00fcfen, ob der PTR-Record des sendenden Servers mit dem HELO-Hostnamen \u00fcbereinstimmt. Fehlt der Eintrag, wird die Mail oft als Spam eingestuft.',
+            cat: 'email', tags: ['reverse dns', 'rdns', 'in-addr.arpa', 'mailserver', 'reputation', 'helo'],
+        },
+        {
+            id: 'bounce-ndr', title: 'Bounce / NDR', subtitle: 'Non-Delivery Report',
+            desc: 'Automatische Benachrichtigung, wenn eine E-Mail nicht zugestellt werden kann. Hard-Bounce: permanenter Fehler (Empf\u00e4nger existiert nicht, Domain ung\u00fcltig). Soft-Bounce: tempor\u00e4rer Fehler (Postfach voll, Server \u00fcberlastet). DSN-Statuscodes: 5.x.x (permanent), 4.x.x (tempor\u00e4r). Hohe Bounce-Raten schaden der Sender-Reputation und k\u00f6nnen zu Blacklisting f\u00fchren.',
+            cat: 'email', tags: ['hard-bounce', 'soft-bounce', 'dsn', 'zustellung', 'fehler', 'reputation', 'blacklist'],
+        },
     ];
 
     // --- HTML Template ---
@@ -495,6 +572,92 @@ function init_netzwerk_wiki(container) {
         return window.matchMedia('(min-width: 768px)').matches;
     }
 
+    // --- Cable SVG Generator ---
+    function generateCableSVG(entry) {
+        if (!entry.cableType) return '';
+        const c = entry.cableColor || '#6b7280';
+
+        if (entry.cableType === 'copper') {
+            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="30" width="100" height="40" rx="6" fill="${c}" opacity="0.9"/>
+                <line x1="10" y1="40" x2="90" y2="40" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
+                <line x1="10" y1="50" x2="90" y2="50" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
+                <line x1="10" y1="60" x2="90" y2="60" stroke="#fff" stroke-width="0.5" opacity="0.3"/>
+                <rect x="100" y="25" width="50" height="50" rx="3" fill="#d4d4d8" stroke="#a1a1aa" stroke-width="1.5"/>
+                <rect x="108" y="20" width="34" height="10" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="1"/>
+                <line x1="112" y1="30" x2="112" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="118" y1="30" x2="118" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="124" y1="30" x2="124" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="130" y1="30" x2="130" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="136" y1="30" x2="136" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <line x1="142" y1="30" x2="142" y2="45" stroke="#fbbf24" stroke-width="2"/>
+                <rect x="115" y="55" width="20" height="12" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="1"/>
+                <text x="100" y="95" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">${entry.title}</text>
+            </svg>`;
+        }
+
+        if (entry.cableType === 'fiber') {
+            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="38" width="100" height="24" rx="12" fill="${c}" opacity="0.9"/>
+                <line x1="10" y1="50" x2="90" y2="50" stroke="#fff" stroke-width="1" opacity="0.4"/>
+                <rect x="100" y="30" width="55" height="40" rx="4" fill="#d4d4d8" stroke="#a1a1aa" stroke-width="1.5"/>
+                <circle cx="140" cy="50" r="6" fill="#f8fafc" stroke="#71717a" stroke-width="1.5"/>
+                <circle cx="140" cy="50" r="2" fill="${c}"/>
+                <rect x="105" y="35" width="8" height="30" rx="2" fill="#e4e4e7" stroke="#a1a1aa" stroke-width="0.8"/>
+                <rect x="165" y="38" width="24" height="24" rx="4" fill="${c}" stroke="${c}" stroke-width="1"/>
+                <text x="100" y="95" text-anchor="middle" font-size="11" fill="currentColor" font-family="system-ui,sans-serif">${entry.title}</text>
+            </svg>`;
+        }
+
+        if (entry.cableType === 'coax') {
+            return `<svg viewBox="0 0 200 100" class="wiki-cable-svg" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="35" width="100" height="30" rx="15" fill="${c}" opacity="0.9"/>
+                <circle cx="150" cy="50" r="30" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
+                <circle cx="150" cy="50" r="22" fill="#9ca3af" stroke="#6b7280" stroke-width="1"/>
+                <circle cx="150" cy="50" r="15" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1"/>
+                <circle cx="150" cy="50" r="6" fill="#b45309" stroke="#92400e" stroke-width="1.5"/>
+                <text x="150" y="95" text-anchor="middle" font-size="10" fill="currentColor" font-family="system-ui,sans-serif">Querschnitt</text>
+            </svg>`;
+        }
+
+        return '';
+    }
+
+    // --- Lightbox ---
+    let lightboxEl = null;
+
+    function createLightbox() {
+        if (lightboxEl) return;
+        lightboxEl = document.createElement('div');
+        lightboxEl.className = 'wiki-lightbox';
+        lightboxEl.innerHTML = `
+            <div class="wiki-lightbox-backdrop"></div>
+            <div class="wiki-lightbox-content">
+                <button class="wiki-lightbox-close">\u00d7</button>
+                <div class="wiki-lightbox-image"></div>
+                <span class="wiki-lightbox-title"></span>
+            </div>
+        `;
+        document.body.appendChild(lightboxEl);
+        lightboxEl.querySelector('.wiki-lightbox-backdrop').addEventListener('click', closeLightbox);
+        lightboxEl.querySelector('.wiki-lightbox-close').addEventListener('click', closeLightbox);
+    }
+
+    function openLightbox(entry) {
+        if (!lightboxEl) createLightbox();
+        lightboxEl.querySelector('.wiki-lightbox-image').innerHTML = generateCableSVG(entry);
+        lightboxEl.querySelector('.wiki-lightbox-title').textContent = `${entry.title} \u2014 ${entry.subtitle}`;
+        lightboxEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        if (lightboxEl) {
+            lightboxEl.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
+
     // --- Render ---
     function renderList() {
         const query = searchInput.value.trim().toLowerCase();
@@ -540,6 +703,7 @@ function init_netzwerk_wiki(container) {
                     </div>
                     <div class="wiki-detail">
                         <p>${entry.desc}</p>
+                        ${entry.cableType ? `<div class="wiki-cable-illustration wiki-cable-mobile" data-id="${entry.id}">${generateCableSVG(entry)}</div>` : ''}
                     </div>
                 </div>
             `;
@@ -611,6 +775,7 @@ function init_netzwerk_wiki(container) {
                     </div>
                 </div>
                 <span class="wiki-detail-badge" style="color:${cat.color}; background:${cat.color}15; border-color:${cat.color}40">${cat.label}</span>
+                ${entry.cableType ? `<div class="wiki-cable-illustration">${generateCableSVG(entry)}</div>` : ''}
                 <div class="wiki-detail-desc">
                     <p>${entry.desc}</p>
                 </div>
@@ -623,6 +788,16 @@ function init_netzwerk_wiki(container) {
 
     // Expand / collapse (event delegation)
     wikiList.addEventListener('click', (e) => {
+        // Check if click was on a cable illustration (mobile only)
+        const cableIllustration = e.target.closest('.wiki-cable-mobile');
+        if (cableIllustration && !isDesktop()) {
+            e.stopPropagation();
+            const entryId = cableIllustration.dataset.id;
+            const entry = WIKI_DATA.find(en => en.id === entryId);
+            if (entry) openLightbox(entry);
+            return;
+        }
+
         const row = e.target.closest('.wiki-row');
         if (!row) return;
         const id = row.dataset.id;
@@ -644,5 +819,8 @@ function init_netzwerk_wiki(container) {
 }
 
 function teardown_netzwerk_wiki() {
-    // No cleanup needed (no timers, no fetch)
+    // Clean up lightbox from DOM
+    const lb = document.querySelector('.wiki-lightbox');
+    if (lb) lb.remove();
+    document.body.style.overflow = '';
 }
