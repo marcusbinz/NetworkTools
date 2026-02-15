@@ -172,7 +172,7 @@ function init_passwort_gen(container) {
 
             <button class="pw-generate-btn pw-quote-btn" id="pw-quote-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                Zitat-Passwort generieren
+                Zitat-Passwort generieren (Leet Speak)
             </button>
         </section>
 
@@ -186,7 +186,7 @@ function init_passwort_gen(container) {
 
         <section class="card pw-quote-result-card" id="pw-quote-result-card" style="display:none;">
             <div class="pw-result-header">
-                <h3>Zitat-Passwort</h3>
+                <h3>Zitat-Passwort (Leet Speak)</h3>
                 <span class="pw-strength" id="pw-quote-strength"></span>
             </div>
             <div class="pw-quote-source" id="pw-quote-source"></div>
