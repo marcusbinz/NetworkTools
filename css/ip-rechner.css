@@ -410,3 +410,18 @@
     font-size: 14px;
     text-align: center;
 }
+
+/* Desktop-Optimierungen */
+@media (min-width: 768px) {
+    .binary-value {
+        font-size: 14px;
+    }
+
+    .viz-bar {
+        height: 56px;
+    }
+
+    .geo-card .result-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

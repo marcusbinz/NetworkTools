@@ -424,3 +424,116 @@ footer .footer-version {
     background: var(--card-border);
     border-radius: 2px;
 }
+
+/* ============================================
+   DESKTOP LAYOUT (≥768px)
+   Sidebar-Navigation + breiterer Content
+   ============================================ */
+@media (min-width: 768px) {
+
+    /* === LAYOUT: Sidebar + Content === */
+    body {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* --- Sidebar (Drawer wird permanente Sidebar) --- */
+    .drawer {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: auto;
+        width: 220px;
+        transform: none !important;
+        border-radius: 0;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-right: 1px solid var(--card-border);
+        padding: 24px 12px;
+        padding-bottom: 24px;
+        z-index: 100;
+        max-height: none;
+        overflow-y: auto;
+    }
+
+    .drawer-handle {
+        display: none;
+    }
+
+    .drawer-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .drawer-item {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .drawer-item-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* --- FAB + Overlay ausblenden --- */
+    .launcher-fab {
+        display: none;
+    }
+
+    .drawer-overlay {
+        display: none;
+    }
+
+    /* --- App Container (Content-Bereich) --- */
+    .app {
+        max-width: none;
+        margin-left: 220px;
+        padding: 24px 40px;
+        padding-bottom: 40px;
+        width: calc(100% - 220px);
+    }
+
+    /* Content zentrieren mit max-width */
+    main#content {
+        max-width: 900px;
+    }
+
+    /* --- Header anpassen --- */
+    header {
+        text-align: left;
+        padding: 16px 0;
+    }
+
+    .header-row {
+        justify-content: flex-start;
+    }
+
+    .theme-toggle {
+        position: relative;
+        margin-left: auto;
+    }
+
+    /* --- Result Grid: 4 Spalten statt 2 --- */
+    .result-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* --- Cards breiter --- */
+    .card {
+        padding: 24px;
+    }
+
+    /* --- Footer links --- */
+    footer {
+        text-align: left;
+    }
+
+    /* --- Update Banner an Content anpassen --- */
+    .update-banner {
+        left: 220px;
+    }
+}
