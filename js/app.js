@@ -91,12 +91,28 @@ const TOOLS = [
         jsFile: 'js/ping-test.js',
     },
     {
+        id: 'netzwerk-rechner',
+        label: 'Rechner',
+        subtitle: 'Bandbreiten-Rechner',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>',
+        cssFile: 'css/netzwerk-rechner.css',
+        jsFile: 'js/netzwerk-rechner.js',
+    },
+    {
         id: 'netzwerk-befehle',
         label: 'Befehle',
         subtitle: 'Netzwerk-Befehle',
         icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
         cssFile: 'css/netzwerk-befehle.css',
         jsFile: 'js/netzwerk-befehle.js',
+    },
+    {
+        id: 'qr-generator',
+        label: 'QR-Code',
+        subtitle: 'QR-Code Generator',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="4" height="4" rx="0.5"/><line x1="22" y1="14" x2="22" y2="22"/><line x1="14" y1="22" x2="22" y2="22"/><rect x="5" y="5" width="2" height="2"/><rect x="17" y="5" width="2" height="2"/><rect x="5" y="17" width="2" height="2"/></svg>',
+        cssFile: 'css/qr-generator.css',
+        jsFile: 'js/qr-generator.js',
     },
     {
         id: 'netzwerk-wiki',

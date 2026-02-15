@@ -1,0 +1,306 @@
+/* === QR-Code Generator Tool Styles === */
+
+/* Mode chips */
+.qr-mode-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.qr-mode-chip {
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    padding: 6px 14px;
+    font-weight: 500;
+}
+
+.qr-mode-chip.active {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+}
+
+/* Input fields */
+.qr-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+.qr-input-card label:first-of-type {
+    margin-top: 0;
+}
+
+.qr-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.qr-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.qr-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.qr-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.qr-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.qr-textarea::placeholder {
+    color: var(--input-placeholder);
+}
+
+/* WLAN encryption type chips */
+.qr-enc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.qr-enc-chip {
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+    padding: 5px 10px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 500;
+}
+
+.qr-enc-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Show/hide password toggle */
+.qr-password-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.qr-password-row .qr-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.qr-toggle-vis {
+    flex-shrink: 0;
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-toggle-vis:active {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Hidden network checkbox */
+.qr-hidden-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.qr-hidden-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.qr-hidden-label {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+}
+
+/* QR code output */
+.qr-output-card {
+    text-align: center;
+    animation: slideUp 0.3s ease-out;
+}
+
+.qr-canvas-wrap {
+    display: inline-block;
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.qr-canvas-wrap canvas {
+    display: block;
+}
+
+/* Action buttons */
+.qr-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.qr-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-action-btn:active {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(0.95);
+}
+
+.qr-action-btn.primary {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.qr-action-btn.copied {
+    border-color: var(--green);
+    color: var(--green);
+}
+
+/* Size selector */
+.qr-size-chips {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.qr-size-chip {
+    font-size: 12px;
+    padding: 5px 12px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.qr-size-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Info text */
+.qr-info {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    line-height: 1.5;
+}
+
+/* Quick examples */
+.qr-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* Error */
+.qr-error {
+    color: var(--red);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* Form transition */
+#qr-form {
+    transition: opacity 0.15s ease;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .qr-canvas-wrap {
+        padding: 24px;
+    }
+
+    .qr-input {
+        font-size: 15px;
+    }
+
+    .qr-textarea {
+        font-size: 15px;
+    }
+
+    .qr-actions {
+        gap: 10px;
+    }
+
+    .qr-action-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
