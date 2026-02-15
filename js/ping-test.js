@@ -21,6 +21,7 @@ function init_ping_test(container) {
                 <span class="chip ping-count-chip active" data-count="10">10</span>
                 <span class="chip ping-count-chip" data-count="20">20</span>
                 <span class="chip ping-count-chip" data-count="50">50</span>
+                <span class="chip ping-count-chip" data-count="0">\u221e Dauer</span>
             </div>
 
             <div class="quick-examples ping-examples">
@@ -208,8 +209,9 @@ function init_ping_test(container) {
         document.getElementById('ping-result-host').textContent = host;
         document.getElementById('ping-log').innerHTML = '';
         document.getElementById('ping-chart').innerHTML = '';
+        const isContinuous = pingCount === 0;
         document.getElementById('ping-progress-fill').style.width = '0%';
-        document.getElementById('ping-progress-text').textContent = `0 / ${pingCount}`;
+        document.getElementById('ping-progress-text').textContent = isContinuous ? '0 (Dauerping)' : `0 / ${pingCount}`;
 
         resultCard.style.display = 'block';
         stopBtn.style.display = 'inline-block';
@@ -218,9 +220,8 @@ function init_ping_test(container) {
         const url = `https://${host}`;
 
         try {
-            for (let i = 0; i < pingCount; i++) {
-                if (!isRunning) break;
-
+            let i = 0;
+            while (isContinuous ? isRunning : (i < pingCount && isRunning)) {
                 const result = await measureLatency(url + '?_cb=' + Date.now());
                 results.push(result);
 
@@ -228,16 +229,22 @@ function init_ping_test(container) {
                 updateStats();
                 updateChart();
 
-                const pct = Math.round(((i + 1) / pingCount) * 100);
-                document.getElementById('ping-progress-fill').style.width = pct + '%';
-                document.getElementById('ping-progress-text').textContent = `${i + 1} / ${pingCount}`;
+                if (isContinuous) {
+                    document.getElementById('ping-progress-fill').style.width = '100%';
+                    document.getElementById('ping-progress-text').textContent = `${i + 1} (Dauerping)`;
+                } else {
+                    const pct = Math.round(((i + 1) / pingCount) * 100);
+                    document.getElementById('ping-progress-fill').style.width = pct + '%';
+                    document.getElementById('ping-progress-text').textContent = `${i + 1} / ${pingCount}`;
+                }
 
                 // Wait 500ms between pings
-                if (i < pingCount - 1 && isRunning) {
+                if (isRunning) {
                     await new Promise(resolve => {
                         _pingInterval = setTimeout(resolve, 500);
                     });
                 }
+                i++;
             }
         } catch (err) {
             if (err.name === 'AbortError') return;
