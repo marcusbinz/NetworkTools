@@ -226,7 +226,7 @@
 }
 
 .pw-film-label {
-    margin-top: 18px !important;
+    margin-top: 24px !important;
     margin-bottom: 10px !important;
 }
 
@@ -234,7 +234,7 @@
 .pw-lang-chips {
     display: flex;
     gap: 6px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .pw-lang-chip {
@@ -256,6 +256,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    margin-bottom: 8px;
 }
 
 .pw-film-chip {
