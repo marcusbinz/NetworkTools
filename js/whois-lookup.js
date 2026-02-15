@@ -168,31 +168,54 @@ function init_whois_lookup(container) {
         return result;
     }
 
-    // --- IP Geolocation + ASN via ipwho.is ---
-    // Free, HTTPS, CORS enabled, no API key needed
+    // --- IP Geolocation + ASN (multi-provider fallback) ---
     async function queryIPInfo(ip) {
         const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
+
+        // Provider 1: ipwho.is (HTTPS, CORS, free)
         try {
-            const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal });
+            const res = await fetch(`https://ipwho.is/${ip}`, { signal });
             if (res.ok) {
                 const data = await res.json();
-                if (data.success) {
-                    // Normalize to common format
+                if (data.success && data.connection) {
                     return {
                         country: data.country || '',
                         regionName: data.region || '',
                         city: data.city || '',
-                        isp: data.connection ? data.connection.isp : '',
-                        org: data.connection ? data.connection.org : '',
-                        as: data.connection ? `AS${data.connection.asn} ${data.connection.org}` : '',
-                        asn: data.connection ? `AS${data.connection.asn}` : '',
-                        domain: data.connection ? data.connection.domain : '',
+                        isp: data.connection.isp || '',
+                        org: data.connection.org || '',
+                        as: `AS${data.connection.asn} ${data.connection.org}`,
+                        domain: data.connection.domain || '',
                     };
                 }
             }
         } catch (e) {
             if (e.name === 'AbortError') throw e;
+            console.warn('WHOIS: ipwho.is failed:', e.message);
         }
+
+        // Provider 2: ipapi.co (HTTPS, free, 1000 req/day)
+        try {
+            const res = await fetch(`https://ipapi.co/${ip}/json/`, { signal });
+            if (res.ok) {
+                const data = await res.json();
+                if (!data.error) {
+                    return {
+                        country: data.country_name || '',
+                        regionName: data.region || '',
+                        city: data.city || '',
+                        isp: data.org || '',
+                        org: data.org || '',
+                        as: data.asn ? `${data.asn} ${data.org || ''}` : '',
+                        domain: '',
+                    };
+                }
+            }
+        } catch (e) {
+            if (e.name === 'AbortError') throw e;
+            console.warn('WHOIS: ipapi.co failed:', e.message);
+        }
+
         return null;
     }
 
@@ -423,14 +446,18 @@ function init_whois_lookup(container) {
             // Now fetch IP geolocation (if we have an IPv4 address)
             if (dns.ipv4.length > 0) {
                 try {
+                    console.log('WHOIS: Fetching IP info for', dns.ipv4[0]);
                     const ipInfo = await queryIPInfo(dns.ipv4[0]);
+                    console.log('WHOIS: IP info result:', ipInfo);
                     // Re-render with IP info added
                     if (ipInfo && !(_whoisAbortController && _whoisAbortController.signal.aborted)) {
                         renderResults(info, dns, ipInfo);
                     }
                 } catch (e) {
-                    // IP info is optional, don't break on failure
+                    console.warn('WHOIS: IP info failed:', e);
                 }
+            } else {
+                console.log('WHOIS: No IPv4 found, skipping IP info');
             }
 
         } catch (err) {
