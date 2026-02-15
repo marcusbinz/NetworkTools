@@ -168,18 +168,27 @@ function init_whois_lookup(container) {
         return result;
     }
 
-    // --- IP Geolocation + ASN via ip-api.com ---
-    // Free tier: 45 req/min, HTTP only (no HTTPS on free), CORS enabled
+    // --- IP Geolocation + ASN via ipwho.is ---
+    // Free, HTTPS, CORS enabled, no API key needed
     async function queryIPInfo(ip) {
         const signal = _whoisAbortController ? _whoisAbortController.signal : undefined;
         try {
-            const res = await fetch(
-                `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=status,country,regionName,city,zip,lat,lon,isp,org,as,asname,reverse,hosting`,
-                { signal }
-            );
+            const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal });
             if (res.ok) {
                 const data = await res.json();
-                if (data.status === 'success') return data;
+                if (data.success) {
+                    // Normalize to common format
+                    return {
+                        country: data.country || '',
+                        regionName: data.region || '',
+                        city: data.city || '',
+                        isp: data.connection ? data.connection.isp : '',
+                        org: data.connection ? data.connection.org : '',
+                        as: data.connection ? `AS${data.connection.asn} ${data.connection.org}` : '',
+                        asn: data.connection ? `AS${data.connection.asn}` : '',
+                        domain: data.connection ? data.connection.domain : '',
+                    };
+                }
             }
         } catch (e) {
             if (e.name === 'AbortError') throw e;
@@ -289,7 +298,7 @@ function init_whois_lookup(container) {
         if (ipInfo) {
             const hostFields = [];
             if (ipInfo.isp) hostFields.push({ label: 'ISP', value: ipInfo.isp });
-            if (ipInfo.org) hostFields.push({ label: 'Organisation', value: ipInfo.org });
+            if (ipInfo.org && ipInfo.org !== ipInfo.isp) hostFields.push({ label: 'Organisation', value: ipInfo.org });
             if (ipInfo.as) hostFields.push({ label: 'ASN', value: ipInfo.as });
             // Location
             const locParts = [];
@@ -299,10 +308,7 @@ function init_whois_lookup(container) {
             if (locParts.length > 0) {
                 hostFields.push({ label: 'Standort', value: locParts.join(', ') });
             }
-            if (ipInfo.reverse) hostFields.push({ label: 'Reverse DNS', value: ipInfo.reverse });
-            if (ipInfo.hosting !== undefined) {
-                hostFields.push({ label: 'Hosting', value: ipInfo.hosting ? 'Ja (Datacenter)' : 'Nein (Privat/Business)' });
-            }
+            if (ipInfo.domain) hostFields.push({ label: 'Domain', value: ipInfo.domain });
             if (hostFields.length > 0) {
                 sections.push(renderSection('Hosting & Standort', 'var(--red)', hostFields));
             }
