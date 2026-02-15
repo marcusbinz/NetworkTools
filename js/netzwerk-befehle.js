@@ -752,7 +752,45 @@ function init_netzwerk_befehle(container) {
             }
         },
 
-        // ===== INFO (3) =====
+        // ===== INFO (4) =====
+        {
+            id: 'whoami', name: 'whoami', cat: 'info',
+            desc: 'Aktuellen Benutzer, Gruppen und Berechtigungen anzeigen',
+            win: {
+                cmd: 'whoami',
+                syntax: 'whoami [Optionen]',
+                switches: [
+                    { flag: '(ohne)',      desc: 'Aktuellen Benutzernamen anzeigen' },
+                    { flag: '/user',       desc: 'Benutzer-SID anzeigen' },
+                    { flag: '/groups',     desc: 'Gruppenmitgliedschaften anzeigen' },
+                    { flag: '/priv',       desc: 'Zugewiesene Berechtigungen anzeigen' },
+                    { flag: '/all',        desc: 'Alle Informationen (User, SID, Gruppen, Priv)' },
+                    { flag: '/fo TABLE|LIST|CSV', desc: 'Ausgabeformat festlegen' },
+                ],
+                examples: [
+                    { cmd: 'whoami',            desc: 'Benutzername (DOMAIN\\User)' },
+                    { cmd: 'whoami /all',       desc: 'Vollst\u00e4ndige Info (SID, Gruppen, Priv)' },
+                    { cmd: 'whoami /groups',    desc: 'Gruppenmitgliedschaften' },
+                ]
+            },
+            linux: {
+                cmd: 'whoami / id',
+                syntax: 'whoami | id [Optionen] [Benutzer]',
+                switches: [
+                    { flag: 'whoami',      desc: 'Aktuellen Benutzernamen anzeigen' },
+                    { flag: 'id',          desc: 'UID, GID und Gruppen anzeigen' },
+                    { flag: 'id -u',       desc: 'Nur User-ID (UID)' },
+                    { flag: 'id -g',       desc: 'Nur Group-ID (GID)' },
+                    { flag: 'id -Gn',      desc: 'Alle Gruppennamen' },
+                    { flag: 'groups',      desc: 'Gruppenmitgliedschaften' },
+                ],
+                examples: [
+                    { cmd: 'whoami',       desc: 'Benutzername anzeigen' },
+                    { cmd: 'id',           desc: 'UID, GID und alle Gruppen' },
+                    { cmd: 'id -Gn',       desc: 'Alle Gruppennamen auflisten' },
+                ]
+            }
+        },
         {
             id: 'systeminfo', name: 'systeminfo / uname', cat: 'info',
             desc: 'Systeminformationen anzeigen (OS, Hardware, Netzwerk)',
@@ -960,6 +998,10 @@ function init_netzwerk_befehle(container) {
             </div>`
         ).join('');
 
+        const helpHint = label === 'Windows'
+            ? `<div class="nb-help-hint"><code>${escHtml(platform.cmd.split(' ')[0])} /?</code> \u2014 Alle Parameter anzeigen</div>`
+            : `<div class="nb-help-hint"><code>${escHtml(platform.cmd.split(' ')[0])} --help</code> oder <code>man ${escHtml(platform.cmd.split(' ')[0])}</code></div>`;
+
         return `<div class="nb-platform">
             <div class="nb-platform-header">
                 <span class="nb-platform-icon">${icon}</span>
@@ -972,6 +1014,7 @@ function init_netzwerk_befehle(container) {
             </div>
             <div class="nb-section-label">Wichtige Schalter</div>
             <table class="nb-switch-table">${switchRows}</table>
+            ${helpHint}
             <div class="nb-section-label">Beispiele</div>
             ${exampleBlocks}
         </div>`;

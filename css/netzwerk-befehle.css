@@ -243,6 +243,21 @@
     line-height: 1.4;
 }
 
+/* Help hint */
+.nb-help-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    opacity: 0.6;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+}
+.nb-help-hint code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
 /* Examples */
 .nb-example { margin-bottom: 8px; }
 .nb-example:last-child { margin-bottom: 0; }
