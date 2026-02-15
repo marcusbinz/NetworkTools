@@ -703,7 +703,7 @@ function init_netzwerk_wiki(container) {
                     </div>
                     <div class="wiki-detail">
                         <p>${entry.desc}</p>
-                        ${entry.cableType ? `<div class="wiki-cable-illustration wiki-cable-mobile" data-id="${entry.id}">${generateCableSVG(entry)}<span class="wiki-cable-hint">Antippen zum Vergr\u00f6\u00dfern</span></div>` : ''}
+                        ${entry.cableType ? `<div class="wiki-cable-illustration wiki-cable-mobile" data-id="${entry.id}">${generateCableSVG(entry)}<span class="wiki-cable-hint">Zoom durch Antippen</span></div>` : ''}
                     </div>
                 </div>
             `;
