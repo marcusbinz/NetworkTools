@@ -39,13 +39,11 @@ function init_netzwerk_rechner(container) {
     container.innerHTML = `
         <section class="card nr-input-card">
             <label>Bandbreite</label>
-            <div class="nr-input-row">
-                <input type="text" class="nr-input" id="nr-bandwidth" placeholder="100" inputmode="decimal" autocomplete="off">
-                <div class="nr-unit-chips" id="nr-bw-units">
-                    <span class="chip nr-unit-chip" data-unit="kbps">Kbps</span>
-                    <span class="chip nr-unit-chip active" data-unit="mbps">Mbps</span>
-                    <span class="chip nr-unit-chip" data-unit="gbps">Gbps</span>
-                </div>
+            <input type="text" class="nr-input" id="nr-bandwidth" placeholder="100" inputmode="decimal" autocomplete="off">
+            <div class="nr-unit-chips" id="nr-bw-units">
+                <span class="chip nr-unit-chip" data-unit="kbps">Kbps</span>
+                <span class="chip nr-unit-chip active" data-unit="mbps">Mbps</span>
+                <span class="chip nr-unit-chip" data-unit="gbps">Gbps</span>
             </div>
 
             <button class="nr-swap-btn" id="nr-swap-btn" title="Richtung umschalten">
@@ -58,14 +56,12 @@ function init_netzwerk_rechner(container) {
             </button>
 
             <label>Dateigr\u00f6\u00dfe</label>
-            <div class="nr-input-row">
-                <input type="text" class="nr-input" id="nr-filesize" placeholder="50" inputmode="decimal" autocomplete="off">
-                <div class="nr-unit-chips" id="nr-fs-units">
-                    <span class="chip nr-unit-chip" data-unit="kb">KB</span>
-                    <span class="chip nr-unit-chip" data-unit="mb">MB</span>
-                    <span class="chip nr-unit-chip active" data-unit="gb">GB</span>
-                    <span class="chip nr-unit-chip" data-unit="tb">TB</span>
-                </div>
+            <input type="text" class="nr-input" id="nr-filesize" placeholder="50" inputmode="decimal" autocomplete="off">
+            <div class="nr-unit-chips" id="nr-fs-units">
+                <span class="chip nr-unit-chip" data-unit="kb">KB</span>
+                <span class="chip nr-unit-chip" data-unit="mb">MB</span>
+                <span class="chip nr-unit-chip active" data-unit="gb">GB</span>
+                <span class="chip nr-unit-chip" data-unit="tb">TB</span>
             </div>
 
             <div class="quick-examples nr-examples">
