@@ -4,11 +4,19 @@
 const TOOLS = [
     {
         id: 'ip-rechner',
-        label: 'IP-Rechner',
-        subtitle: 'IPv4 Subnetz-Rechner',
+        label: 'IPv4',
+        subtitle: 'IPv4-Rechner',
         icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 8h4M7 12h6M7 16h10"/></svg>',
         cssFile: 'css/ip-rechner.css',
         jsFile: 'js/ip-rechner.js',
+    },
+    {
+        id: 'ipv6-rechner',
+        label: 'IPv6',
+        subtitle: 'IPv6-Rechner',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+        cssFile: 'css/ipv6-rechner.css',
+        jsFile: 'js/ipv6-rechner.js',
     },
     {
         id: 'mx-lookup',
@@ -41,14 +49,6 @@ const TOOLS = [
         icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="3" x2="8" y2="21"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/></svg>',
         cssFile: 'css/port-referenz.css',
         jsFile: 'js/port-referenz.js',
-    },
-    {
-        id: 'ipv6-rechner',
-        label: 'IPv6',
-        subtitle: 'IPv6-Rechner',
-        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-        cssFile: 'css/ipv6-rechner.css',
-        jsFile: 'js/ipv6-rechner.js',
     },
     {
         id: 'blacklist-check',
