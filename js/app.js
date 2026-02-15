@@ -27,6 +27,14 @@ const TOOLS = [
         jsFile: 'js/mx-lookup.js',
     },
     {
+        id: 'email-header',
+        label: 'E-Mail',
+        subtitle: 'Header Analyzer',
+        icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/><line x1="2" y1="20" x2="9" y2="12"/><line x1="22" y1="20" x2="15" y2="12"/></svg>',
+        cssFile: 'css/email-header.css',
+        jsFile: 'js/email-header.js',
+    },
+    {
         id: 'dns-lookup',
         label: 'DNS',
         subtitle: 'DNS Lookup',

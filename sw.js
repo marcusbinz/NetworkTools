@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v47';
+﻿const CACHE_NAME = 'network-tools-v48';
 const ASSETS = [
     './',
     './index.html',
@@ -29,7 +29,9 @@ const ASSETS = [
     './js/mein-netzwerk.js',
     './js/ping-test.js',
     './css/netzwerk-wiki.css',
-    './js/netzwerk-wiki.js'
+    './js/netzwerk-wiki.js',
+    './css/email-header.css',
+    './js/email-header.js'
 ];
 
 // Install: cache all assets
@@ -69,6 +71,7 @@ self.addEventListener('fetch', event => {
         caches.match(event.request).then(cached => cached || fetch(event.request))
     );
 });
+
 
 
 

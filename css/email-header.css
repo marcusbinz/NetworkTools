@@ -1,0 +1,421 @@
+/* === Email Header Analyzer Tool Styles === */
+
+/* Input Card */
+.eh-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+#eh-input {
+    width: 100%;
+    min-height: 180px;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+#eh-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#eh-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.eh-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.eh-analyze-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.eh-analyze-btn:active {
+    transform: scale(0.97);
+}
+
+.eh-clear-btn {
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.eh-clear-btn:active {
+    transform: scale(0.95);
+}
+
+.eh-examples {
+    margin-top: 12px;
+}
+
+/* Section Cards */
+.eh-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+.eh-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.eh-section-title svg {
+    opacity: 0.6;
+}
+
+/* --- Authentication Results (SPF/DKIM/DMARC) --- */
+.eh-auth-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.eh-auth-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.eh-auth-icon {
+    margin-bottom: 6px;
+}
+
+.eh-auth-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.eh-auth-value {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.eh-auth-pass { color: var(--green); }
+.eh-auth-fail { color: var(--red); }
+.eh-auth-none { color: var(--orange); }
+.eh-auth-neutral { color: var(--text-dim); }
+
+/* --- Sender Info Grid --- */
+.eh-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.eh-info-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.eh-info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.eh-info-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.eh-info-value {
+    display: block;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    word-break: break-all;
+}
+
+.eh-mismatch-warning {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(251, 146, 60, 0.1);
+    border: 1px solid rgba(251, 146, 60, 0.3);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--orange);
+}
+
+/* --- Routing / Hop Timeline --- */
+.eh-hop-timeline {
+    position: relative;
+}
+
+.eh-hop {
+    position: relative;
+    padding: 12px;
+    padding-left: 28px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.eh-hop:last-child {
+    margin-bottom: 0;
+}
+
+.eh-hop::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--card-border);
+}
+
+.eh-hop:first-child::before {
+    top: 50%;
+}
+
+.eh-hop:last-child::before {
+    bottom: 50%;
+}
+
+.eh-hop::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.eh-hop-number {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.eh-hop-servers {
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+.eh-hop-server-label {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.eh-hop-time {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+}
+
+.eh-hop-delay {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+.eh-delay-fast {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+}
+
+.eh-delay-medium {
+    background: rgba(251, 146, 60, 0.15);
+    color: var(--orange);
+}
+
+.eh-delay-slow {
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--red);
+}
+
+/* --- Timing Summary --- */
+.eh-timing-summary {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.eh-timing-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px;
+    background: var(--bg);
+}
+
+.eh-timing-num {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--accent);
+}
+
+.eh-timing-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* --- Security Analysis --- */
+.eh-security-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--card-border);
+}
+
+.eh-security-row:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.eh-security-icon {
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+
+.eh-security-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.eh-security-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.eh-security-detail {
+    display: block;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    word-break: break-all;
+    margin-top: 2px;
+}
+
+/* --- Raw Headers Toggle --- */
+.eh-raw-toggle {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.eh-raw-toggle:active {
+    transform: scale(0.98);
+}
+
+.eh-raw-content {
+    margin-top: 8px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+    line-height: 1.5;
+}
+
+/* --- Desktop Optimizations --- */
+@media (min-width: 768px) {
+    #eh-input {
+        min-height: 220px;
+        font-size: 14px;
+    }
+
+    .eh-info-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .eh-timing-summary {
+        max-width: 500px;
+    }
+}
