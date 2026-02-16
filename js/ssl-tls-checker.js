@@ -67,8 +67,7 @@ function init_ssl_tls_checker(container) {
     }
 
     // --- crt.sh API (direkter Zugriff, CORS wird von crt.sh unterstuetzt) ---
-    // Identity= liefert exakte SAN/CN-Treffer, exclude=expired nur gueltige Zertifikate
-    // Grosse Domains (google.com) brauchen bis zu 20s — daher grosszuegiger Timeout
+    // Strategie: Identity+exclude=expired -> q= Fallback (schnell, aber nur historisch)
     async function queryCRT(domain) {
         var signal = _sslAbortController ? _sslAbortController.signal : undefined;
 
@@ -80,7 +79,7 @@ function init_ssl_tls_checker(container) {
             return JSON.parse(text);
         }
 
-        // 1. Versuch: Identity + exclude=expired (30s — grosse Domains brauchen ~12s)
+        // 1. Versuch: Identity + exclude=expired (beste Datenqualitaet)
         try {
             var url1 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&exclude=expired&output=json';
             var res1 = await fetch(url1, { signal: signal });
@@ -88,11 +87,12 @@ function init_ssl_tls_checker(container) {
             if (data1 && data1.length > 0) return data1;
         } catch (err) {
             if (err.name === 'AbortError') throw err;
+            // Grosse Domains (google.com) koennen hier fehlschlagen -> Fallback
         }
 
-        // 2. Fallback: Identity ohne exclude=expired (fuer Domains mit abgelaufenem Zertifikat)
+        // 2. Fallback: q= Query (schnell, aber kann veraltete Daten enthalten)
         try {
-            var url2 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
+            var url2 = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
             var res2 = await fetch(url2, { signal: signal });
             var data2 = await parseResponse(res2);
             if (data2 && data2.length > 0) return data2;
@@ -100,7 +100,7 @@ function init_ssl_tls_checker(container) {
             if (err.name === 'AbortError') throw err;
         }
 
-        throw new Error('crt.sh nicht erreichbar. Der Server antwortet nicht — bitte versuche es in einigen Sekunden erneut.');
+        throw new Error('crt.sh nicht erreichbar. Der Server antwortet nicht \u2014 bitte versuche es in einigen Sekunden erneut.');
     }
 
     // --- HTTPS reachability check ---
@@ -157,6 +157,16 @@ function init_ssl_tls_checker(container) {
         const expired = days !== null && days < 0;
         const expiringSoon = days !== null && days >= 0 && days <= 30;
 
+        if (expired && httpsResult.reachable) {
+            // Zertifikat laut CT-Logs abgelaufen, aber HTTPS erreichbar
+            // -> Das tatsaechliche Zertifikat ist wahrscheinlich neuer als die CT-Log-Daten
+            return {
+                status: 'green',
+                label: 'HTTPS aktiv',
+                text: 'HTTPS ist erreichbar und funktioniert. Die CT-Logs von crt.sh enthalten f\u00fcr diese Domain nur \u00e4ltere Eintr\u00e4ge \u2014 das aktuelle Zertifikat wird m\u00f6glicherweise erst sp\u00e4ter in den Logs erfasst.',
+                recommendation: null
+            };
+        }
         if (expired) {
             return {
                 status: 'red',
