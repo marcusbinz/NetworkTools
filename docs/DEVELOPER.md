@@ -92,7 +92,7 @@ Die `index.html` definiert das Grundgeruest der App:
 |    (Tool-Inhalt wird dynamisch injiziert)   |
 |                                              |
 +---------------------------------------------+
-|  Footer (Copyright, Version)                |
+|  Footer (Copyright, Impressum, Version)     |
 +---------------------------------------------+
 |  [FAB Button]  ->  Bottom-Drawer (Mobile)   |
 +---------------------------------------------+
@@ -100,7 +100,7 @@ Die `index.html` definiert das Grundgeruest der App:
 
 - **Header:** App-Titel, Tool-Subtitle, Theme-Toggle Button
 - **Content:** Leerer `<main>` Container — wird vom Router befuellt
-- **Footer:** Copyright, Install-Hinweis, Versions-Anzeige
+- **Footer:** Copyright, Install-Hinweis, Impressum & Datenschutz Links (mbinz.de), Versions-Anzeige
 - **FAB:** Floating Action Button (Mobile), oeffnet den Drawer
 - **Drawer:** Bottom-Sheet (Mobile) oder fixierte Sidebar (Desktop)
 - **Update-Banner:** Zeigt "Update verfuegbar" wenn neuer Service Worker bereitsteht
