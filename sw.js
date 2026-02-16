@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v71';
+﻿const CACHE_NAME = 'network-tools-v72';
 const ASSETS = [
     './',
     './index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
     './css/ip-rechner.css',
     './css/mx-lookup.css',
     './css/dns-lookup.css',
+    './css/ssl-tls-checker.css',
     './css/whois-lookup.css',
     './css/port-referenz.css',
     './css/ipv6-rechner.css',
@@ -21,6 +22,7 @@ const ASSETS = [
     './js/ip-rechner.js',
     './js/mx-lookup.js',
     './js/dns-lookup.js',
+    './js/ssl-tls-checker.js',
     './js/whois-lookup.js',
     './js/port-referenz.js',
     './js/ipv6-rechner.js',

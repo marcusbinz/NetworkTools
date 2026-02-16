@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 3.0.71 | **Build:** 71 | **Stand:** 2026-02-16
+> **Version:** 4.0.72 | **Build:** 72 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -41,6 +41,7 @@ NetworkTools/
 |   |-- mx-lookup.css        # (.mx- Prefix)
 |   |-- email-header.css     # (.eh- Prefix)
 |   |-- dns-lookup.css       # (.dns- Prefix)
+|   |-- ssl-tls-checker.css  # (.ssl- Prefix)
 |   |-- whois-lookup.css     # (.whois- Prefix)
 |   |-- port-referenz.css    # (.port- Prefix)
 |   |-- blacklist-check.css  # (.bl- Prefix)
@@ -59,6 +60,7 @@ NetworkTools/
 |   |-- mx-lookup.js         # MX / SPF / DMARC / DKIM Lookup
 |   |-- email-header.js      # E-Mail Header Analyzer
 |   |-- dns-lookup.js        # DNS Lookup (alle Record-Typen)
+|   |-- ssl-tls-checker.js   # SSL/TLS Zertifikat & HTTPS Check
 |   |-- whois-lookup.js      # WHOIS / RDAP Abfrage
 |   |-- port-referenz.js     # Port-Referenz Datenbank
 |   |-- blacklist-check.js   # Blacklist / DNSBL Check
@@ -251,6 +253,7 @@ Jedes Tool verwendet einen eigenen CSS-Klassen-Prefix, um Konflikte zu vermeiden
 | MX Lookup | `.mx-` | `.mx-security-row` |
 | E-Mail Header | `.eh-` | `.eh-textarea` |
 | DNS Lookup | `.dns-` | `.dns-type-chips` |
+| SSL/TLS | `.ssl-` | `.ssl-status-badge` |
 | WHOIS | `.whois-` | `.whois-result-card` |
 | Port-Referenz | `.port-` | `.port-table` |
 | Blacklist | `.bl-` | `.bl-progress` |
@@ -347,7 +350,23 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | `dns.google/resolve` |
 | **Features** | DNS-Abfrage fuer alle Record-Typen (A, AAAA, CNAME, MX, NS, TXT, SOA), "Alle" Modus fragt parallel ab, TTL-Anzeige, Record-Typ Chips, Quick-Examples |
 
-### 5.6 WHOIS / RDAP (`whois-lookup`)
+### 5.6 SSL/TLS-Checker (`ssl-tls-checker`)
+
+| Eigenschaft | Wert |
+|---|---|
+| **ID** | `ssl-tls-checker` |
+| **Dateien** | `js/ssl-tls-checker.js`, `css/ssl-tls-checker.css` |
+| **API** | `crt.sh` (Certificate Transparency Logs) via CORS-Proxy `api.codetabs.com`, `fetch()` (HTTPS-Erreichbarkeitstest) |
+| **Features** | SSL-Zertifikat-Pruefung via CT-Logs, Ablaufdatum mit Ampel-Bewertung (gruen/gelb/rot), Aussteller-Anzeige (CN/O geparst), HTTPS-Erreichbarkeitstest mit Antwortzeit, Verbleibende Tage als farbiger Badge, Handlungsempfehlungen bei Problemen, Zertifikats-History (letzte 5 aus CT-Logs), Quick-Examples |
+
+**Zertifikats-Bewertung:**
+- Gruen: Zertifikat gueltig, > 30 Tage verbleibend, HTTPS erreichbar
+- Gelb: Zertifikat gueltig, aber < 30 Tage verbleibend (bald ablaufend) oder HTTPS nicht erreichbar
+- Rot: Zertifikat abgelaufen — Empfehlung: Zertifikat erneuern
+
+**Datenquellen:** crt.sh liefert Zertifikatsdaten (Aussteller, Gueltigkeit, Domain). Kein CORS → Zugriff ueber `api.codetabs.com/v1/proxy/`. HTTPS-Erreichbarkeit wird parallel via `fetch('https://domain', { mode: 'no-cors' })` geprueft.
+
+### 5.7 WHOIS / RDAP (`whois-lookup`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -356,7 +375,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | RDAP-Server (20+ ccTLD-spezifische), `rdap.org`, `api.codetabs.com` (CORS-Proxy), `dns.google/resolve` |
 | **Features** | RDAP/WHOIS Abfrage fuer Domains und IPs, 20+ laenderspezifische RDAP-Server (DE, AT, CH, UK, etc.), Fallback-Strategie (Direkt -> rdap.org -> CORS-Proxy), Registrar, Erstelldatum, Ablaufdatum, Nameserver, Status-Anzeige |
 
-### 5.7 Port-Referenz (`port-referenz`)
+### 5.8 Port-Referenz (`port-referenz`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -365,7 +384,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (statische Datenbank) |
 | **Features** | Nachschlagewerk fuer Netzwerk-Ports, 50+ Ports mit Protokoll/Service/Beschreibung, Kategorien (Web, Mail, Remote, DNS, etc.), Suchfunktion, Kategorie-Filter |
 
-### 5.8 Blacklist Check (`blacklist-check`)
+### 5.9 Blacklist Check (`blacklist-check`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -374,7 +393,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | `dns.google/resolve` (DNSBL-Abfragen) |
 | **Features** | Prueft IP-Adressen gegen 12 DNSBL-Listen (Spamhaus, Barracuda, SpamCop, etc.), Fortschrittsanzeige, Ergebnis pro Liste (gelistet/nicht gelistet), Zusammenfassung |
 
-### 5.9 Passwort-Generator (`passwort-gen`)
+### 5.10 Passwort-Generator (`passwort-gen`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -383,7 +402,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (nutzt `crypto.getRandomValues()`) |
 | **Features** | Zufallspasswort mit konfigurierbarer Laenge, Zeichensatz-Optionen (Gross/Klein/Zahlen/Sonder), Passphrase-Modus (Film-Zitate: James Bond, Star Wars, Herr der Ringe — DE + EN), Staerke-Anzeige, Entropie-Berechnung, Kopieren + Neugenerieren |
 
-### 5.10 Mein Netzwerk (`mein-netzwerk`)
+### 5.11 Mein Netzwerk (`mein-netzwerk`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -392,7 +411,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | `ipapi.co/json` (GeoIP), `speed.cloudflare.com` (Speed-Test) |
 | **Features** | Verbindungsstatus (Online/Offline), Verbindungstyp (WiFi, 4G, etc.), Bandbreite/RTT via Network Information API, Oeffentliche IP + GeoIP (Land, Stadt, ISP), Download-/Upload-Speed-Test via Cloudflare, CDN-Latenz-Test zu mehreren Endpunkten |
 
-### 5.11 Ping / Latenz-Test (`ping-test`)
+### 5.12 Ping / Latenz-Test (`ping-test`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -403,7 +422,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 
 **Hinweis:** Browser koennen kein ICMP. Der Test misst die `fetch()`-Latenz. Fuer private IPs (10.x, 172.16-31.x, 192.168.x) wird HTTP verwendet (kein TLS-Overhead), fuer oeffentliche IPs HTTPS.
 
-### 5.12 Bandbreiten-Rechner (`netzwerk-rechner`)
+### 5.13 Bandbreiten-Rechner (`netzwerk-rechner`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -412,7 +431,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (rein lokal) |
 | **Features** | Bandbreiten-Umrechnung (Kbps/Mbps/Gbps <-> KB/MB/GB/TB), Transfer-Zeit Berechnung fuer Standard-Dateigroessen (100MB bis 1TB), Referenz-Tabelle gaengiger Bandbreiten (DSL 16 bis 10G Ethernet), Quick-Examples |
 
-### 5.13 Netzwerk-Befehle (`netzwerk-befehle`)
+### 5.14 Netzwerk-Befehle (`netzwerk-befehle`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -421,7 +440,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (statische Datenbank) |
 | **Features** | 24 Netzwerk-Befehle mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
 
-### 5.14 QR-Code Generator (`qr-generator`)
+### 5.15 QR-Code Generator (`qr-generator`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -430,7 +449,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (eigener QR-Encoder) |
 | **Features** | 4 Modi: URL, Text, WLAN, E-Mail, Eingebauter QR-Code Encoder (Reed-Solomon, GF(256), Versionen 1-40, ECC Level M), Canvas-Rendering (200/300/500px), Download als PNG, Kopieren in Zwischenablage, WLAN-Format: `WIFI:T:WPA;S:ssid;P:pass;;` |
 
-### 5.15 Netzwerk-Wiki (`netzwerk-wiki`)
+### 5.16 Netzwerk-Wiki (`netzwerk-wiki`)
 
 | Eigenschaft | Wert |
 |---|---|
@@ -449,7 +468,8 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | ipapi.co | `https://ipapi.co/json/` | IP-Rechner, Mein Netzwerk | GeoIP / eigene IP ermitteln |
 | RDAP | `https://rdap.org/domain/X` | WHOIS Lookup | WHOIS-Daten (gTLDs) |
 | ccTLD RDAP | `https://rdap.denic.de/domain/X` (u.a.) | WHOIS Lookup | WHOIS fuer laenderspezifische TLDs |
-| CORS Proxy | `https://api.codetabs.com/v1/proxy/` | WHOIS Lookup | CORS-Umgehung fuer RDAP-Server |
+| crt.sh | `https://crt.sh/?q=X&output=json` | SSL/TLS-Checker | Certificate Transparency Logs (Zertifikatsdaten) |
+| CORS Proxy | `https://api.codetabs.com/v1/proxy/` | WHOIS Lookup, SSL/TLS-Checker | CORS-Umgehung fuer RDAP-Server und crt.sh |
 | Cloudflare Speed | `https://speed.cloudflare.com/__down` / `__up` | Mein Netzwerk | Download-/Upload Speed-Test |
 
 **Wichtig:** Alle API-Calls nutzen `AbortController` fuer sauberes Cleanup beim Tool-Wechsel.
@@ -506,7 +526,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `3.0.71` = 3. Major-Version, Build 70
+**Beispiel:** `4.0.72` = 4. Major-Version, Build 72
 
 ### 8.2 Dateien aktualisieren
 
@@ -516,14 +536,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 71,
-    "version": "3.0.71"
+    "build": 72,
+    "version": "4.0.72"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v71';
+const CACHE_NAME = 'network-tools-v72';
 ```
 
 ### 8.3 Git-Workflow
@@ -670,7 +690,7 @@ git push
 
 ## 11. Externe Links im Drawer
 
-Neben den 15 Tools gibt es externe Links im Drawer:
+Neben den 16 Tools gibt es externe Links im Drawer:
 
 ```javascript
 const EXTERNAL_LINKS = [
@@ -704,4 +724,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v3.0.71*
+*Letzte Aktualisierung: 2026-02-16 | v4.0.72*

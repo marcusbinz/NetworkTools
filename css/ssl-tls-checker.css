@@ -1,0 +1,267 @@
+/* === SSL/TLS Checker Styles === */
+
+/* Input */
+.ssl-input-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.ssl-input-row {
+    display: flex;
+    gap: 8px;
+}
+
+#ssl-domain {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg);
+    border: 2px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#ssl-domain:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#ssl-domain::placeholder {
+    color: var(--input-placeholder);
+}
+
+.ssl-search-btn {
+    padding: 0 16px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+}
+
+.ssl-search-btn:active {
+    transform: scale(0.95);
+}
+
+.ssl-examples {
+    margin-top: 12px;
+}
+
+/* Loading */
+.ssl-loading {
+    animation: slideUp 0.3s ease-out;
+}
+
+.ssl-spinner-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+    font-size: 14px;
+}
+
+.ssl-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Result card */
+.ssl-result-card {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Sections */
+.ssl-section {
+    margin-bottom: 16px;
+}
+
+.ssl-section:last-child {
+    margin-bottom: 0;
+}
+
+.ssl-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ssl-section-title svg {
+    opacity: 0.6;
+}
+
+/* Assessment banner */
+.ssl-assessment-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.ssl-assessment-banner.green {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.ssl-assessment-banner.yellow {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.ssl-assessment-banner.red {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+.ssl-banner-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.ssl-assessment-banner.green .ssl-banner-icon { color: var(--green); }
+.ssl-assessment-banner.yellow .ssl-banner-icon { color: var(--orange); }
+.ssl-assessment-banner.red .ssl-banner-icon { color: var(--red); }
+
+.ssl-banner-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+/* Recommendation block inside banner */
+.ssl-rec-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    background: var(--accent-glow, rgba(56, 189, 248, 0.08));
+    border-left: 2px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    line-height: 1.5;
+}
+
+.ssl-rec-icon {
+    flex-shrink: 0;
+    color: var(--accent);
+    margin-top: 1px;
+}
+
+.ssl-rec-text {
+    font-size: 12px;
+    color: var(--text);
+    word-break: break-word;
+}
+
+/* Status badge */
+.ssl-status-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.ssl-status-badge.green {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+}
+
+.ssl-status-badge.yellow {
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--orange);
+}
+
+.ssl-status-badge.red {
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--red);
+}
+
+/* Days badge */
+.ssl-days-badge {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.ssl-days-badge.green { color: var(--green); }
+.ssl-days-badge.yellow { color: var(--orange); }
+.ssl-days-badge.red { color: var(--red); }
+
+/* Certificate history */
+.ssl-cert-history {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ssl-cert-history-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+}
+
+.ssl-history-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+.ssl-history-dot.green {
+    background: var(--green);
+    box-shadow: 0 0 4px rgba(74, 222, 128, 0.4);
+}
+
+.ssl-history-dot.red {
+    background: var(--red);
+    box-shadow: 0 0 4px rgba(248, 113, 113, 0.4);
+}
+
+.ssl-history-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ssl-history-issuer {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.ssl-history-dates {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+}
