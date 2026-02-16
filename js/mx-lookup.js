@@ -160,12 +160,13 @@ function init_mx_lookup(container) {
         const record = spfAnswer.data.replace(/"/g, '');
         const lower = record.toLowerCase();
 
-        if (lower.includes('+all')) return { status: 'yellow', label: 'Unsicher', record: record };
-        if (lower.includes('~all') || lower.includes('?all')) return { status: 'yellow', label: 'Schwach', record: record };
+        if (lower.includes('+all')) return { status: 'red', label: 'Unsicher', record: record };
         if (lower.includes('-all')) return { status: 'green', label: 'G\u00fcltig', record: record };
+        if (lower.includes('~all')) return { status: 'green', label: 'G\u00fcltig', record: record };
+        if (lower.includes('?all')) return { status: 'yellow', label: 'Neutral', record: record };
 
-        // Has SPF but no clear all mechanism
-        return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record };
+        // Has SPF but no all mechanism — still valid
+        return { status: 'green', label: 'G\u00fcltig', record: record };
     }
 
     // --- DMARC Evaluation ---
