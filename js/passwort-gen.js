@@ -364,13 +364,8 @@ function init_passwort_gen(container) {
             if (CHARSETS.upper.includes(c)) return `<span class="pw-char-upper">${c}</span>`;
             if (CHARSETS.lower.includes(c)) return `<span class="pw-char-lower">${c}</span>`;
             if (CHARSETS.digits.includes(c)) return `<span class="pw-char-digit">${c}</span>`;
-            return `<span class="pw-char-special">${escapeHtml(c)}</span>`;
+            return `<span class="pw-char-special">${escHtml(c)}</span>`;
         }).join('');
-    }
-
-    function escapeHtml(str) {
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return str.replace(/[&<>"']/g, c => map[c] || c);
     }
 
     // --- Language Chips ---
@@ -485,7 +480,7 @@ function init_passwort_gen(container) {
         const breakdownEl = document.getElementById('pw-quote-breakdown');
         breakdownEl.innerHTML = breakdown.map(b => {
             const cls = b.type === 'leet' ? 'pw-char-special' : b.type === 'upper' ? 'pw-char-upper' : 'pw-char-lower';
-            return `<span class="pw-breakdown-item"><span class="pw-breakdown-word">${b.word}</span><span class="pw-breakdown-arrow">&rarr;</span><span class="${cls}">${escapeHtml(b.char)}</span></span>`;
+            return `<span class="pw-breakdown-item"><span class="pw-breakdown-word">${b.word}</span><span class="pw-breakdown-arrow">&rarr;</span><span class="${cls}">${escHtml(b.char)}</span></span>`;
         }).join('');
 
         // Render strength

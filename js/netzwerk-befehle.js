@@ -960,14 +960,6 @@ function init_netzwerk_befehle(container) {
     });
     updateChipColors();
 
-    // --- Escape helpers ---
-    function escHtml(str) {
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-    function escAttr(str) {
-        return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
     // --- Render platform column ---
     function renderPlatform(platform, label, icon, hint) {
         if (!platform) {
@@ -992,7 +984,7 @@ function init_netzwerk_befehle(container) {
             `<div class="nb-example">
                 <div class="nb-code-row">
                     <code class="nb-code">${escHtml(ex.cmd)}</code>
-                    <button class="nb-copy-btn" data-copy="${escAttr(ex.cmd)}" title="Kopieren">${COPY_ICON}</button>
+                    <button class="nb-copy-btn" data-copy="${escHtml(ex.cmd)}" title="Kopieren">${COPY_ICON}</button>
                 </div>
                 <span class="nb-example-desc">${escHtml(ex.desc)}</span>
             </div>`
@@ -1010,7 +1002,7 @@ function init_netzwerk_befehle(container) {
             <div class="nb-section-label">Syntax</div>
             <div class="nb-code-row">
                 <code class="nb-code">${escHtml(platform.syntax)}</code>
-                <button class="nb-copy-btn" data-copy="${escAttr(platform.cmd)}" title="Kopieren">${COPY_ICON}</button>
+                <button class="nb-copy-btn" data-copy="${escHtml(platform.cmd)}" title="Kopieren">${COPY_ICON}</button>
             </div>
             <div class="nb-section-label">Wichtige Schalter</div>
             <table class="nb-switch-table">${switchRows}</table>

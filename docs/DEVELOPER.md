@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.80 | **Build:** 80 | **Stand:** 2026-02-16
+> **Version:** 5.0.81 | **Build:** 81 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -696,7 +696,7 @@ git push
 
 ---
 
-## 11. Security-Audit (v5.0.80)
+## 11. Security-Audit (v5.0.80 + v5.0.81)
 
 ### 11.1 Durchgefuehrter Audit
 
@@ -728,14 +728,26 @@ In `app.js` wurde eine globale `escHtml(str)` Funktion hinzugefuegt, die alle HT
 
 ### 11.4 Positive Befunde (bereits sicher)
 
-- `email-header.js` — nutzte bereits konsequent `escapeHtml()` fuer alle Daten
-- `netzwerk-befehle.js` — nutzte bereits `escHtml()` + `escAttr()`
-- `passwort-gen.js` — escaped Special-Chars korrekt
 - `ip-rechner.js` — nutzt `textContent` fuer Geo-Daten (vorbildlich)
 - Kein `eval()`, `document.write()` in der gesamten Codebase
 - Alle externen APIs ueber HTTPS
 - Hash-Routing gegen Tool-Whitelist validiert
 - Error-Messages konsistent ueber `textContent` (nicht innerHTML)
+
+### 11.5 Folge-Audit und Bereinigung (v5.0.81)
+
+Nach dem initialen Audit wurde ein Verifikations-Audit durchgefuehrt. Dabei wurden 2 verbliebene LOW-Schwachstellen und 3 Code-Quality-Issues gefunden und behoben:
+
+| # | Typ | Datei | Problem | Fix |
+|---|-----|-------|---------|-----|
+| 1 | LOW | `ssl-tls-checker.js` | CT-Log ID (`current.id`) unescaped in innerHTML | `escHtml(String(...))` |
+| 2 | LOW | `ssl-tls-checker.js` | `cert.common_name` in Recommendation-Text fliesst unescaped in innerHTML | `escHtml()` |
+| 3 | INFO | `email-header.js` | Redundante lokale `escapeHtml()` shadowed globale Funktion | Entfernt, nutzt jetzt globale `escHtml()` |
+| 4 | INFO | `passwort-gen.js` | Redundante lokale `escapeHtml()` shadowed globale Funktion | Entfernt, nutzt jetzt globale `escHtml()` |
+| 5 | INFO | `netzwerk-befehle.js` | Unvollstaendige lokale `escHtml()` (fehlte `"` und `'`) + `escAttr()` | Entfernt, nutzt jetzt globale `escHtml()` |
+| 6 | INFO | `ip-rechner.js` | lat/lon in OpenStreetMap-URL ohne `encodeURIComponent()` | `encodeURIComponent()` hinzugefuegt |
+
+**Ergebnis:** Alle Tools nutzen jetzt ausschliesslich die globale `escHtml()` aus `app.js`. Keine redundanten lokalen Escape-Funktionen mehr vorhanden.
 
 ---
 
@@ -775,4 +787,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v5.0.80*
+*Letzte Aktualisierung: 2026-02-16 | v5.0.81*

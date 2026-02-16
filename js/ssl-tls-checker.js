@@ -188,7 +188,7 @@ function init_ssl_tls_checker(container) {
                 status: 'yellow',
                 label: 'HTTPS nicht erreichbar',
                 text: 'Das Zertifikat ist g\u00fcltig, aber HTTPS konnte nicht erreicht werden. M\u00f6glicherweise ist der Server offline oder blockiert Anfragen.',
-                recommendation: 'Pr\u00fcfe ob der Webserver l\u00e4uft und Port 443 (HTTPS) in der Firewall ge\u00f6ffnet ist. Teste mit: curl -I https://' + (cert.common_name || 'domain.de')
+                recommendation: 'Pr\u00fcfe ob der Webserver l\u00e4uft und Port 443 (HTTPS) in der Firewall ge\u00f6ffnet ist. Teste mit: curl -I https://' + escHtml(cert.common_name || 'domain.de')
             };
         }
         return {
@@ -408,7 +408,7 @@ function init_ssl_tls_checker(container) {
             // Cert ID
             html += '<div class="result-item">' +
                 '<span class="result-label">CT-Log ID</span>' +
-                '<span class="result-value" style="font-size:12px">' + (current.id || current.min_cert_id || '\u2014') + '</span>' +
+                '<span class="result-value" style="font-size:12px">' + escHtml(String(current.id || current.min_cert_id || '\u2014')) + '</span>' +
             '</div>';
 
             html += '</div>'; // result-grid

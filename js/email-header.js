@@ -225,11 +225,6 @@ Content-Type: text/plain; charset=UTF-8`;
         return 'eh-delay-slow';
     }
 
-    function escapeHtml(str) {
-        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-        return str.replace(/[&<>"']/g, c => map[c] || c);
-    }
-
     function getAuthClass(value) {
         if (!value) return 'eh-auth-none';
         if (value === 'pass' || value === 'bestguesspass') return 'eh-auth-pass';
@@ -290,7 +285,7 @@ Content-Type: text/plain; charset=UTF-8`;
                     <div class="eh-auth-item">
                         <div class="eh-auth-icon">${icon}</div>
                         <span class="eh-auth-label">${protocol}</span>
-                        <span class="eh-auth-value ${cls}">${escapeHtml(displayValue)}</span>
+                        <span class="eh-auth-value ${cls}">${escHtml(displayValue)}</span>
                     </div>
                 `;
             }).join('');
@@ -315,7 +310,7 @@ Content-Type: text/plain; charset=UTF-8`;
                 return `
                     <div class="eh-info-item${f.fullWidth ? ' full-width' : ''}">
                         <span class="eh-info-label">${f.label}</span>
-                        <span class="eh-info-value">${escapeHtml(val)}</span>
+                        <span class="eh-info-value">${escHtml(val)}</span>
                     </div>
                 `;
             });
@@ -338,7 +333,7 @@ Content-Type: text/plain; charset=UTF-8`;
                     warningsEl.innerHTML = `
                         <div class="eh-mismatch-warning">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            From-Domain (${escapeHtml(fromDomain)}) stimmt nicht mit Return-Path-Domain (${escapeHtml(rpDomain)}) \u00fcberein
+                            From-Domain (${escHtml(fromDomain)}) stimmt nicht mit Return-Path-Domain (${escHtml(rpDomain)}) \u00fcberein
                         </div>
                     `;
                 }
@@ -381,12 +376,12 @@ Content-Type: text/plain; charset=UTF-8`;
             document.getElementById('eh-hop-timeline').innerHTML = hops.map((hop, i) => {
                 let serversHtml = '';
                 if (hop.from) {
-                    serversHtml += `<span class="eh-hop-server-label">from </span>${escapeHtml(hop.from)}`;
-                    if (hop.ip) serversHtml += ` <span class="eh-hop-server-label">[${escapeHtml(hop.ip)}]</span>`;
+                    serversHtml += `<span class="eh-hop-server-label">from </span>${escHtml(hop.from)}`;
+                    if (hop.ip) serversHtml += ` <span class="eh-hop-server-label">[${escHtml(hop.ip)}]</span>`;
                     serversHtml += '<br>';
                 }
                 if (hop.by) {
-                    serversHtml += `<span class="eh-hop-server-label">by </span>${escapeHtml(hop.by)}`;
+                    serversHtml += `<span class="eh-hop-server-label">by </span>${escHtml(hop.by)}`;
                 }
 
                 let delayHtml = '';
@@ -397,7 +392,7 @@ Content-Type: text/plain; charset=UTF-8`;
 
                 let timeHtml = '';
                 if (hop.timestamp) {
-                    timeHtml = `<div class="eh-hop-time">${escapeHtml(hop.timestamp.toLocaleString('de-DE'))} ${delayHtml}</div>`;
+                    timeHtml = `<div class="eh-hop-time">${escHtml(hop.timestamp.toLocaleString('de-DE'))} ${delayHtml}</div>`;
                 }
 
                 return `
@@ -471,8 +466,8 @@ Content-Type: text/plain; charset=UTF-8`;
                 <div class="eh-security-row">
                     <span class="eh-security-icon">${statusIcons[item.status]}</span>
                     <div class="eh-security-info">
-                        <span class="eh-security-name">${escapeHtml(item.name)}</span>
-                        <span class="eh-security-detail">${escapeHtml(item.detail)}</span>
+                        <span class="eh-security-name">${escHtml(item.name)}</span>
+                        <span class="eh-security-detail">${escHtml(item.detail)}</span>
                     </div>
                 </div>
             `).join('');

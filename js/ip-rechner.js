@@ -414,7 +414,7 @@ function init_ip_rechner(container) {
                 if (lat && lon) {
                     document.getElementById('geo-coords').textContent = `${lat}, ${lon}`;
                     const mapLink = document.getElementById('geo-map-link');
-                    mapLink.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
+                    mapLink.href = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(lat)}&mlon=${encodeURIComponent(lon)}#map=12/${encodeURIComponent(lat)}/${encodeURIComponent(lon)}`;
                     mapLink.style.display = 'inline-block';
                 } else {
                     document.getElementById('geo-coords').textContent = '—';
