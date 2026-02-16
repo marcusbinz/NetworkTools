@@ -55,6 +55,15 @@ function init_mx_lookup(container) {
                 </div>
             </div>
 
+            <!-- E-Mail Security -->
+            <div class="mx-section" id="mx-security-section" style="display:none;">
+                <h4 class="mx-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    E-Mail-Sicherheit
+                </h4>
+                <div id="mx-security-rows"></div>
+            </div>
+
             <!-- Additional DNS Records -->
             <div class="mx-section" id="mx-extra-section" style="display:none;">
                 <h4 class="mx-section-title">
@@ -142,6 +151,86 @@ function init_mx_lookup(container) {
         return { priority, server };
     }
 
+    // --- SPF Evaluation ---
+    function evaluateSPF(txtRecords) {
+        if (!txtRecords || !txtRecords.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden' };
+        const spfAnswer = txtRecords.Answer.find(r => r.data && r.data.toLowerCase().includes('v=spf1'));
+        if (!spfAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden' };
+
+        const record = spfAnswer.data.replace(/"/g, '');
+        const lower = record.toLowerCase();
+
+        if (lower.includes('+all')) return { status: 'yellow', label: 'Unsicher', record: record };
+        if (lower.includes('~all') || lower.includes('?all')) return { status: 'yellow', label: 'Schwach', record: record };
+        if (lower.includes('-all')) return { status: 'green', label: 'G\u00fcltig', record: record };
+
+        // Has SPF but no clear all mechanism
+        return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record };
+    }
+
+    // --- DMARC Evaluation ---
+    function evaluateDMARC(dmarcData) {
+        if (!dmarcData || !dmarcData.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden' };
+        const dmarcAnswer = dmarcData.Answer.find(r => r.data && r.data.toLowerCase().includes('v=dmarc'));
+        if (!dmarcAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden' };
+
+        const record = dmarcAnswer.data.replace(/"/g, '');
+        const lower = record.toLowerCase();
+
+        // Extract policy — match p= anywhere in the record
+        const pMatch = lower.match(/[;\s]p\s*=\s*(\w+)/) || lower.match(/^v=dmarc1\s*;\s*p\s*=\s*(\w+)/);
+        if (!pMatch) return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record };
+
+        const policy = pMatch[1];
+        if (policy === 'reject' || policy === 'quarantine') return { status: 'green', label: 'G\u00fcltig', record: record };
+        if (policy === 'none') return { status: 'yellow', label: 'Schwach', record: record };
+
+        return { status: 'yellow', label: 'Unbekannt', record: record };
+    }
+
+    // --- DKIM Check (try common selectors) ---
+    async function checkDKIM(domain) {
+        const selectors = ['default', 'google', 'selector1', 'selector2', 'k1', 's1', 's2', 'dkim', 'mail'];
+
+        const checks = selectors.map(sel => {
+            const name = sel + '._domainkey.' + domain;
+            return queryDNS(name, 'TXT')
+                .then(data => {
+                    if (data.Answer && data.Answer.length > 0) {
+                        const dkimRec = data.Answer.find(r => r.data && (r.data.includes('v=DKIM1') || r.data.includes('p=')));
+                        if (dkimRec) {
+                            return { found: true, selector: sel, record: dkimRec.data.replace(/"/g, '') };
+                        }
+                    }
+                    return { found: false };
+                })
+                .catch(() => ({ found: false }));
+        });
+
+        const results = await Promise.all(checks);
+        const hit = results.find(r => r.found);
+
+        if (hit) {
+            return { status: 'green', label: 'G\u00fcltig', record: hit.record, selector: hit.selector };
+        }
+        return { status: 'red', label: 'Fehlt', record: 'Kein DKIM Record bei g\u00e4ngigen Selektoren gefunden' };
+    }
+
+    // --- Render security row ---
+    function renderSecurityRow(name, result) {
+        const selectorHint = result.selector ? ' <span style="opacity:0.5">(' + result.selector + ')</span>' : '';
+        return '<div class="mx-security-row">' +
+            '<div class="mx-security-dot ' + result.status + '"></div>' +
+            '<div class="mx-security-info">' +
+                '<div class="mx-security-header">' +
+                    '<span class="mx-security-name">' + name + '</span>' +
+                    '<span class="mx-security-badge ' + result.status + '">' + result.label + selectorHint + '</span>' +
+                '</div>' +
+                '<div class="mx-security-record">' + result.record + '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
     // --- Main Lookup ---
     async function lookup() {
         let domain = domainInput.value.trim().toLowerCase();
@@ -207,41 +296,49 @@ function init_mx_lookup(container) {
                 </tr>
             `).join('');
 
+            // --- E-Mail Security Evaluation ---
+            let dmarcData = null;
+            let dkimResult = null;
+            try {
+                [dmarcData, dkimResult] = await Promise.all([
+                    queryDNS(`_dmarc.${domain}`, 'TXT').catch(() => null),
+                    checkDKIM(domain),
+                ]);
+            } catch {
+                dmarcData = null;
+                dkimResult = { status: 'red', label: 'Fehler', record: 'Abfrage fehlgeschlagen' };
+            }
+
+            const spfResult = evaluateSPF(txtData);
+            const dmarcResult = evaluateDMARC(dmarcData);
+
+            const securityRows = document.getElementById('mx-security-rows');
+            securityRows.innerHTML =
+                renderSecurityRow('SPF', spfResult) +
+                renderSecurityRow('DMARC', dmarcResult) +
+                renderSecurityRow('DKIM', dkimResult);
+            document.getElementById('mx-security-section').style.display = 'block';
+
             // --- Extra DNS Records ---
             let hasExtra = false;
 
-            // SPF
+            // SPF (raw record)
             const spfBlock = document.getElementById('mx-spf-block');
-            if (txtData.Answer) {
-                const spf = txtData.Answer.find(r => r.data && r.data.toLowerCase().includes('v=spf1'));
-                if (spf) {
-                    document.getElementById('mx-spf-value').textContent = spf.data.replace(/"/g, '');
-                    spfBlock.style.display = 'block';
-                    hasExtra = true;
-                } else {
-                    spfBlock.style.display = 'none';
-                }
+            if (spfResult.status !== 'red') {
+                document.getElementById('mx-spf-value').textContent = spfResult.record;
+                spfBlock.style.display = 'block';
+                hasExtra = true;
             } else {
                 spfBlock.style.display = 'none';
             }
 
-            // DMARC
+            // DMARC (raw record)
             const dmarcBlock = document.getElementById('mx-dmarc-block');
-            try {
-                const dmarcData = await queryDNS(`_dmarc.${domain}`, 'TXT');
-                if (dmarcData.Answer) {
-                    const dmarc = dmarcData.Answer.find(r => r.data && r.data.toLowerCase().includes('v=dmarc'));
-                    if (dmarc) {
-                        document.getElementById('mx-dmarc-value').textContent = dmarc.data.replace(/"/g, '');
-                        dmarcBlock.style.display = 'block';
-                        hasExtra = true;
-                    } else {
-                        dmarcBlock.style.display = 'none';
-                    }
-                } else {
-                    dmarcBlock.style.display = 'none';
-                }
-            } catch {
+            if (dmarcResult.status !== 'red') {
+                document.getElementById('mx-dmarc-value').textContent = dmarcResult.record;
+                dmarcBlock.style.display = 'block';
+                hasExtra = true;
+            } else {
                 dmarcBlock.style.display = 'none';
             }
 

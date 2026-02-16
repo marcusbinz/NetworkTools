@@ -199,6 +199,72 @@
     white-space: nowrap;
 }
 
+/* Security section */
+.mx-security-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.mx-security-row:last-child {
+    margin-bottom: 0;
+}
+
+.mx-security-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.mx-security-dot.green { background: var(--green); box-shadow: 0 0 6px rgba(74, 222, 128, 0.4); }
+.mx-security-dot.yellow { background: var(--orange); box-shadow: 0 0 6px rgba(251, 191, 36, 0.4); }
+.mx-security-dot.red { background: var(--red); box-shadow: 0 0 6px rgba(248, 113, 113, 0.4); }
+
+.mx-security-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mx-security-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.mx-security-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+    min-width: 52px;
+}
+
+.mx-security-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.mx-security-badge.green { background: rgba(74, 222, 128, 0.15); color: var(--green); }
+.mx-security-badge.yellow { background: rgba(251, 191, 36, 0.15); color: var(--orange); }
+.mx-security-badge.red { background: rgba(248, 113, 113, 0.15); color: var(--red); }
+
+.mx-security-record {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    word-break: break-all;
+    line-height: 1.5;
+}
+
 /* Extra DNS blocks */
 .mx-extra-block {
     background: var(--bg);
