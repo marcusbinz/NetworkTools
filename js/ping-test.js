@@ -227,8 +227,9 @@ function init_ping_test(container) {
 
         // Clean up input
         host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-        if (!host.includes('.') || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z0-9]{2,}$/.test(host)) {
-            showError('Bitte gib eine gültige URL ein (z.B. google.com)');
+        var isIP = /^(\d{1,3}\.){3}\d{1,3}$/.test(host) && host.split('.').every(function(p) { var n = parseInt(p, 10); return n >= 0 && n <= 255; });
+        if (!isIP && (!host.includes('.') || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z0-9]{2,}$/.test(host))) {
+            showError('Bitte gib eine gültige URL oder IP-Adresse ein (z.B. google.com oder 192.168.1.1)');
             return;
         }
         hostInput.value = host;

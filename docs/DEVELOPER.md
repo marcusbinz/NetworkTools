@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.81 | **Build:** 81 | **Stand:** 2026-02-16
+> **Version:** 5.0.82 | **Build:** 82 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -749,6 +749,13 @@ Nach dem initialen Audit wurde ein Verifikations-Audit durchgefuehrt. Dabei wurd
 
 **Ergebnis:** Alle Tools nutzen jetzt ausschliesslich die globale `escHtml()` aus `app.js`. Keine redundanten lokalen Escape-Funktionen mehr vorhanden.
 
+### 11.6 Bugfix: Ping-Test IP-Adressen (v5.0.82)
+
+Die in v5.0.80 eingefuehrte strenge Domain-Validierung im Ping-Test blockierte IP-Adressen (z.B. `192.168.1.1`), da der Regex `[a-z0-9]{2,}` fuer das letzte Segment einstellige Zahlen ablehnte. Fix: IP-Adressen werden jetzt separat erkannt und validiert, bevor die Domain-Regex-Pruefung greift.
+
+**Betroffene Datei:** `ping-test.js`
+**Andere Tools** (DNS, MX, SSL, WHOIS) sind korrekt — diese akzeptieren nur Domainnamen, keine IP-Adressen.
+
 ---
 
 ## 12. Externe Links im Drawer
@@ -787,4 +794,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v5.0.81*
+*Letzte Aktualisierung: 2026-02-16 | v5.0.82*
