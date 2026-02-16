@@ -94,7 +94,7 @@ function init_whois_lookup(container) {
         // 1. Try CORS-verified TLD-specific server (no proxy needed)
         if (RDAP_CORS_SERVERS[tld]) {
             try {
-                const res = await fetch(RDAP_CORS_SERVERS[tld] + domain, { signal });
+                const res = await fetch(RDAP_CORS_SERVERS[tld] + encodeURIComponent(domain), { signal });
                 if (res.ok) return res.json();
             } catch (e) {
                 if (e.name === 'AbortError') throw e;
@@ -113,7 +113,7 @@ function init_whois_lookup(container) {
         const ccServer = CCTLD_RDAP_SERVERS[tld];
         if (ccServer) {
             try {
-                const nativeUrl = ccServer + domain;
+                const nativeUrl = ccServer + encodeURIComponent(domain);
                 const proxyUrl = CORS_PROXY + encodeURIComponent(nativeUrl);
                 const res = await fetch(proxyUrl, { signal });
                 if (res.ok) {
@@ -177,8 +177,8 @@ function init_whois_lookup(container) {
         //    This gives us ASN + holder name (most important info)
         try {
             const [prefixRes, whoisRes] = await Promise.allSettled([
-                fetch(`https://stat.ripe.net/data/prefix-overview/data.json?resource=${ip}`, { signal }),
-                fetch(`https://stat.ripe.net/data/whois/data.json?resource=${ip}`, { signal })
+                fetch(`https://stat.ripe.net/data/prefix-overview/data.json?resource=${encodeURIComponent(ip)}`, { signal }),
+                fetch(`https://stat.ripe.net/data/whois/data.json?resource=${encodeURIComponent(ip)}`, { signal })
             ]);
 
             // ASN + Holder from prefix-overview
@@ -223,7 +223,7 @@ function init_whois_lookup(container) {
 
         // 2. Geo-Enrichment via ipwho.is (optional — may be blocked by ad-blockers)
         try {
-            const res = await fetch(`https://ipwho.is/${ip}`, { signal });
+            const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal });
             if (res.ok) {
                 const data = await res.json();
                 if (data.success) {
@@ -413,8 +413,8 @@ function init_whois_lookup(container) {
     function renderSection(title, color, fields) {
         const rows = fields.map(f => `
             <div class="whois-field">
-                <span class="whois-field-label">${f.label}</span>
-                <span class="whois-field-value">${f.value}</span>
+                <span class="whois-field-label">${escHtml(f.label)}</span>
+                <span class="whois-field-value">${escHtml(f.value)}</span>
             </div>
         `).join('');
 
@@ -437,7 +437,7 @@ function init_whois_lookup(container) {
         domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
         domainInput.value = domain;
 
-        if (!domain.includes('.') || domain.length < 3) {
+        if (!domain.includes('.') || domain.length < 3 || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) {
             showError('Bitte gib eine gültige Domain ein (z.B. google.com)');
             return;
         }

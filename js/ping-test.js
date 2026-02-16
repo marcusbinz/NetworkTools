@@ -227,7 +227,7 @@ function init_ping_test(container) {
 
         // Clean up input
         host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-        if (!host.includes('.')) {
+        if (!host.includes('.') || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z0-9]{2,}$/.test(host)) {
             showError('Bitte gib eine gültige URL ein (z.B. google.com)');
             return;
         }

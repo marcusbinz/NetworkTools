@@ -154,14 +154,14 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
         records.forEach(r => {
             let displayData;
             if (type === 'SOA') {
-                displayData = formatSOA(r.data);
+                displayData = escHtml(formatSOA(r.data));
             } else if (type === 'MX') {
                 const parts = r.data.split(' ');
-                const prio = parts[0];
-                const server = cleanData(parts.slice(1).join(' '), type);
+                const prio = escHtml(parts[0]);
+                const server = escHtml(cleanData(parts.slice(1).join(' '), type));
                 displayData = `<span class="dns-mx-prio">${prio}</span> ${server}`;
             } else {
-                displayData = cleanData(r.data, type);
+                displayData = escHtml(cleanData(r.data, type));
             }
 
             rows += `
@@ -192,7 +192,7 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
         domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
         domainInput.value = domain;
 
-        if (!domain.includes('.') || domain.length < 3) {
+        if (!domain.includes('.') || domain.length < 3 || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) {
             showError('Bitte gib eine gültige Domain ein (z.B. google.com)');
             return;
         }

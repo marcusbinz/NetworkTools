@@ -238,7 +238,7 @@ function init_mein_netzwerk(container) {
             // Get geolocation
             let geo = {};
             try {
-                const geoRes = await fetch(`https://ipapi.co/${ip}/json/`, {
+                const geoRes = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, {
                     signal: _netAbortController.signal,
                     cache: 'no-store',
                 });
@@ -258,23 +258,23 @@ function init_mein_netzwerk(container) {
             grid.innerHTML = `
                 <div class="result-item full-width">
                     <span class="result-label">IPv4-Adresse</span>
-                    <span class="result-value">${ip}</span>
+                    <span class="result-value">${escHtml(ip)}</span>
                 </div>
                 <div class="result-item">
                     <span class="result-label">Land</span>
-                    <span class="result-value">${geo.country_name || '—'}</span>
+                    <span class="result-value">${escHtml(geo.country_name || '—')}</span>
                 </div>
                 <div class="result-item">
                     <span class="result-label">Stadt</span>
-                    <span class="result-value">${geo.city || '—'}</span>
+                    <span class="result-value">${escHtml(geo.city || '—')}</span>
                 </div>
                 <div class="result-item">
                     <span class="result-label">ISP</span>
-                    <span class="result-value">${geo.org || '—'}</span>
+                    <span class="result-value">${escHtml(geo.org || '—')}</span>
                 </div>
                 <div class="result-item">
                     <span class="result-label">ASN</span>
-                    <span class="result-value">${geo.asn || '—'}</span>
+                    <span class="result-value">${escHtml(geo.asn || '—')}</span>
                 </div>
             `;
         } catch (err) {

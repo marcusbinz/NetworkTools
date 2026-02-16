@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 4.0.79 | **Build:** 79 | **Stand:** 2026-02-16
+> **Version:** 5.0.80 | **Build:** 80 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -54,7 +54,7 @@ NetworkTools/
 |   |-- netzwerk-wiki.css   # (.wiki- Prefix)
 |
 |-- js/
-|   |-- app.js               # Router, Theme, Drawer, Tool-Registry, Service Worker
+|   |-- app.js               # Router, Theme, Drawer, Tool-Registry, Service Worker, escHtml()
 |   |-- ip-rechner.js        # IPv4-Subnetz-Rechner
 |   |-- ipv6-rechner.js      # IPv6-Rechner
 |   |-- mx-lookup.js         # MX / SPF / DMARC / DKIM Lookup
@@ -526,7 +526,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `4.0.79` = 4. Major-Version, Build 79
+**Beispiel:** `5.0.80` = 5. Major-Version, Build 80
 
 ### 8.2 Dateien aktualisieren
 
@@ -536,14 +536,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 79,
-    "version": "4.0.79"
+    "build": 80,
+    "version": "5.0.80"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v79';
+const CACHE_NAME = 'network-tools-v80';
 ```
 
 ### 8.3 Git-Workflow
@@ -686,9 +686,60 @@ git push
 - Fehler in eigener Error-Card anzeigen
 - Mobile-first Design, Desktop ab 768px
 
+### Sicherheit
+
+- **HTML-Escaping:** Alle API-Response-Daten und User-Inputs, die in `innerHTML` eingefuegt werden, muessen durch `escHtml()` escaped werden (definiert in `app.js`)
+- **URL-Encoding:** Alle dynamischen Werte in `fetch()`-URLs muessen mit `encodeURIComponent()` encoded werden
+- **Domain-Validierung:** Alle Domain-Eingabefelder validieren gegen `/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/`
+- **JSON-Parsing:** `JSON.parse()` immer in `try/catch` wrappen
+- **textContent vs innerHTML:** Fuer reine Text-Ausgabe immer `textContent` statt `innerHTML` verwenden
+
 ---
 
-## 11. Externe Links im Drawer
+## 11. Security-Audit (v5.0.80)
+
+### 11.1 Durchgefuehrter Audit
+
+Am 2026-02-16 wurde ein vollstaendiger Security-Audit aller 17 JavaScript-Dateien durchgefuehrt. Geprueft wurden:
+
+- **XSS (Cross-Site Scripting):** 80 innerHTML-Stellen analysiert, alle API-Daten-Flows getrackt
+- **URL-Injection:** Alle fetch()-URLs auf fehlende Encoding geprueft
+- **Input-Validierung:** Alle Benutzereingaben auf Sanitization geprueft
+- **API-Sicherheit:** CORS, Proxy-Nutzung, MITM-Risiken bewertet
+- **Service Worker:** Cache-Poisoning und Integritaet geprueft
+
+### 11.2 Gefundene und behobene Schwachstellen
+
+| # | Risiko | Datei | Problem | Fix |
+|---|--------|-------|---------|-----|
+| 1 | **HIGH** | `netzwerk-rechner.js` | User-Input direkt in innerHTML (Self-XSS) | `escHtml()` auf `fsLabel`/`bwLabel` |
+| 2 | MEDIUM | `dns-lookup.js` | DNS TXT/MX Records unescaped in innerHTML | `escHtml()` auf `displayData` |
+| 3 | MEDIUM | `whois-lookup.js` | RDAP-Felder unescaped + URLs ohne Encoding | `escHtml()` auf Felder + `encodeURIComponent()` auf 4 URLs |
+| 4 | MEDIUM | `mx-lookup.js` | MX-Server + SPF/DMARC Records unescaped | `escHtml()` auf `mx.server`, `ips[]`, `result.record` |
+| 5 | MEDIUM | `ssl-tls-checker.js` | Zertifikats-CN/Issuer unescaped + JSON.parse ohne try/catch | `escHtml()` auf Cert-Felder + try/catch um JSON.parse |
+| 6 | MEDIUM | `mein-netzwerk.js` | Geo-API-Daten unescaped + URL ohne Encoding | `escHtml()` auf IP/Geo-Felder + `encodeURIComponent()` |
+| 7 | MEDIUM | `blacklist-check.js` | DNSBL Return-Code unescaped | `escHtml()` auf `r.detail` |
+| 8 | MEDIUM | `ip-rechner.js` | Geo-URL ohne Encoding | `encodeURIComponent()` auf IP in fetch-URL |
+| 9 | LOW | Alle Domain-Tools | Schwache Domain-Validierung (nur dot + length) | Strenger Regex: nur `[a-z0-9.-]` erlaubt |
+
+### 11.3 Globale Sicherheitsfunktion
+
+In `app.js` wurde eine globale `escHtml(str)` Funktion hinzugefuegt, die alle HTML-Sonderzeichen escaped (`&`, `<`, `>`, `"`, `'`). Diese Funktion wird von allen Tools verwendet, die API-Daten oder User-Input in `innerHTML` einfuegen.
+
+### 11.4 Positive Befunde (bereits sicher)
+
+- `email-header.js` — nutzte bereits konsequent `escapeHtml()` fuer alle Daten
+- `netzwerk-befehle.js` — nutzte bereits `escHtml()` + `escAttr()`
+- `passwort-gen.js` — escaped Special-Chars korrekt
+- `ip-rechner.js` — nutzt `textContent` fuer Geo-Daten (vorbildlich)
+- Kein `eval()`, `document.write()` in der gesamten Codebase
+- Alle externen APIs ueber HTTPS
+- Hash-Routing gegen Tool-Whitelist validiert
+- Error-Messages konsistent ueber `textContent` (nicht innerHTML)
+
+---
+
+## 12. Externe Links im Drawer
 
 Neben den 16 Tools gibt es externe Links im Drawer:
 
@@ -703,7 +754,7 @@ Diese werden mit `target="_blank"` und gestricheltem Border dargestellt (`.drawe
 
 ---
 
-## 12. Lokale Entwicklung
+## 13. Lokale Entwicklung
 
 ### Dev-Server starten (PowerShell)
 
@@ -724,4 +775,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v4.0.79*
+*Letzte Aktualisierung: 2026-02-16 | v5.0.80*

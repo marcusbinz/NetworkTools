@@ -203,8 +203,8 @@ function init_netzwerk_rechner(container) {
     function renderTransferResult(bytes, bps) {
         var seconds = calcTransferTime(bytes, bps);
         var timeStr = formatTime(seconds);
-        var fsLabel = fsInput.value.trim().replace(',', '.') + ' ' + activeFsUnit.toUpperCase();
-        var bwLabel = bwInput.value.trim().replace(',', '.') + ' ' + activeBwUnit.charAt(0).toUpperCase() + activeBwUnit.slice(1);
+        var fsLabel = escHtml(fsInput.value.trim().replace(',', '.')) + ' ' + escHtml(activeFsUnit.toUpperCase());
+        var bwLabel = escHtml(bwInput.value.trim().replace(',', '.')) + ' ' + escHtml(activeBwUnit.charAt(0).toUpperCase() + activeBwUnit.slice(1));
 
         transferResult.innerHTML =
             '<div class="nr-result-item full-width nr-result-highlight">' +

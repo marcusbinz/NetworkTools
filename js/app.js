@@ -1,5 +1,22 @@
 // === Network-Tools — Router, Theme, Tab-Bar ===
 
+// --- Globale Security-Utility: HTML-Escaping gegen XSS ---
+function escHtml(str) {
+    if (str === null || str === undefined) return '';
+    var s = String(str);
+    var out = '';
+    for (var i = 0; i < s.length; i++) {
+        var c = s.charAt(i);
+        if (c === '&') out += '&amp;';
+        else if (c === '<') out += '&lt;';
+        else if (c === '>') out += '&gt;';
+        else if (c === '"') out += '&quot;';
+        else if (c === "'") out += '&#39;';
+        else out += c;
+    }
+    return out;
+}
+
 // --- Tool Registry ---
 const TOOLS = [
     {

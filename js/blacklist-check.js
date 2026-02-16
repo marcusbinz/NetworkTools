@@ -205,7 +205,7 @@ function init_blacklist_check(container) {
                             <span class="bl-row-name">${r.name}</span>
                             <span class="bl-row-desc">${r.desc}</span>
                         </div>
-                        <span class="bl-row-detail">${r.detail}</span>
+                        <span class="bl-row-detail">${escHtml(r.detail)}</span>
                     </div>
                 `;
             }).join('');

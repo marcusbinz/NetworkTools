@@ -314,7 +314,7 @@ function init_mx_lookup(container) {
                 '</div>' +
                 hintHtml +
                 recHtml +
-                '<div class="mx-security-record">' + result.record + '</div>' +
+                '<div class="mx-security-record">' + escHtml(result.record) + '</div>' +
             '</div>' +
         '</div>';
     }
@@ -329,7 +329,7 @@ function init_mx_lookup(container) {
         domainInput.value = domain;
 
         // Basic validation
-        if (!domain.includes('.') || domain.length < 3) {
+        if (!domain.includes('.') || domain.length < 3 || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) {
             showError('Bitte gib eine gültige Domain ein (z.B. gmail.com)');
             return;
         }
@@ -378,8 +378,8 @@ function init_mx_lookup(container) {
             tbody.innerHTML = mxRecords.map((mx, i) => `
                 <tr>
                     <td><span class="mx-prio-badge">${mx.priority}</span></td>
-                    <td class="mx-server">${mx.server}</td>
-                    <td class="mx-ip">${ips[i]}</td>
+                    <td class="mx-server">${escHtml(mx.server)}</td>
+                    <td class="mx-ip">${escHtml(ips[i])}</td>
                     <td class="mx-ttl">${formatTTL(mx.ttl)}</td>
                 </tr>
             `).join('');

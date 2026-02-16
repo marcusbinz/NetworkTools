@@ -76,7 +76,7 @@ function init_ssl_tls_checker(container) {
             if (!res.ok) return null;
             var text = await res.text();
             if (!text || text.trim().charAt(0) !== '[') return null;
-            return JSON.parse(text);
+            try { return JSON.parse(text); } catch (e) { return null; }
         }
 
         // 1. Versuch: Identity + exclude=expired (beste Datenqualitaet)
@@ -242,7 +242,7 @@ function init_ssl_tls_checker(container) {
             return '<div class="ssl-cert-history-item">' +
                 '<span class="ssl-history-dot ' + statusClass + '"></span>' +
                 '<div class="ssl-history-info">' +
-                    '<span class="ssl-history-issuer">' + issuer + '</span>' +
+                    '<span class="ssl-history-issuer">' + escHtml(issuer) + '</span>' +
                     '<span class="ssl-history-dates">' + from + ' \u2013 ' + to + '</span>' +
                 '</div>' +
             '</div>';
@@ -266,7 +266,7 @@ function init_ssl_tls_checker(container) {
         domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
         domainInput.value = domain;
 
-        if (!domain.includes('.') || domain.length < 3) {
+        if (!domain.includes('.') || domain.length < 3 || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) {
             showError('Bitte gib eine g\u00fcltige Domain ein (z.B. google.com)');
             return;
         }
@@ -368,13 +368,13 @@ function init_ssl_tls_checker(container) {
             // Domain
             html += '<div class="result-item">' +
                 '<span class="result-label">Domain</span>' +
-                '<span class="result-value">' + (current.common_name || current.name_value || domain) + '</span>' +
+                '<span class="result-value">' + escHtml(current.common_name || current.name_value || domain) + '</span>' +
             '</div>';
 
             // Issuer
             html += '<div class="result-item">' +
                 '<span class="result-label">Aussteller</span>' +
-                '<span class="result-value">' + issuer + '</span>' +
+                '<span class="result-value">' + escHtml(issuer) + '</span>' +
             '</div>';
 
             // Days remaining

@@ -387,7 +387,7 @@ function init_ip_rechner(container) {
         geoContent.style.display = 'none';
         geoError.style.display = 'none';
 
-        fetch(`https://ipapi.co/${ip}/json/`, { signal: _ipRechnerGeoAbort.signal })
+        fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, { signal: _ipRechnerGeoAbort.signal })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
