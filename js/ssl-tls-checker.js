@@ -66,41 +66,18 @@ function init_ssl_tls_checker(container) {
         errorCard.style.display = 'block';
     }
 
-    // --- crt.sh API via CORS proxy ---
+    // --- crt.sh API (direkter Zugriff, CORS wird von crt.sh unterstuetzt) ---
     async function queryCRT(domain) {
-        const crtURL = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
-        const signal = _sslAbortController ? _sslAbortController.signal : undefined;
-
-        // Try multiple CORS proxies as fallback
-        const proxies = [
-            'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(crtURL),
-            'https://api.allorigins.win/raw?url=' + encodeURIComponent(crtURL)
-        ];
-
-        let lastError = null;
-
-        for (const proxyURL of proxies) {
-            try {
-                const res = await fetch(proxyURL, { signal: signal });
-                if (!res.ok) {
-                    lastError = new Error('HTTP ' + res.status);
-                    continue;
-                }
-                // Read response text first and validate it's JSON
-                const text = await res.text();
-                if (!text || text.trim().charAt(0) !== '[') {
-                    lastError = new Error('Ungültige Antwort vom Server');
-                    continue;
-                }
-                return JSON.parse(text);
-            } catch (err) {
-                if (err.name === 'AbortError') throw err;
-                lastError = err;
-                continue;
-            }
+        const url = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
+        const res = await fetch(url, {
+            signal: _sslAbortController ? _sslAbortController.signal : undefined
+        });
+        if (!res.ok) throw new Error('crt.sh nicht erreichbar (HTTP ' + res.status + ')');
+        const text = await res.text();
+        if (!text || text.trim().charAt(0) !== '[') {
+            throw new Error('Keine Zertifikatsdaten gefunden');
         }
-
-        throw new Error('crt.sh nicht erreichbar: ' + (lastError ? lastError.message : 'Unbekannter Fehler'));
+        return JSON.parse(text);
     }
 
     // --- HTTPS reachability check ---

@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 4.0.73 | **Build:** 73 | **Stand:** 2026-02-16
+> **Version:** 4.0.74 | **Build:** 74 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -356,7 +356,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 |---|---|
 | **ID** | `ssl-tls-checker` |
 | **Dateien** | `js/ssl-tls-checker.js`, `css/ssl-tls-checker.css` |
-| **API** | `crt.sh` (Certificate Transparency Logs) via CORS-Proxy `api.codetabs.com`, `fetch()` (HTTPS-Erreichbarkeitstest) |
+| **API** | `crt.sh` (Certificate Transparency Logs, direkter Zugriff mit CORS), `fetch()` (HTTPS-Erreichbarkeitstest) |
 | **Features** | SSL-Zertifikat-Pruefung via CT-Logs, Ablaufdatum mit Ampel-Bewertung (gruen/gelb/rot), Aussteller-Anzeige (CN/O geparst), HTTPS-Erreichbarkeitstest mit Antwortzeit, Verbleibende Tage als farbiger Badge, Handlungsempfehlungen bei Problemen, Zertifikats-History (letzte 5 aus CT-Logs), Quick-Examples |
 
 **Zertifikats-Bewertung:**
@@ -364,7 +364,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 - Gelb: Zertifikat gueltig, aber < 30 Tage verbleibend (bald ablaufend) oder HTTPS nicht erreichbar
 - Rot: Zertifikat abgelaufen — Empfehlung: Zertifikat erneuern
 
-**Datenquellen:** crt.sh liefert Zertifikatsdaten (Aussteller, Gueltigkeit, Domain). Kein CORS → Zugriff ueber CORS-Proxies mit Fallback-Strategie: 1. `api.codetabs.com/v1/proxy/` 2. `api.allorigins.win/raw`. Response wird als Text gelesen und vor dem JSON-Parsen validiert (muss mit `[` beginnen). HTTPS-Erreichbarkeit wird parallel via `fetch('https://domain', { mode: 'no-cors' })` geprueft.
+**Datenquellen:** crt.sh liefert Zertifikatsdaten (Aussteller, Gueltigkeit, Domain). crt.sh unterstuetzt CORS (`Access-Control-Allow-Origin: *`), daher direkter Zugriff ohne Proxy moeglich. Response wird als Text gelesen und vor dem JSON-Parsen validiert (muss mit `[` beginnen). HTTPS-Erreichbarkeit wird parallel via `fetch('https://domain', { mode: 'no-cors' })` geprueft.
 
 ### 5.7 WHOIS / RDAP (`whois-lookup`)
 
@@ -468,9 +468,8 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | ipapi.co | `https://ipapi.co/json/` | IP-Rechner, Mein Netzwerk | GeoIP / eigene IP ermitteln |
 | RDAP | `https://rdap.org/domain/X` | WHOIS Lookup | WHOIS-Daten (gTLDs) |
 | ccTLD RDAP | `https://rdap.denic.de/domain/X` (u.a.) | WHOIS Lookup | WHOIS fuer laenderspezifische TLDs |
-| crt.sh | `https://crt.sh/?q=X&output=json` | SSL/TLS-Checker | Certificate Transparency Logs (Zertifikatsdaten) |
-| CORS Proxy (1) | `https://api.codetabs.com/v1/proxy/` | WHOIS Lookup, SSL/TLS-Checker | CORS-Umgehung fuer RDAP-Server und crt.sh |
-| CORS Proxy (2) | `https://api.allorigins.win/raw` | SSL/TLS-Checker (Fallback) | Fallback-Proxy falls codetabs nicht erreichbar |
+| crt.sh | `https://crt.sh/?q=X&output=json` | SSL/TLS-Checker | Certificate Transparency Logs (direkter CORS-Zugriff) |
+| CORS Proxy | `https://api.codetabs.com/v1/proxy/` | WHOIS Lookup | CORS-Umgehung fuer RDAP-Server |
 | Cloudflare Speed | `https://speed.cloudflare.com/__down` / `__up` | Mein Netzwerk | Download-/Upload Speed-Test |
 
 **Wichtig:** Alle API-Calls nutzen `AbortController` fuer sauberes Cleanup beim Tool-Wechsel.
@@ -527,7 +526,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `4.0.73` = 4. Major-Version, Build 73
+**Beispiel:** `4.0.74` = 4. Major-Version, Build 74
 
 ### 8.2 Dateien aktualisieren
 
@@ -537,14 +536,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 73,
-    "version": "4.0.73"
+    "build": 74,
+    "version": "4.0.74"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v73';
+const CACHE_NAME = 'network-tools-v74';
 ```
 
 ### 8.3 Git-Workflow
@@ -725,4 +724,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v4.0.73*
+*Letzte Aktualisierung: 2026-02-16 | v4.0.74*
