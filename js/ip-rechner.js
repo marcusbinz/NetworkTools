@@ -7,7 +7,7 @@ function init_ip_rechner(container) {
     container.innerHTML = `
         <section class="card input-card">
             <label for="ip-input">IP-Adresse</label>
-            <input type="text" id="ip-input" inputmode="url" placeholder="192.168.1.0" autocomplete="off">
+            <input type="text" id="ip-input" inputmode="decimal" placeholder="192.168.1.0" autocomplete="off">
 
             <label for="cidr-select">Subnetzmaske / CIDR</label>
             <select id="cidr-select"></select>
@@ -432,6 +432,12 @@ function init_ip_rechner(container) {
     // --- Event Listeners ---
     // Single input listener (bugfix: was double in old version)
     ipInput.addEventListener('input', () => {
+        // iOS DE-Tastatur: Komma automatisch durch Punkt ersetzen
+        if (ipInput.value.includes(',')) {
+            const pos = ipInput.selectionStart;
+            ipInput.value = ipInput.value.replace(/,/g, '.');
+            ipInput.setSelectionRange(pos, pos);
+        }
         const val = ipInput.value.trim();
         if (val.includes('/')) {
             const [ip, cidr] = val.split('/');
