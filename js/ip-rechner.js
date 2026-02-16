@@ -430,14 +430,35 @@ function init_ip_rechner(container) {
     }
 
     // --- Event Listeners ---
-    // Single input listener (bugfix: was double in old version)
-    ipInput.addEventListener('input', () => {
-        // iOS DE-Tastatur: Komma automatisch durch Punkt ersetzen
+
+    // iOS DE-Tastatur: Komma abfangen BEVOR es eingefügt wird (beforeinput)
+    // Safari überschreibt value-Änderungen im 'input'-Event — daher beforeinput nutzen
+    ipInput.addEventListener('beforeinput', (e) => {
+        if (e.inputType === 'insertText' && e.data && e.data.includes(',')) {
+            e.preventDefault();
+            // Punkt statt Komma manuell einfügen
+            const start = ipInput.selectionStart;
+            const end = ipInput.selectionEnd;
+            const val = ipInput.value;
+            const replaced = e.data.replace(/,/g, '.');
+            ipInput.value = val.slice(0, start) + replaced + val.slice(end);
+            const newPos = start + replaced.length;
+            ipInput.setSelectionRange(newPos, newPos);
+            // input-Event wird durch preventDefault unterdrückt → manuell berechnen
+            handleIPInput();
+        }
+    });
+
+    // Fallback: keyup für ältere iOS-Versionen ohne beforeinput-Support
+    ipInput.addEventListener('keyup', () => {
         if (ipInput.value.includes(',')) {
             const pos = ipInput.selectionStart;
             ipInput.value = ipInput.value.replace(/,/g, '.');
             ipInput.setSelectionRange(pos, pos);
         }
+    });
+
+    function handleIPInput() {
         const val = ipInput.value.trim();
         if (val.includes('/')) {
             const [ip, cidr] = val.split('/');
@@ -448,7 +469,9 @@ function init_ip_rechner(container) {
             }
         }
         calculate();
-    });
+    }
+
+    ipInput.addEventListener('input', handleIPInput);
 
     cidrSelect.addEventListener('change', calculate);
 

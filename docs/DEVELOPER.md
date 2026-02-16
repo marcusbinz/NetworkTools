@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.85 | **Build:** 85 | **Stand:** 2026-02-16
+> **Version:** 5.0.86 | **Build:** 86 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -756,6 +756,17 @@ Die in v5.0.80 eingefuehrte strenge Domain-Validierung im Ping-Test blockierte I
 **Betroffene Datei:** `ping-test.js`
 **Andere Tools** (DNS, MX, SSL, WHOIS) sind korrekt — diese akzeptieren nur Domainnamen, keine IP-Adressen.
 
+### 11.7 Bugfix: iOS DE-Tastatur Komma statt Punkt (v5.0.86)
+
+Auf iOS mit deutscher Tastatur zeigt `inputmode="decimal"` ein Komma statt Punkt an. Das programmatische Ersetzen im `input`-Event funktioniert auf iOS Safari nicht, da Safari den Wert nach der Aenderung mit dem eigenen Tastatur-State ueberschreibt.
+
+**Loesung:** Drei-Stufen-Ansatz:
+1. **`beforeinput`-Event:** Komma wird abgefangen BEVOR es in das Input-Feld eingefuegt wird (`preventDefault()`). Stattdessen wird ein Punkt manuell an der Cursor-Position eingefuegt.
+2. **`keyup`-Event (Fallback):** Fuer aeltere iOS-Versionen ohne `beforeinput`-Support wird nach dem Tastendruck das Komma nachtraeglich ersetzt.
+3. **`input`-Event:** Normales Input-Handling (CIDR-Erkennung, Berechnung) in separater `handleIPInput()`-Funktion.
+
+**Betroffene Datei:** `ip-rechner.js`
+
 ---
 
 ## 12. Externe Links im Drawer
@@ -794,4 +805,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v5.0.85*
+*Letzte Aktualisierung: 2026-02-16 | v5.0.86*

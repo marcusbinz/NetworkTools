@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v85';
+﻿const CACHE_NAME = 'network-tools-v86';
 const ASSETS = [
     './',
     './index.html',
