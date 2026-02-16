@@ -7,7 +7,7 @@ function init_ip_rechner(container) {
     container.innerHTML = `
         <section class="card input-card">
             <label for="ip-input">IP-Adresse</label>
-            <input type="text" id="ip-input" inputmode="numeric" placeholder="192.168.1.0" autocomplete="off">
+            <input type="text" id="ip-input" inputmode="decimal" placeholder="192.168.1.0" autocomplete="off">
 
             <label for="cidr-select">Subnetzmaske / CIDR</label>
             <select id="cidr-select"></select>
