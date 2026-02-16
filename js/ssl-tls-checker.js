@@ -262,19 +262,38 @@ function init_ssl_tls_checker(container) {
                 return;
             }
 
-            // Sort by not_before descending (newest first) and deduplicate by serial
+            // Filter: prefer certs that match the exact domain or *.domain
             const seen = new Set();
-            const sortedCerts = crtData
-                .filter(function(c) {
-                    if (!c.not_before || !c.not_after) return false;
-                    const key = (c.serial_number || '') + '|' + c.not_before + '|' + c.not_after;
-                    if (seen.has(key)) return false;
-                    seen.add(key);
-                    return true;
-                })
+            const allCerts = crtData.filter(function(c) {
+                if (!c.not_before || !c.not_after) return false;
+                const key = (c.serial_number || '') + '|' + c.not_before + '|' + c.not_after;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            // Match certs for this exact domain (CN or SAN)
+            function certMatchesDomain(c, dom) {
+                var names = ((c.common_name || '') + '\n' + (c.name_value || '')).toLowerCase();
+                var lines = names.split('\n');
+                for (var i = 0; i < lines.length; i++) {
+                    var n = lines[i].trim();
+                    if (n === dom || n === '*.' + dom) return true;
+                }
+                return false;
+            }
+
+            // 1. Exact domain matches, sorted by not_after descending
+            var exactCerts = allCerts
+                .filter(function(c) { return certMatchesDomain(c, domain); })
                 .sort(function(a, b) {
-                    return new Date(b.not_before).getTime() - new Date(a.not_before).getTime();
+                    return new Date(b.not_after).getTime() - new Date(a.not_after).getTime();
                 });
+
+            // 2. Fallback: all certs sorted by not_after descending
+            var sortedCerts = exactCerts.length > 0 ? exactCerts : allCerts.sort(function(a, b) {
+                return new Date(b.not_after).getTime() - new Date(a.not_after).getTime();
+            });
 
             if (sortedCerts.length === 0) {
                 showError('Keine g\u00fcltigen Zertifikatsdaten f\u00fcr "' + domain + '" gefunden.');
