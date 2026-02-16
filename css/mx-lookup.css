@@ -199,6 +199,47 @@
     white-space: nowrap;
 }
 
+/* Overall assessment banner */
+.mx-overall-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.mx-overall-banner.green {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.mx-overall-banner.yellow {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.mx-overall-banner.red {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+.mx-overall-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.mx-overall-banner.green .mx-overall-icon { color: var(--green); }
+.mx-overall-banner.yellow .mx-overall-icon { color: var(--orange); }
+.mx-overall-banner.red .mx-overall-icon { color: var(--red); }
+
+.mx-overall-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+}
+
 /* Security section */
 .mx-security-row {
     display: flex;

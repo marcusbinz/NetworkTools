@@ -232,6 +232,40 @@ function init_mx_lookup(container) {
             hint: 'Kein DKIM-Record bei g\u00e4ngigen Selektoren gefunden. E-Mails k\u00f6nnen nicht kryptografisch verifiziert werden.' };
     }
 
+    // --- Overall security assessment ---
+    function getOverallAssessment(spf, dmarc, dkim) {
+        const statuses = [spf.status, dmarc.status, dkim.status];
+        const greenCount = statuses.filter(s => s === 'green').length;
+        const redCount = statuses.filter(s => s === 'red').length;
+
+        if (greenCount === 3) {
+            return { status: 'green', text: 'Diese Domain ist gut geschützt. SPF, DMARC und DKIM sind korrekt konfiguriert.' };
+        }
+        if (redCount >= 2) {
+            return { status: 'red', text: 'Diese Domain ist nicht ausreichend geschützt und anfällig für E-Mail-Spoofing und Phishing.' };
+        }
+        if (dmarc.status === 'red') {
+            return { status: 'red', text: 'Kein DMARC-Record gefunden. Diese Domain ist nicht gegen Missbrauch geschützt und erfüllt wahrscheinlich nicht die Absenderanforderungen von Google und Yahoo.' };
+        }
+        if (redCount === 1) {
+            return { status: 'yellow', text: 'Diese Domain ist nur teilweise geschützt. Mindestens eine E-Mail-Sicherheitskonfiguration fehlt.' };
+        }
+        // All yellow or mix of green/yellow
+        return { status: 'yellow', text: 'Diese Domain ist teilweise geschützt, aber die Konfiguration könnte verbessert werden.' };
+    }
+
+    function renderOverallBanner(assessment) {
+        const iconMap = {
+            green: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            yellow: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            red: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+        };
+        return '<div class="mx-overall-banner ' + assessment.status + '">' +
+            '<div class="mx-overall-icon">' + iconMap[assessment.status] + '</div>' +
+            '<div class="mx-overall-text">' + assessment.text + '</div>' +
+        '</div>';
+    }
+
     // --- Render security row ---
     function renderSecurityRow(name, result) {
         const selectorHint = result.selector ? ' <span style="opacity:0.5">(' + result.selector + ')</span>' : '';
@@ -330,8 +364,11 @@ function init_mx_lookup(container) {
             const spfResult = evaluateSPF(txtData);
             const dmarcResult = evaluateDMARC(dmarcData);
 
+            const overall = getOverallAssessment(spfResult, dmarcResult, dkimResult);
+
             const securityRows = document.getElementById('mx-security-rows');
             securityRows.innerHTML =
+                renderOverallBanner(overall) +
                 renderSecurityRow('SPF', spfResult) +
                 renderSecurityRow('DMARC', dmarcResult) +
                 renderSecurityRow('DKIM', dkimResult);
