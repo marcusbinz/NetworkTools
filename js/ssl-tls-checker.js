@@ -67,15 +67,27 @@ function init_ssl_tls_checker(container) {
     }
 
     // --- crt.sh API (direkter Zugriff, CORS wird von crt.sh unterstuetzt) ---
+    // Identity= statt q= liefert exakte SAN/CN-Treffer
+    // exclude=expired filtert abgelaufene Zertifikate serverseitig (schneller + aktuelle Daten)
     async function queryCRT(domain) {
-        const url = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
+        const url = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&exclude=expired&output=json';
         const res = await fetch(url, {
             signal: _sslAbortController ? _sslAbortController.signal : undefined
         });
         if (!res.ok) throw new Error('crt.sh nicht erreichbar (HTTP ' + res.status + ')');
         const text = await res.text();
         if (!text || text.trim().charAt(0) !== '[') {
-            throw new Error('Keine Zertifikatsdaten gefunden');
+            // Fallback: ohne exclude=expired (fuer Domains mit abgelaufenem Zertifikat)
+            const url2 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
+            const res2 = await fetch(url2, {
+                signal: _sslAbortController ? _sslAbortController.signal : undefined
+            });
+            if (!res2.ok) throw new Error('crt.sh nicht erreichbar (HTTP ' + res2.status + ')');
+            const text2 = await res2.text();
+            if (!text2 || text2.trim().charAt(0) !== '[') {
+                throw new Error('Keine Zertifikatsdaten gefunden');
+            }
+            return JSON.parse(text2);
         }
         return JSON.parse(text);
     }

@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 4.0.75 | **Build:** 74 | **Stand:** 2026-02-16
+> **Version:** 4.0.76 | **Build:** 74 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -468,7 +468,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | ipapi.co | `https://ipapi.co/json/` | IP-Rechner, Mein Netzwerk | GeoIP / eigene IP ermitteln |
 | RDAP | `https://rdap.org/domain/X` | WHOIS Lookup | WHOIS-Daten (gTLDs) |
 | ccTLD RDAP | `https://rdap.denic.de/domain/X` (u.a.) | WHOIS Lookup | WHOIS fuer laenderspezifische TLDs |
-| crt.sh | `https://crt.sh/?q=X&output=json` | SSL/TLS-Checker | Certificate Transparency Logs (direkter CORS-Zugriff) |
+| crt.sh | `https://crt.sh/?Identity=X&exclude=expired&output=json` | SSL/TLS-Checker | Certificate Transparency Logs (direkter CORS-Zugriff, Identity fuer exakte SAN/CN-Treffer) |
 | CORS Proxy | `https://api.codetabs.com/v1/proxy/` | WHOIS Lookup | CORS-Umgehung fuer RDAP-Server |
 | Cloudflare Speed | `https://speed.cloudflare.com/__down` / `__up` | Mein Netzwerk | Download-/Upload Speed-Test |
 
@@ -526,7 +526,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `4.0.75` = 4. Major-Version, Build 75
+**Beispiel:** `4.0.76` = 4. Major-Version, Build 76
 
 ### 8.2 Dateien aktualisieren
 
@@ -536,14 +536,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 75,
-    "version": "4.0.75"
+    "build": 76,
+    "version": "4.0.76"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v75';
+const CACHE_NAME = 'network-tools-v76';
 ```
 
 ### 8.3 Git-Workflow
@@ -724,4 +724,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v4.0.75*
+*Letzte Aktualisierung: 2026-02-16 | v4.0.76*
