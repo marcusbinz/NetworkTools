@@ -67,29 +67,60 @@ function init_ssl_tls_checker(container) {
     }
 
     // --- crt.sh API (direkter Zugriff, CORS wird von crt.sh unterstuetzt) ---
-    // Identity= statt q= liefert exakte SAN/CN-Treffer
-    // exclude=expired filtert abgelaufene Zertifikate serverseitig (schneller + aktuelle Daten)
+    // Strategie: Identity+exclude=expired (aktuellste Daten) -> Fallback: q= (schneller bei grossen Domains)
     async function queryCRT(domain) {
-        const url = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&exclude=expired&output=json';
-        const res = await fetch(url, {
-            signal: _sslAbortController ? _sslAbortController.signal : undefined
-        });
-        if (!res.ok) throw new Error('crt.sh nicht erreichbar (HTTP ' + res.status + ')');
-        const text = await res.text();
-        if (!text || text.trim().charAt(0) !== '[') {
-            // Fallback: ohne exclude=expired (fuer Domains mit abgelaufenem Zertifikat)
-            const url2 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
-            const res2 = await fetch(url2, {
-                signal: _sslAbortController ? _sslAbortController.signal : undefined
-            });
-            if (!res2.ok) throw new Error('crt.sh nicht erreichbar (HTTP ' + res2.status + ')');
-            const text2 = await res2.text();
-            if (!text2 || text2.trim().charAt(0) !== '[') {
-                throw new Error('Keine Zertifikatsdaten gefunden');
-            }
-            return JSON.parse(text2);
+        var signal = _sslAbortController ? _sslAbortController.signal : undefined;
+
+        // Hilfsfunktion: fetch mit Timeout
+        function fetchWithTimeout(url, timeoutMs) {
+            return Promise.race([
+                fetch(url, { signal: signal }),
+                new Promise(function(_, reject) {
+                    setTimeout(function() { reject(new Error('TIMEOUT')); }, timeoutMs);
+                })
+            ]);
         }
-        return JSON.parse(text);
+
+        // Hilfsfunktion: Response zu JSON-Array parsen
+        async function parseResponse(res) {
+            if (!res.ok) return null;
+            var text = await res.text();
+            if (!text || text.trim().charAt(0) !== '[') return null;
+            return JSON.parse(text);
+        }
+
+        // 1. Versuch: Identity + exclude=expired (15s Timeout)
+        try {
+            var url1 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&exclude=expired&output=json';
+            var res1 = await fetchWithTimeout(url1, 15000);
+            var data1 = await parseResponse(res1);
+            if (data1 && data1.length > 0) return data1;
+        } catch (err) {
+            if (err.name === 'AbortError') throw err;
+            // Timeout oder Fehler -> weiter zum Fallback
+        }
+
+        // 2. Fallback: q= Query (schneller bei grossen Domains, 15s Timeout)
+        try {
+            var url2 = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
+            var res2 = await fetchWithTimeout(url2, 15000);
+            var data2 = await parseResponse(res2);
+            if (data2 && data2.length > 0) return data2;
+        } catch (err) {
+            if (err.name === 'AbortError') throw err;
+        }
+
+        // 3. Letzter Fallback: Identity ohne exclude=expired (fuer abgelaufene Zertifikate)
+        try {
+            var url3 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
+            var res3 = await fetchWithTimeout(url3, 15000);
+            var data3 = await parseResponse(res3);
+            if (data3 && data3.length > 0) return data3;
+        } catch (err) {
+            if (err.name === 'AbortError') throw err;
+        }
+
+        throw new Error('crt.sh nicht erreichbar. Bitte versuche es in einigen Sekunden erneut.');
     }
 
     // --- HTTPS reachability check ---
