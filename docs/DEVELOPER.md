@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 3.0.69 | **Build:** 69 | **Stand:** 2026-02-16
+> **Version:** 3.0.70 | **Build:** 70 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -304,22 +304,30 @@ Jedes Tool verwendet einen eigenen CSS-Klassen-Prefix, um Konflikte zu vermeiden
 | **ID** | `mx-lookup` |
 | **Dateien** | `js/mx-lookup.js`, `css/mx-lookup.css` |
 | **API** | `dns.google/resolve` (MX, TXT, A, AAAA Records) |
-| **Features** | MX-Record Abfrage mit Prioritaet/TTL, IP-Aufloesung der MX-Server, **E-Mail-Sicherheits-Ampel** (SPF/DMARC/DKIM), Gesamtbewertungs-Banner, farbige Status-Dots (gruen/gelb/rot), Beschreibungssaetze (Hints), DKIM-Pruefung gegen 9 gaengige Selektoren, SPF/DMARC Raw-Record Anzeige, Quick-Examples |
+| **Features** | MX-Record Abfrage mit Prioritaet/TTL, IP-Aufloesung der MX-Server, **E-Mail-Sicherheits-Ampel** (SPF/DMARC/DKIM), Gesamtbewertungs-Banner mit Aktionsliste, farbige Status-Dots (gruen/gelb/rot), Beschreibungssaetze (Hints), **Konkrete Handlungsempfehlungen** bei nicht-gruenem Status, DKIM-Pruefung gegen 9 gaengige Selektoren, SPF/DMARC Raw-Record Anzeige, Quick-Examples |
 
 **SPF-Bewertung:**
 - `-all` (Hard Fail) = Gruen
 - `~all` (Soft Fail) = Gruen (empfohlener Standard)
-- `?all` (Neutral) = Gelb
-- `+all` (Pass All) = Rot (unsicher)
-- Fehlt = Rot
+- `?all` (Neutral) = Gelb — Empfehlung: auf `~all` oder `-all` aendern
+- `+all` (Pass All) = Rot (unsicher) — Empfehlung: `+all` durch `~all`/`-all` ersetzen
+- Fehlt = Rot — Empfehlung: TXT-Record anlegen mit Provider-Beispielen
 
 **DMARC-Bewertung:**
 - `p=reject` = Gruen
 - `p=quarantine` = Gruen
-- `p=none` = Gelb
-- Fehlt = Rot
+- `p=none` = Gelb — Empfehlung: auf `quarantine` oder `reject` aendern
+- Unvollstaendig (keine Policy) = Gelb — Empfehlung: Policy ergaenzen
+- Fehlt = Rot — Empfehlung: TXT-Record fuer `_dmarc.{domain}` anlegen (domain-spezifisch)
+
+**DKIM-Bewertung:**
+- Gefunden = Gruen
+- Fehlt = Rot — Empfehlung: DKIM beim Provider aktivieren (Google Workspace, Microsoft 365)
 
 **DKIM-Selektoren:** `default`, `google`, `selector1`, `selector2`, `k1`, `s1`, `s2`, `dkim`, `mail`
+
+**Empfehlungs-System:**
+Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei nicht-gruenem Status wird unterhalb des Hint-Textes ein Empfehlungsblock mit Gluehbirne-Icon und accent-farbigem Border-Left angezeigt. Das Gesamtbewertungs-Banner zeigt zusaetzlich eine kompakte Aktionsliste (z.B. "-> SPF-Record anlegen", "-> DMARC-Policy verschaerfen"). Bei gruenem Status werden keine Empfehlungen angezeigt.
 
 ### 5.4 E-Mail Header Analyzer (`email-header`)
 
@@ -498,7 +506,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `3.0.69` = 3. Major-Version, Build 69
+**Beispiel:** `3.0.70` = 3. Major-Version, Build 70
 
 ### 8.2 Dateien aktualisieren
 
@@ -508,14 +516,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 69,
-    "version": "3.0.69"
+    "build": 70,
+    "version": "3.0.70"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v69';
+const CACHE_NAME = 'network-tools-v70';
 ```
 
 ### 8.3 Git-Workflow
@@ -696,4 +704,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v3.0.69*
+*Letzte Aktualisierung: 2026-02-16 | v3.0.70*
