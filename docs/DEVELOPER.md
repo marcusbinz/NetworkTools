@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 4.0.79 | **Build:** 78 | **Stand:** 2026-02-16
+> **Version:** 4.0.79 | **Build:** 79 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
