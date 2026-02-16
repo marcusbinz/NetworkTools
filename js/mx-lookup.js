@@ -154,52 +154,67 @@ function init_mx_lookup(container) {
     // --- SPF Evaluation ---
     function evaluateSPF(txtRecords) {
         if (!txtRecords || !txtRecords.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden',
-            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.' };
+            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.',
+            recommendation: 'Erstelle einen TXT-Record f\u00fcr deine Domain mit folgendem Inhalt: v=spf1 include:_spf.dein-provider.de ~all \u2014 passe den include-Wert an deinen E-Mail-Provider an (z.B. _spf.google.com f\u00fcr Google, spf.protection.outlook.com f\u00fcr Microsoft 365).' };
         const spfAnswer = txtRecords.Answer.find(r => r.data && r.data.toLowerCase().includes('v=spf1'));
         if (!spfAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden',
-            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.' };
+            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.',
+            recommendation: 'Erstelle einen TXT-Record f\u00fcr deine Domain mit folgendem Inhalt: v=spf1 include:_spf.dein-provider.de ~all \u2014 passe den include-Wert an deinen E-Mail-Provider an (z.B. _spf.google.com f\u00fcr Google, spf.protection.outlook.com f\u00fcr Microsoft 365).' };
 
         const record = spfAnswer.data.replace(/"/g, '');
         const lower = record.toLowerCase();
 
         if (lower.includes('+all')) return { status: 'red', label: 'Unsicher', record: record,
-            hint: 'Der SPF-Record erlaubt allen Servern das Senden \u2014 kein Schutz vor Spoofing.' };
+            hint: 'Der SPF-Record erlaubt allen Servern das Senden \u2014 kein Schutz vor Spoofing.',
+            recommendation: 'Ersetze +all durch ~all (Soft Fail) oder -all (Hard Fail) im bestehenden SPF-Record. Mit +all kann jeder Server E-Mails im Namen deiner Domain versenden.' };
         if (lower.includes('-all')) return { status: 'green', label: 'G\u00fcltig', record: record,
-            hint: 'G\u00fcltiger SPF-Record mit Hard Fail (-all). Nicht autorisierte Server werden abgelehnt.' };
+            hint: 'G\u00fcltiger SPF-Record mit Hard Fail (-all). Nicht autorisierte Server werden abgelehnt.',
+            recommendation: null };
         if (lower.includes('~all')) return { status: 'green', label: 'G\u00fcltig', record: record,
-            hint: 'G\u00fcltiger SPF-Record mit Soft Fail (~all). Nicht autorisierte E-Mails werden markiert.' };
+            hint: 'G\u00fcltiger SPF-Record mit Soft Fail (~all). Nicht autorisierte E-Mails werden markiert.',
+            recommendation: null };
         if (lower.includes('?all')) return { status: 'yellow', label: 'Neutral', record: record,
-            hint: 'SPF-Record vorhanden, aber mit neutraler Policy (?all) \u2014 bietet keinen aktiven Schutz.' };
+            hint: 'SPF-Record vorhanden, aber mit neutraler Policy (?all) \u2014 bietet keinen aktiven Schutz.',
+            recommendation: 'Ersetze ?all durch ~all (Soft Fail) oder besser -all (Hard Fail). Die neutrale Policy ?all bietet keinen aktiven Schutz gegen Spoofing.' };
 
         return { status: 'green', label: 'G\u00fcltig', record: record,
-            hint: 'G\u00fcltiger SPF-Record vorhanden.' };
+            hint: 'G\u00fcltiger SPF-Record vorhanden.',
+            recommendation: null };
     }
 
     // --- DMARC Evaluation ---
-    function evaluateDMARC(dmarcData) {
+    function evaluateDMARC(dmarcData, domain) {
+        const dmarcExample = domain ? '_dmarc.' + domain : '_dmarc.deine-domain.de';
         if (!dmarcData || !dmarcData.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden',
-            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.' };
+            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.',
+            recommendation: 'Erstelle einen TXT-Record f\u00fcr ' + dmarcExample + ' mit: v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@' + (domain || 'deine-domain.de') + ' \u2014 starte mit p=quarantine und wechsle sp\u00e4ter zu p=reject f\u00fcr maximalen Schutz.' };
         const dmarcAnswer = dmarcData.Answer.find(r => r.data && r.data.toLowerCase().includes('v=dmarc'));
         if (!dmarcAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden',
-            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.' };
+            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.',
+            recommendation: 'Erstelle einen TXT-Record f\u00fcr ' + dmarcExample + ' mit: v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@' + (domain || 'deine-domain.de') + ' \u2014 starte mit p=quarantine und wechsle sp\u00e4ter zu p=reject f\u00fcr maximalen Schutz.' };
 
         const record = dmarcAnswer.data.replace(/"/g, '');
         const lower = record.toLowerCase();
 
         const pMatch = lower.match(/[;\s]p\s*=\s*(\w+)/) || lower.match(/^v=dmarc1\s*;\s*p\s*=\s*(\w+)/);
         if (!pMatch) return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record,
-            hint: 'DMARC-Record vorhanden, aber keine Policy (p=) definiert.' };
+            hint: 'DMARC-Record vorhanden, aber keine Policy (p=) definiert.',
+            recommendation: 'Erg\u00e4nze eine Policy im DMARC-Record: F\u00fcge p=quarantine oder p=reject hinzu. Ohne Policy-Angabe wird DMARC von Empf\u00e4ngern ignoriert.' };
 
         const policy = pMatch[1];
         if (policy === 'reject') return { status: 'green', label: 'G\u00fcltig', record: record,
-            hint: 'DMARC-Policy sch\u00fctzt die Domain vollst\u00e4ndig. Gef\u00e4lschte E-Mails werden abgelehnt (reject).' };
+            hint: 'DMARC-Policy sch\u00fctzt die Domain vollst\u00e4ndig. Gef\u00e4lschte E-Mails werden abgelehnt (reject).',
+            recommendation: null };
         if (policy === 'quarantine') return { status: 'green', label: 'G\u00fcltig', record: record,
-            hint: 'DMARC-Policy aktiv. Gef\u00e4lschte E-Mails werden in den Spam-Ordner verschoben (quarantine).' };
+            hint: 'DMARC-Policy aktiv. Gef\u00e4lschte E-Mails werden in den Spam-Ordner verschoben (quarantine).',
+            recommendation: null };
         if (policy === 'none') return { status: 'yellow', label: 'Schwach', record: record,
-            hint: 'DMARC-Record vorhanden, aber Policy ist p=none \u2014 gef\u00e4lschte E-Mails werden nicht blockiert.' };
+            hint: 'DMARC-Record vorhanden, aber Policy ist p=none \u2014 gef\u00e4lschte E-Mails werden nicht blockiert.',
+            recommendation: '\u00c4ndere die DMARC-Policy von p=none zu p=quarantine oder p=reject. Mit p=none werden gef\u00e4lschte E-Mails nur gemeldet, aber nicht blockiert. Empfohlener Weg: erst p=quarantine, dann p=reject.' };
 
         return { status: 'yellow', label: 'Unbekannt', record: record,
-            hint: 'DMARC-Record vorhanden mit unbekannter Policy.' };
+            hint: 'DMARC-Record vorhanden mit unbekannter Policy.',
+            recommendation: 'Pr\u00fcfe den DMARC-Record und setze eine g\u00fcltige Policy: p=quarantine oder p=reject.' };
     }
 
     // --- DKIM Check (try common selectors) ---
@@ -226,10 +241,12 @@ function init_mx_lookup(container) {
 
         if (hit) {
             return { status: 'green', label: 'G\u00fcltig', record: hit.record, selector: hit.selector,
-                hint: 'DKIM-Signatur gefunden. E-Mails werden kryptografisch authentifiziert.' };
+                hint: 'DKIM-Signatur gefunden. E-Mails werden kryptografisch authentifiziert.',
+                recommendation: null };
         }
         return { status: 'red', label: 'Fehlt', record: 'Kein DKIM Record bei g\u00e4ngigen Selektoren gefunden',
-            hint: 'Kein DKIM-Record bei g\u00e4ngigen Selektoren gefunden. E-Mails k\u00f6nnen nicht kryptografisch verifiziert werden.' };
+            hint: 'Kein DKIM-Record bei g\u00e4ngigen Selektoren gefunden. E-Mails k\u00f6nnen nicht kryptografisch verifiziert werden.',
+            recommendation: 'Aktiviere DKIM bei deinem E-Mail-Provider (z.B. Google Workspace \u2192 Apps \u2192 Google Workspace \u2192 Gmail \u2192 E-Mail authentifizieren, Microsoft 365 \u2192 Defender \u2192 DKIM). Der Provider generiert einen Public Key, den du als TXT-Record unter selektor._domainkey.' + domain + ' eintr\u00e4gst.' };
     }
 
     // --- Overall security assessment ---
@@ -238,20 +255,28 @@ function init_mx_lookup(container) {
         const greenCount = statuses.filter(s => s === 'green').length;
         const redCount = statuses.filter(s => s === 'red').length;
 
+        // Collect action items from non-green results
+        const actions = [];
+        if (spf.status === 'red') actions.push('SPF-Record anlegen oder korrigieren');
+        else if (spf.status === 'yellow') actions.push('SPF-Policy versch\u00e4rfen (\u2192 ~all oder -all)');
+        if (dmarc.status === 'red') actions.push('DMARC-Record erstellen');
+        else if (dmarc.status === 'yellow') actions.push('DMARC-Policy versch\u00e4rfen (\u2192 quarantine oder reject)');
+        if (dkim.status === 'red') actions.push('DKIM beim E-Mail-Provider aktivieren');
+
         if (greenCount === 3) {
-            return { status: 'green', text: 'Diese Domain ist gut geschützt. SPF, DMARC und DKIM sind korrekt konfiguriert.' };
+            return { status: 'green', text: 'Diese Domain ist gut gesch\u00fctzt. SPF, DMARC und DKIM sind korrekt konfiguriert.', actions: [] };
         }
         if (redCount >= 2) {
-            return { status: 'red', text: 'Diese Domain ist nicht ausreichend geschützt und anfällig für E-Mail-Spoofing und Phishing.' };
+            return { status: 'red', text: 'Diese Domain ist nicht ausreichend gesch\u00fctzt und anf\u00e4llig f\u00fcr E-Mail-Spoofing und Phishing.', actions: actions };
         }
         if (dmarc.status === 'red') {
-            return { status: 'red', text: 'Kein DMARC-Record gefunden. Diese Domain ist nicht gegen Missbrauch geschützt und erfüllt wahrscheinlich nicht die Absenderanforderungen von Google und Yahoo.' };
+            return { status: 'red', text: 'Kein DMARC-Record gefunden. Diese Domain ist nicht gegen Missbrauch gesch\u00fctzt und erf\u00fcllt wahrscheinlich nicht die Absenderanforderungen von Google und Yahoo.', actions: actions };
         }
         if (redCount === 1) {
-            return { status: 'yellow', text: 'Diese Domain ist nur teilweise geschützt. Mindestens eine E-Mail-Sicherheitskonfiguration fehlt.' };
+            return { status: 'yellow', text: 'Diese Domain ist nur teilweise gesch\u00fctzt. Mindestens eine E-Mail-Sicherheitskonfiguration fehlt.', actions: actions };
         }
         // All yellow or mix of green/yellow
-        return { status: 'yellow', text: 'Diese Domain ist teilweise geschützt, aber die Konfiguration könnte verbessert werden.' };
+        return { status: 'yellow', text: 'Diese Domain ist teilweise gesch\u00fctzt, aber die Konfiguration k\u00f6nnte verbessert werden.', actions: actions };
     }
 
     function renderOverallBanner(assessment) {
@@ -260,9 +285,15 @@ function init_mx_lookup(container) {
             yellow: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
             red: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
         };
+        let actionsHtml = '';
+        if (assessment.actions && assessment.actions.length > 0) {
+            actionsHtml = '<div class="mx-overall-actions">' +
+                assessment.actions.map(a => '<div class="mx-action-item">\u2192 ' + a + '</div>').join('') +
+            '</div>';
+        }
         return '<div class="mx-overall-banner ' + assessment.status + '">' +
             '<div class="mx-overall-icon">' + iconMap[assessment.status] + '</div>' +
-            '<div class="mx-overall-text">' + assessment.text + '</div>' +
+            '<div class="mx-overall-text">' + assessment.text + actionsHtml + '</div>' +
         '</div>';
     }
 
@@ -270,6 +301,10 @@ function init_mx_lookup(container) {
     function renderSecurityRow(name, result) {
         const selectorHint = result.selector ? ' <span style="opacity:0.5">(' + result.selector + ')</span>' : '';
         const hintHtml = result.hint ? '<div class="mx-security-hint">' + result.hint + '</div>' : '';
+        const recHtml = result.recommendation ? '<div class="mx-security-recommendation">' +
+            '<svg class="mx-rec-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>' +
+            '<span class="mx-rec-text">' + result.recommendation + '</span>' +
+        '</div>' : '';
         return '<div class="mx-security-row">' +
             '<div class="mx-security-dot ' + result.status + '"></div>' +
             '<div class="mx-security-info">' +
@@ -278,6 +313,7 @@ function init_mx_lookup(container) {
                     '<span class="mx-security-badge ' + result.status + '">' + result.label + selectorHint + '</span>' +
                 '</div>' +
                 hintHtml +
+                recHtml +
                 '<div class="mx-security-record">' + result.record + '</div>' +
             '</div>' +
         '</div>';
@@ -362,7 +398,7 @@ function init_mx_lookup(container) {
             }
 
             const spfResult = evaluateSPF(txtData);
-            const dmarcResult = evaluateDMARC(dmarcData);
+            const dmarcResult = evaluateDMARC(dmarcData, domain);
 
             const overall = getOverallAssessment(spfResult, dmarcResult, dkimResult);
 
