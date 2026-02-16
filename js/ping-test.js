@@ -253,7 +253,7 @@ function init_ping_test(container) {
         startBtn.disabled = true;
 
         const isLocal = isPrivateHost(host);
-        const url = `https://${host}`;
+        const url = isLocal ? `http://${host}` : `https://${host}`;
 
         // Show hint
         const hintEl = document.getElementById('ping-hint');
