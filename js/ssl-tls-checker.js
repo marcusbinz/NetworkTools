@@ -24,7 +24,7 @@ function init_ssl_tls_checker(container) {
         <section class="card ssl-loading" id="ssl-loading" style="display:none;">
             <div class="ssl-spinner-row">
                 <span class="ssl-spinner"></span>
-                <span>Zertifikat wird gepr\u00fcft\u2026</span>
+                <span id="ssl-loading-text">Zertifikat wird gepr\u00fcft\u2026</span>
             </div>
         </section>
 
@@ -67,19 +67,10 @@ function init_ssl_tls_checker(container) {
     }
 
     // --- crt.sh API (direkter Zugriff, CORS wird von crt.sh unterstuetzt) ---
-    // Strategie: Identity+exclude=expired (aktuellste Daten) -> Fallback: q= (schneller bei grossen Domains)
+    // Identity= liefert exakte SAN/CN-Treffer, exclude=expired nur gueltige Zertifikate
+    // Grosse Domains (google.com) brauchen bis zu 20s — daher grosszuegiger Timeout
     async function queryCRT(domain) {
         var signal = _sslAbortController ? _sslAbortController.signal : undefined;
-
-        // Hilfsfunktion: fetch mit Timeout
-        function fetchWithTimeout(url, timeoutMs) {
-            return Promise.race([
-                fetch(url, { signal: signal }),
-                new Promise(function(_, reject) {
-                    setTimeout(function() { reject(new Error('TIMEOUT')); }, timeoutMs);
-                })
-            ]);
-        }
 
         // Hilfsfunktion: Response zu JSON-Array parsen
         async function parseResponse(res) {
@@ -89,38 +80,27 @@ function init_ssl_tls_checker(container) {
             return JSON.parse(text);
         }
 
-        // 1. Versuch: Identity + exclude=expired (15s Timeout)
+        // 1. Versuch: Identity + exclude=expired (30s — grosse Domains brauchen ~12s)
         try {
             var url1 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&exclude=expired&output=json';
-            var res1 = await fetchWithTimeout(url1, 15000);
+            var res1 = await fetch(url1, { signal: signal });
             var data1 = await parseResponse(res1);
             if (data1 && data1.length > 0) return data1;
         } catch (err) {
             if (err.name === 'AbortError') throw err;
-            // Timeout oder Fehler -> weiter zum Fallback
         }
 
-        // 2. Fallback: q= Query (schneller bei grossen Domains, 15s Timeout)
+        // 2. Fallback: Identity ohne exclude=expired (fuer Domains mit abgelaufenem Zertifikat)
         try {
-            var url2 = 'https://crt.sh/?q=' + encodeURIComponent(domain) + '&output=json';
-            var res2 = await fetchWithTimeout(url2, 15000);
+            var url2 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
+            var res2 = await fetch(url2, { signal: signal });
             var data2 = await parseResponse(res2);
             if (data2 && data2.length > 0) return data2;
         } catch (err) {
             if (err.name === 'AbortError') throw err;
         }
 
-        // 3. Letzter Fallback: Identity ohne exclude=expired (fuer abgelaufene Zertifikate)
-        try {
-            var url3 = 'https://crt.sh/?Identity=' + encodeURIComponent(domain) + '&output=json';
-            var res3 = await fetchWithTimeout(url3, 15000);
-            var data3 = await parseResponse(res3);
-            if (data3 && data3.length > 0) return data3;
-        } catch (err) {
-            if (err.name === 'AbortError') throw err;
-        }
-
-        throw new Error('crt.sh nicht erreichbar. Bitte versuche es in einigen Sekunden erneut.');
+        throw new Error('crt.sh nicht erreichbar. Der Server antwortet nicht — bitte versuche es in einigen Sekunden erneut.');
     }
 
     // --- HTTPS reachability check ---
@@ -285,10 +265,15 @@ function init_ssl_tls_checker(container) {
         if (_sslAbortController) _sslAbortController.abort();
         _sslAbortController = new AbortController();
 
-        // Show loading
+        // Show loading with slow-query hint after 5s
+        var loadingText = document.getElementById('ssl-loading-text');
+        loadingText.textContent = 'Zertifikat wird gepr\u00fcft\u2026';
         loadingCard.style.display = 'block';
         resultCard.style.display = 'none';
         errorCard.style.display = 'none';
+        var slowHintTimer = setTimeout(function() {
+            loadingText.textContent = 'Gro\u00dfe Domain \u2014 crt.sh braucht etwas l\u00e4nger\u2026';
+        }, 5000);
 
         try {
             // Parallel: crt.sh + HTTPS check
@@ -296,6 +281,8 @@ function init_ssl_tls_checker(container) {
                 queryCRT(domain),
                 checkHTTPS(domain)
             ]);
+
+            clearTimeout(slowHintTimer);
 
             if (_sslAbortController && _sslAbortController.signal.aborted) return;
 
@@ -425,6 +412,7 @@ function init_ssl_tls_checker(container) {
             resultCard.style.display = 'block';
 
         } catch (err) {
+            clearTimeout(slowHintTimer);
             if (err.name === 'AbortError') return;
             showError('Fehler beim Pr\u00fcfen: ' + err.message);
         }

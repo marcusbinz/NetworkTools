@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 4.0.77 | **Build:** 74 | **Stand:** 2026-02-16
+> **Version:** 4.0.78 | **Build:** 78 | **Stand:** 2026-02-16
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -526,7 +526,7 @@ MAJOR.MINOR.BUILD
   +-------------- Steigt bei neuen Tools (1.0 -> 2.0 -> 3.0)
 ```
 
-**Beispiel:** `4.0.77` = 4. Major-Version, Build 77
+**Beispiel:** `4.0.78` = 4. Major-Version, Build 78
 
 ### 8.2 Dateien aktualisieren
 
@@ -536,14 +536,14 @@ Bei jedem Release muessen **zwei Dateien** aktualisiert werden:
 ```json
 {
     "date": "2026-02-16",
-    "build": 77,
-    "version": "4.0.77"
+    "build": 78,
+    "version": "4.0.78"
 }
 ```
 
 2. **`sw.js`** — Cache-Name:
 ```javascript
-const CACHE_NAME = 'network-tools-v77';
+const CACHE_NAME = 'network-tools-v78';
 ```
 
 ### 8.3 Git-Workflow
@@ -724,4 +724,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v4.0.77*
+*Letzte Aktualisierung: 2026-02-16 | v4.0.78*
