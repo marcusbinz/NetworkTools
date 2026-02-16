@@ -257,6 +257,13 @@
 .mx-security-badge.yellow { background: rgba(251, 191, 36, 0.15); color: var(--orange); }
 .mx-security-badge.red { background: rgba(248, 113, 113, 0.15); color: var(--red); }
 
+.mx-security-hint {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
 .mx-security-record {
     font-size: 11px;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;

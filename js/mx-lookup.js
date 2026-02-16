@@ -153,40 +153,53 @@ function init_mx_lookup(container) {
 
     // --- SPF Evaluation ---
     function evaluateSPF(txtRecords) {
-        if (!txtRecords || !txtRecords.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden' };
+        if (!txtRecords || !txtRecords.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden',
+            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.' };
         const spfAnswer = txtRecords.Answer.find(r => r.data && r.data.toLowerCase().includes('v=spf1'));
-        if (!spfAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden' };
+        if (!spfAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein SPF Record gefunden',
+            hint: 'Kein SPF-Record konfiguriert. Jeder Server kann E-Mails im Namen dieser Domain senden.' };
 
         const record = spfAnswer.data.replace(/"/g, '');
         const lower = record.toLowerCase();
 
-        if (lower.includes('+all')) return { status: 'red', label: 'Unsicher', record: record };
-        if (lower.includes('-all')) return { status: 'green', label: 'G\u00fcltig', record: record };
-        if (lower.includes('~all')) return { status: 'green', label: 'G\u00fcltig', record: record };
-        if (lower.includes('?all')) return { status: 'yellow', label: 'Neutral', record: record };
+        if (lower.includes('+all')) return { status: 'red', label: 'Unsicher', record: record,
+            hint: 'Der SPF-Record erlaubt allen Servern das Senden \u2014 kein Schutz vor Spoofing.' };
+        if (lower.includes('-all')) return { status: 'green', label: 'G\u00fcltig', record: record,
+            hint: 'G\u00fcltiger SPF-Record mit Hard Fail (-all). Nicht autorisierte Server werden abgelehnt.' };
+        if (lower.includes('~all')) return { status: 'green', label: 'G\u00fcltig', record: record,
+            hint: 'G\u00fcltiger SPF-Record mit Soft Fail (~all). Nicht autorisierte E-Mails werden markiert.' };
+        if (lower.includes('?all')) return { status: 'yellow', label: 'Neutral', record: record,
+            hint: 'SPF-Record vorhanden, aber mit neutraler Policy (?all) \u2014 bietet keinen aktiven Schutz.' };
 
-        // Has SPF but no all mechanism — still valid
-        return { status: 'green', label: 'G\u00fcltig', record: record };
+        return { status: 'green', label: 'G\u00fcltig', record: record,
+            hint: 'G\u00fcltiger SPF-Record vorhanden.' };
     }
 
     // --- DMARC Evaluation ---
     function evaluateDMARC(dmarcData) {
-        if (!dmarcData || !dmarcData.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden' };
+        if (!dmarcData || !dmarcData.Answer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden',
+            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.' };
         const dmarcAnswer = dmarcData.Answer.find(r => r.data && r.data.toLowerCase().includes('v=dmarc'));
-        if (!dmarcAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden' };
+        if (!dmarcAnswer) return { status: 'red', label: 'Fehlt', record: 'Kein DMARC Record gefunden',
+            hint: 'Kein DMARC-Record konfiguriert. Empf\u00e4nger k\u00f6nnen gef\u00e4lschte E-Mails nicht zuverl\u00e4ssig erkennen.' };
 
         const record = dmarcAnswer.data.replace(/"/g, '');
         const lower = record.toLowerCase();
 
-        // Extract policy — match p= anywhere in the record
         const pMatch = lower.match(/[;\s]p\s*=\s*(\w+)/) || lower.match(/^v=dmarc1\s*;\s*p\s*=\s*(\w+)/);
-        if (!pMatch) return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record };
+        if (!pMatch) return { status: 'yellow', label: 'Unvollst\u00e4ndig', record: record,
+            hint: 'DMARC-Record vorhanden, aber keine Policy (p=) definiert.' };
 
         const policy = pMatch[1];
-        if (policy === 'reject' || policy === 'quarantine') return { status: 'green', label: 'G\u00fcltig', record: record };
-        if (policy === 'none') return { status: 'yellow', label: 'Schwach', record: record };
+        if (policy === 'reject') return { status: 'green', label: 'G\u00fcltig', record: record,
+            hint: 'DMARC-Policy sch\u00fctzt die Domain vollst\u00e4ndig. Gef\u00e4lschte E-Mails werden abgelehnt (reject).' };
+        if (policy === 'quarantine') return { status: 'green', label: 'G\u00fcltig', record: record,
+            hint: 'DMARC-Policy aktiv. Gef\u00e4lschte E-Mails werden in den Spam-Ordner verschoben (quarantine).' };
+        if (policy === 'none') return { status: 'yellow', label: 'Schwach', record: record,
+            hint: 'DMARC-Record vorhanden, aber Policy ist p=none \u2014 gef\u00e4lschte E-Mails werden nicht blockiert.' };
 
-        return { status: 'yellow', label: 'Unbekannt', record: record };
+        return { status: 'yellow', label: 'Unbekannt', record: record,
+            hint: 'DMARC-Record vorhanden mit unbekannter Policy.' };
     }
 
     // --- DKIM Check (try common selectors) ---
@@ -212,14 +225,17 @@ function init_mx_lookup(container) {
         const hit = results.find(r => r.found);
 
         if (hit) {
-            return { status: 'green', label: 'G\u00fcltig', record: hit.record, selector: hit.selector };
+            return { status: 'green', label: 'G\u00fcltig', record: hit.record, selector: hit.selector,
+                hint: 'DKIM-Signatur gefunden. E-Mails werden kryptografisch authentifiziert.' };
         }
-        return { status: 'red', label: 'Fehlt', record: 'Kein DKIM Record bei g\u00e4ngigen Selektoren gefunden' };
+        return { status: 'red', label: 'Fehlt', record: 'Kein DKIM Record bei g\u00e4ngigen Selektoren gefunden',
+            hint: 'Kein DKIM-Record bei g\u00e4ngigen Selektoren gefunden. E-Mails k\u00f6nnen nicht kryptografisch verifiziert werden.' };
     }
 
     // --- Render security row ---
     function renderSecurityRow(name, result) {
         const selectorHint = result.selector ? ' <span style="opacity:0.5">(' + result.selector + ')</span>' : '';
+        const hintHtml = result.hint ? '<div class="mx-security-hint">' + result.hint + '</div>' : '';
         return '<div class="mx-security-row">' +
             '<div class="mx-security-dot ' + result.status + '"></div>' +
             '<div class="mx-security-info">' +
@@ -227,6 +243,7 @@ function init_mx_lookup(container) {
                     '<span class="mx-security-name">' + name + '</span>' +
                     '<span class="mx-security-badge ' + result.status + '">' + result.label + selectorHint + '</span>' +
                 '</div>' +
+                hintHtml +
                 '<div class="mx-security-record">' + result.record + '</div>' +
             '</div>' +
         '</div>';
