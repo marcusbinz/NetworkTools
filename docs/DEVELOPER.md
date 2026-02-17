@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.86 | **Build:** 86 | **Stand:** 2026-02-16
+> **Version:** 5.0.87 | **Build:** 87 | **Stand:** 2026-02-17
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -767,6 +767,23 @@ Auf iOS mit deutscher Tastatur zeigt `inputmode="decimal"` ein Komma statt Punkt
 
 **Betroffene Datei:** `ip-rechner.js`
 
+### 11.8 Feature: Ping-Test lokale Hostnamen + Reverse-DNS (v5.0.87)
+
+Der Ping-Test akzeptiert jetzt neben Domains und IPs auch:
+- **Lokale Hostnamen** ohne Punkt: `nas`, `printer`, `server1`, `my-pc`
+- **Lokale FQDNs**: `server.local`, `nas.fritz.box`, `router.home.arpa`
+
+**Drei-Stufen-Validierung:**
+1. IPv4 (wie bisher, z.B. `192.168.1.1`)
+2. Lokaler Hostname: `/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/`, max 63 Zeichen
+3. Domain/FQDN: `/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/` (kein TLD-Zwang mehr)
+
+**Lokale Host-Erkennung** (`isLocalTarget()`): Bare Hostnames und bekannte Suffixe (`.local`, `.lan`, `.fritz.box`, `.home.arpa`, etc.) werden als lokal erkannt und nutzen `http://` statt `https://`.
+
+**Reverse-DNS (PTR):** Bei oeffentlichen IPs wird parallel zum Ping ein PTR-Lookup ueber `dns.google/resolve` ausgefuehrt. Das Ergebnis wird unter dem Hostnamen im Result-Header angezeigt. Fuer lokale IPs ist Reverse-DNS nicht moeglich (Browser-Einschraenkung).
+
+**Betroffene Dateien:** `ping-test.js`, `ping-test.css`
+
 ---
 
 ## 12. Externe Links im Drawer
@@ -805,4 +822,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-16 | v5.0.86*
+*Letzte Aktualisierung: 2026-02-17 | v5.0.87*

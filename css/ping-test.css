@@ -98,10 +98,24 @@
     margin-bottom: 16px;
 }
 
+.ping-result-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
 .ping-result-header h3 {
     font-size: 18px;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     color: var(--accent);
+}
+
+.ping-rdns {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-dim);
+    word-break: break-all;
 }
 
 .ping-stop-btn {

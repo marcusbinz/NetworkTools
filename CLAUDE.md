@@ -49,3 +49,40 @@
 - GeoIP: `ipapi.co/json`
 - WHOIS: RDAP-Server + `rdap.org` + `api.codetabs.com` als Proxy
 - Speed: `speed.cloudflare.com`
+
+## Bug- und Feature-Tracking
+
+### Dateien
+- Bug-Liste: `docs/BUG-LIST.md`
+- Feature-Requests: `docs/FEATURE-REQUESTS.md`
+
+### Befehle (vom User im Chat)
+- `neuer bug` — Startet Interview-Dialog (4 Fragen) und traegt Bug in BUG-LIST.md ein
+- `neues feature` — Startet Interview-Dialog (4 Fragen) und traegt Feature in FEATURE-REQUESTS.md ein
+- `list bugs` — Zeigt nur OFFENE Bugs an
+- `list bugs all` — Zeigt ALLE Bugs an (offen + behoben)
+- `list features` — Zeigt nur OFFENE Features an
+- `list features all` — Zeigt ALLE Features an (offen + erledigt + verworfen)
+
+### Interview-Dialog fuer "neuer bug"
+Frage nacheinander ab (eine Frage pro Nachricht):
+1. Welches Tool ist betroffen?
+2. Beschreibe den Bug kurz
+3. Prioritaet (1-5)?
+4. Bemerkung? (optional, "-" oder "keine" zum Ueberspringen)
+Danach automatisch in `docs/BUG-LIST.md` eintragen mit Status OFFEN.
+
+### Interview-Dialog fuer "neues feature"
+Frage nacheinander ab (eine Frage pro Nachricht):
+1. Welches Tool ist betroffen? (oder "Allgemein")
+2. Beschreibe das Feature kurz
+3. Prioritaet (1-5)?
+4. Bemerkung? (optional, "-" oder "keine" zum Ueberspringen)
+Danach automatisch in `docs/FEATURE-REQUESTS.md` eintragen mit Status OFFEN.
+
+### Prioritaets-Skala (gilt fuer Bugs und Features)
+- 1 = KRITISCH
+- 2 = HOCH
+- 3 = MITTEL
+- 4 = NIEDRIG
+- 5 = KOSMETISCH (Bugs) / IDEE (Features)

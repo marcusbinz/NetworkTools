@@ -9,7 +9,7 @@ function init_ping_test(container) {
         <section class="card ping-input-card">
             <label for="ping-host">Website / Host</label>
             <div class="ping-input-row">
-                <input type="text" id="ping-host" placeholder="google.com" autocomplete="off" spellcheck="false">
+                <input type="text" id="ping-host" placeholder="google.com / nas / 192.168.1.1" autocomplete="off" spellcheck="false">
                 <button class="ping-start-btn" id="ping-start-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </button>
@@ -24,17 +24,22 @@ function init_ping_test(container) {
                 <span class="chip ping-count-chip" data-count="0">\u221e Dauer</span>
             </div>
 
+            <label class="ping-count-label">Testbeispiele</label>
             <div class="quick-examples ping-examples">
+                <span class="chip" data-host="mbinz.de">mbinz.de</span>
                 <span class="chip" data-host="google.com">Google</span>
                 <span class="chip" data-host="cloudflare.com">Cloudflare</span>
                 <span class="chip" data-host="github.com">GitHub</span>
-                <span class="chip" data-host="amazon.com">Amazon</span>
+                <span class="chip" data-host="192.168.1.1">Router</span>
             </div>
         </section>
 
         <section class="card ping-result-card" id="ping-result-card" style="display:none;">
             <div class="ping-result-header">
-                <h3 id="ping-result-host"></h3>
+                <div class="ping-result-header-left">
+                    <h3 id="ping-result-host"></h3>
+                    <span class="ping-rdns" id="ping-rdns"></span>
+                </div>
                 <button class="ping-stop-btn" id="ping-stop-btn" style="display:none;">Stop</button>
             </div>
 
@@ -116,6 +121,40 @@ function init_ping_test(container) {
         // link-local
         if (/^169\.254\./.test(host)) return true;
         return false;
+    }
+
+    // --- Local target detection (hostnames + local TLDs) ---
+    var LOCAL_SUFFIXES = [
+        '.home.arpa', '.fritz.box', '.localdomain',
+        '.local', '.lan', '.home', '.internal', '.corp', '.test', '.localhost'
+    ];
+
+    function isLocalTarget(host, isIP, isLocalHostname) {
+        if (isIP) return isPrivateHost(host);
+        if (isLocalHostname) return true;
+        for (var i = 0; i < LOCAL_SUFFIXES.length; i++) {
+            if (host.endsWith(LOCAL_SUFFIXES[i])) return true;
+        }
+        return false;
+    }
+
+    // --- Reverse DNS (PTR) for public IPs ---
+    async function reverseDNS(ip) {
+        var parts = ip.split('.').reverse().join('.');
+        var url = 'https://dns.google/resolve?name=' + encodeURIComponent(parts + '.in-addr.arpa') + '&type=PTR';
+        try {
+            var res = await fetch(url, {
+                signal: _pingAbortController ? _pingAbortController.signal : undefined
+            });
+            if (!res.ok) return null;
+            var data = await res.json();
+            if (data.Answer && data.Answer.length > 0) {
+                return data.Answer[0].data.replace(/\.$/, '');
+            }
+        } catch (e) {
+            // Reverse DNS ist optional — Fehler leise ignorieren
+        }
+        return null;
     }
 
     // --- Count chips ---
@@ -227,9 +266,14 @@ function init_ping_test(container) {
 
         // Clean up input
         host = host.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+
+        // Drei-Stufen-Validierung: IPv4, lokaler Hostname, Domain/FQDN
         var isIP = /^(\d{1,3}\.){3}\d{1,3}$/.test(host) && host.split('.').every(function(p) { var n = parseInt(p, 10); return n >= 0 && n <= 255; });
-        if (!isIP && (!host.includes('.') || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z0-9]{2,}$/.test(host))) {
-            showError('Bitte gib eine gültige URL oder IP-Adresse ein (z.B. google.com oder 192.168.1.1)');
+        var isLocalHostname = !isIP && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(host) && host.length <= 63;
+        var isDomain = !isIP && !isLocalHostname && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(host);
+
+        if (!isIP && !isLocalHostname && !isDomain) {
+            showError('Bitte gib einen g\u00fcltigen Hostnamen, Domain oder IP-Adresse ein (z.B. nas, server.local, google.com oder 192.168.1.1)');
             return;
         }
         hostInput.value = host;
@@ -253,16 +297,42 @@ function init_ping_test(container) {
         stopBtn.style.display = 'inline-block';
         startBtn.disabled = true;
 
-        const isLocal = isPrivateHost(host);
+        const isLocal = isLocalTarget(host, isIP, isLocalHostname);
         const url = isLocal ? `http://${host}` : `https://${host}`;
+
+        // Reverse DNS für öffentliche IPs (nicht blockierend)
+        var rdnsEl = document.getElementById('ping-rdns');
+        rdnsEl.textContent = '';
+        rdnsEl.style.color = '';
+
+        if (isIP && !isLocal) {
+            rdnsEl.textContent = 'PTR wird aufgel\u00f6st\u2026';
+            rdnsEl.style.color = 'var(--text-dim)';
+            reverseDNS(host).then(function(hostname) {
+                if (hostname) {
+                    rdnsEl.textContent = '\u2194 ' + hostname;
+                    rdnsEl.style.color = 'var(--green)';
+                } else {
+                    rdnsEl.textContent = 'Kein PTR-Record gefunden';
+                    rdnsEl.style.color = 'var(--text-dim)';
+                }
+            });
+        } else if (isIP && isLocal) {
+            rdnsEl.textContent = 'Reverse-DNS f\u00fcr lokale IPs nicht m\u00f6glich (Browser-Einschr\u00e4nkung)';
+            rdnsEl.style.color = 'var(--text-dim)';
+        }
 
         // Show hint
         const hintEl = document.getElementById('ping-hint');
+        const infoIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
         if (isLocal) {
-            hintEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' +
-                '<span><strong>Lokale Adresse erkannt.</strong> Browser k\u00f6nnen keinen echten ICMP-Ping senden. ' +
+            var localNote = isIP ? 'Lokale IP-Adresse erkannt.' : (isLocalHostname ? 'Lokaler Hostname erkannt.' : 'Lokaler FQDN erkannt.');
+            hintEl.innerHTML = infoIcon + ' ' +
+                '<span><strong>' + localNote + '</strong> Browser k\u00f6nnen keinen echten ICMP-Ping senden. ' +
                 'Die Messung erfolgt per HTTP-Request und enth\u00e4lt zus\u00e4tzlichen Overhead (TCP/HTTP). ' +
-                'Die Werte weichen daher deutlich von einem Konsolen-Ping ab.</span>';
+                'Die Werte weichen daher deutlich von einem Konsolen-Ping ab.' +
+                (isLocalHostname ? ' Der Hostname muss im lokalen Netzwerk aufl\u00f6sbar sein.' : '') +
+                '</span>';
         } else {
             hintEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> ' +
                 '<span>Kein echter ICMP-Ping \u2014 Messung per HTTPS-Request (inkl. DNS + TLS + HTTP Overhead).</span>';
