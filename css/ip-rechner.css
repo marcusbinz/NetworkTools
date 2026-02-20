@@ -126,13 +126,6 @@
     white-space: nowrap;
 }
 
-@media (min-width: 768px) {
-    .quick-examples {
-        flex-wrap: wrap;
-        overflow-x: visible;
-    }
-}
-
 /* Result Card */
 .result-card {
     animation: slideUp 0.3s ease-out;
