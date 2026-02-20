@@ -89,45 +89,6 @@
     cursor: wait;
 }
 
-/* Quick Examples */
-.quick-examples-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 24px !important;
-    margin-bottom: 8px;
-}
-
-.quick-examples {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    margin-top: 16px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;        /* Firefox */
-    -ms-overflow-style: none;     /* IE/Edge */
-    padding-bottom: 4px;
-    min-width: 0;
-    max-width: 100%;
-}
-
-.quick-examples-label + .quick-examples {
-    margin-top: 0;
-}
-
-.quick-examples::-webkit-scrollbar {
-    display: none;                /* Chrome/Safari */
-}
-
-.quick-examples .chip {
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-
 /* Result Card */
 .result-card {
     animation: slideUp 0.3s ease-out;
