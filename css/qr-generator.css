@@ -3,12 +3,23 @@
 /* Mode chips */
 .qr-mode-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
     margin-bottom: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.qr-mode-chips::-webkit-scrollbar {
+    display: none;
 }
 
 .qr-mode-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 13px;
@@ -91,11 +102,22 @@
 /* WLAN encryption type chips */
 .qr-enc-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.qr-enc-chips::-webkit-scrollbar {
+    display: none;
 }
 
 .qr-enc-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
     font-size: 12px;
@@ -262,9 +284,23 @@
 /* Quick examples */
 .qr-examples {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     margin-top: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.qr-examples::-webkit-scrollbar {
+    display: none;
+}
+
+.qr-examples .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Error */

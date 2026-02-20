@@ -32,8 +32,18 @@
 #nb-search::placeholder { color: var(--text-dim); opacity: 0.5; }
 
 /* Category chips */
-.nb-cat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.nb-cat-chip { font-size: 12px; padding: 5px 10px; transition: all 0.2s; cursor: pointer; }
+.nb-cat-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+.nb-cat-chips::-webkit-scrollbar { display: none; }
+.nb-cat-chip { flex-shrink: 0; white-space: nowrap; font-size: 12px; padding: 5px 10px; transition: all 0.2s; cursor: pointer; }
 
 /* Result card */
 .nb-result-card { animation: slideUp 0.3s ease-out; }

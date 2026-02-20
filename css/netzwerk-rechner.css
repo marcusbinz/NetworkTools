@@ -41,12 +41,23 @@
 /* Unit chips */
 .nr-unit-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
     margin-top: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.nr-unit-chips::-webkit-scrollbar {
+    display: none;
 }
 
 .nr-unit-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     font-size: 12px;
     padding: 5px 10px;
@@ -179,9 +190,23 @@
 /* Quick Examples */
 .nr-examples {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     margin-top: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.nr-examples::-webkit-scrollbar {
+    display: none;
+}
+
+.nr-examples .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Reference Table */

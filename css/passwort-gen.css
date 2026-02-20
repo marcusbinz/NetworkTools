@@ -275,11 +275,22 @@
 /* Film chips */
 .pw-film-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+}
+
+.pw-film-chips::-webkit-scrollbar {
+    display: none;
 }
 
 .pw-film-chip {
+    flex-shrink: 0;
+    white-space: nowrap;
     font-size: 12px;
     padding: 5px 12px;
     transition: all 0.2s;
