@@ -1,6 +1,6 @@
 # Network-Tools — Bug-Liste
 
-> **Version:** 5.0.87 | **Stand:** 2026-02-17
+> **Version:** 5.0.88 | **Stand:** 2026-02-17
 
 Uebersicht aller bekannten und behobenen Bugs.
 
@@ -34,7 +34,8 @@ Uebersicht aller bekannten und behobenen Bugs.
 | 3 | iOS DE-Tastatur: Komma statt Punkt bei inputmode="decimal" | IP-Rechner | 3 - MITTEL | BEHOBEN | v5.0.86 | beforeinput-Event fuer Komma-Ersetzung |
 | 4 | Echte Hostnamen in lokalen Netzen werden nicht aufgeloest | Ping-Test | 4 - NIEDRIG | BEHOBEN | v5.0.87 | Drei-Stufen-Validierung + Reverse-DNS |
 | 5 | Google laesst sich nicht aufloesen | SSL/TLS-Checker | 2 - HOCH | OFFEN | — | |
+| 6 | Unschoener Umbruch bei Beispiel-Chips auf mobilen Geraeten (z.B. SSL-Zertifikat) | Alle Tools | 2 - HOCH | BEHOBEN | v5.0.88 | Gemeldet von Alex in v5.0.87, horizontal scroll auf Mobile |
 
 ---
 
-*Letzte Aktualisierung: 2026-02-17 | v5.0.87*
+*Letzte Aktualisierung: 2026-02-17 | v5.0.88*

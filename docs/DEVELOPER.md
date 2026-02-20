@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.87 | **Build:** 87 | **Stand:** 2026-02-17
+> **Version:** 5.0.88 | **Build:** 88 | **Stand:** 2026-02-17
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -784,6 +784,14 @@ Der Ping-Test akzeptiert jetzt neben Domains und IPs auch:
 
 **Betroffene Dateien:** `ping-test.js`, `ping-test.css`
 
+### 11.9 Bugfix: Beispiel-Chips Umbruch auf mobilen Geraeten (v5.0.88)
+
+Auf mittleren mobilen Bildschirmen brachen die Beispiel-Chips (Quick Examples) unschoen um, sodass einzelne Chips allein in einer neuen Zeile standen.
+
+**Loesung:** Auf mobilen Geraeten (`< 768px`) scrollen die Chips horizontal statt umzubrechen (`flex-wrap: nowrap`, `overflow-x: auto`). Scrollbar ist unsichtbar fuer ein sauberes Design. Auf Desktop (`>= 768px`) bleibt `flex-wrap: wrap`.
+
+**Betroffene Datei:** `ip-rechner.css` (`.quick-examples` Definition, global genutzt)
+
 ---
 
 ## 12. Externe Links im Drawer
@@ -822,4 +830,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-17 | v5.0.87*
+*Letzte Aktualisierung: 2026-02-17 | v5.0.88*

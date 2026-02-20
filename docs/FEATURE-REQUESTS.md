@@ -1,6 +1,6 @@
 # Network-Tools — Feature Requests
 
-> **Version:** 5.0.87 | **Stand:** 2026-02-17
+> **Version:** 5.0.88 | **Stand:** 2026-02-17
 
 Uebersicht aller geplanten und gewuenschten Features fuer zukuenftige Versionen.
 
@@ -33,4 +33,4 @@ Uebersicht aller geplanten und gewuenschten Features fuer zukuenftige Versionen.
 
 ---
 
-*Letzte Aktualisierung: 2026-02-17 | v5.0.87*
+*Letzte Aktualisierung: 2026-02-17 | v5.0.88*
