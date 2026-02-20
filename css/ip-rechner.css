@@ -111,6 +111,8 @@
     scrollbar-width: none;        /* Firefox */
     -ms-overflow-style: none;     /* IE/Edge */
     padding-bottom: 4px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .quick-examples-label + .quick-examples {

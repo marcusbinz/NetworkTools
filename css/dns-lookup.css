@@ -68,6 +68,8 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding-bottom: 4px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .dns-type-chips::-webkit-scrollbar {
