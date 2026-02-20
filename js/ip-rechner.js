@@ -17,6 +17,7 @@ function init_ip_rechner(container) {
                 Meine IP-Adresse
             </button>
 
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples">
                 <span class="chip" data-ip="192.168.1.0" data-cidr="24">/24 Heim</span>
                 <span class="chip" data-ip="10.0.0.0" data-cidr="8">Klasse A</span>

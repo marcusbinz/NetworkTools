@@ -20,6 +20,7 @@ function init_ipv6_rechner(container) {
                 <span class="chip v6-prefix-chip" data-prefix="128">/128</span>
             </div>
 
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples v6-examples">
                 <span class="chip" data-addr="2001:0db8:85a3::8a2e:0370:7334/64">Beispiel</span>
                 <span class="chip" data-addr="fe80::1/10">Link-Local</span>

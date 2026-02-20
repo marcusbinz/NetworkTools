@@ -30,6 +30,7 @@ function init_blacklist_check(container) {
                 </button>
             </div>
             <button class="bl-myip-btn chip" id="bl-myip-btn">Meine IP verwenden</button>
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples bl-examples">
                 <span class="chip" data-ip="8.8.8.8">Google DNS</span>
                 <span class="chip" data-ip="1.1.1.1">Cloudflare</span>

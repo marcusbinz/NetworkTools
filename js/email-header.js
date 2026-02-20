@@ -48,6 +48,7 @@ Content-Type: text/plain; charset=UTF-8`;
                 </button>
                 <button class="eh-clear-btn" id="eh-clear-btn">Leeren</button>
             </div>
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples eh-examples">
                 <span class="chip" id="eh-example-btn">Beispiel laden</span>
             </div>

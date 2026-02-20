@@ -26,6 +26,7 @@ function init_dns_lookup(container) {
                 <span class="chip dns-type-chip" data-type="SOA">SOA</span>
             </div>
 
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples dns-examples">
                 <span class="chip" data-domain="google.com">Google</span>
                 <span class="chip" data-domain="cloudflare.com">Cloudflare</span>

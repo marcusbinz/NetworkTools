@@ -24,7 +24,7 @@ function init_ping_test(container) {
                 <span class="chip ping-count-chip" data-count="0">\u221e Dauer</span>
             </div>
 
-            <label class="ping-count-label">Testbeispiele</label>
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples ping-examples">
                 <span class="chip" data-host="mbinz.de">mbinz.de</span>
                 <span class="chip" data-host="google.com">Google</span>

@@ -654,6 +654,7 @@ function init_qr_generator(container) {
 
             <div id="qr-form"></div>
 
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples qr-examples" id="qr-examples"></div>
         </section>
 

@@ -64,6 +64,7 @@ function init_netzwerk_rechner(container) {
                 <span class="chip nr-unit-chip" data-unit="tb">TB</span>
             </div>
 
+            <label class="quick-examples-label">Beispiele</label>
             <div class="quick-examples nr-examples">
                 <span class="chip" data-bw="100" data-bwu="mbps" data-fs="50" data-fsu="gb">50 GB @ 100 Mbps</span>
                 <span class="chip" data-bw="1" data-bwu="gbps" data-fs="1" data-fsu="tb">1 TB @ 1 Gbps</span>
