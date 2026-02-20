@@ -97,7 +97,7 @@
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 16px;
+    margin-top: 20px;
     margin-bottom: 8px;
 }
 
@@ -106,15 +106,15 @@
     flex-wrap: nowrap;
     gap: 8px;
     margin-top: 16px;
-}
-
-.quick-examples-label + .quick-examples {
-    margin-top: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;        /* Firefox */
     -ms-overflow-style: none;     /* IE/Edge */
     padding-bottom: 4px;
+}
+
+.quick-examples-label + .quick-examples {
+    margin-top: 0;
 }
 
 .quick-examples::-webkit-scrollbar {

@@ -30,6 +30,7 @@ Uebersicht aller geplanten und gewuenschten Features fuer zukuenftige Versionen.
 | # | Feature | Betroffenes Tool | Prioritaet | Status | Umgesetzt in | Bemerkung |
 |---|---------|------------------|------------|--------|--------------|-----------|
 | 1 | SSL/TLS verbessern und nur Beispiele anzeigen, die funktionieren | SSL/TLS-Checker | 3 - MITTEL | OFFEN | — | |
+| 2 | Umschalter Deutsch/Englisch fuer die gesamte App | Allgemein | 4 - NIEDRIG | OFFEN | — | Um die App international nutzen zu koennen |
 
 ---
 

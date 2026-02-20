@@ -27,14 +27,14 @@ Uebersicht aller bekannten und behobenen Bugs.
 
 ## Bug-Liste
 
-| # | Bug | Betroffenes Tool | Prioritaet | Status | Behoben in | Bemerkung |
-|---|-----|-------------------|------------|--------|------------|-----------|
-| 1 | Ping-Test blockiert IP-Adressen (z.B. 192.168.1.1) | Ping-Test | 2 - HOCH | BEHOBEN | v5.0.82 | Strenger Domain-Regex aus Security-Audit |
-| 2 | iOS DE-Tastatur: kein Punkt fuer IP-Eingabe | IP-Rechner | 3 - MITTEL | BEHOBEN | v5.0.83 | inputmode="numeric" zeigte keinen Punkt |
-| 3 | iOS DE-Tastatur: Komma statt Punkt bei inputmode="decimal" | IP-Rechner | 3 - MITTEL | BEHOBEN | v5.0.86 | beforeinput-Event fuer Komma-Ersetzung |
-| 4 | Echte Hostnamen in lokalen Netzen werden nicht aufgeloest | Ping-Test | 4 - NIEDRIG | BEHOBEN | v5.0.87 | Drei-Stufen-Validierung + Reverse-DNS |
-| 5 | Google laesst sich nicht aufloesen | SSL/TLS-Checker | 2 - HOCH | OFFEN | — | |
-| 6 | Unschoener Umbruch bei Beispiel-Chips auf mobilen Geraeten (z.B. SSL-Zertifikat) | Alle Tools | 2 - HOCH | BEHOBEN | v5.0.88 | Gemeldet von Alex in v5.0.87, horizontal scroll auf Mobile |
+| # | Bug | Betroffenes Tool | Prioritaet | Status | Behoben in | Loesung | Bemerkung |
+|---|-----|-------------------|------------|--------|------------|---------|-----------|
+| 1 | Ping-Test blockiert IP-Adressen (z.B. 192.168.1.1) | Ping-Test | 2 - HOCH | BEHOBEN | v5.0.82 | IPv4-Regex als eigene Pruefung vor Domain-Regex eingefuegt | Strenger Domain-Regex aus Security-Audit |
+| 2 | iOS DE-Tastatur: kein Punkt fuer IP-Eingabe | IP-Rechner | 3 - MITTEL | BEHOBEN | v5.0.83 | inputmode von "numeric" auf "decimal" geaendert — zeigt Punkt auf iOS | inputmode="numeric" zeigte keinen Punkt |
+| 3 | iOS DE-Tastatur: Komma statt Punkt bei inputmode="decimal" | IP-Rechner | 3 - MITTEL | BEHOBEN | v5.0.86 | beforeinput-Event mit preventDefault() + manuelle Punkt-Einfuegung an Cursor-Position; keyup als Fallback | beforeinput-Event fuer Komma-Ersetzung |
+| 4 | Echte Hostnamen in lokalen Netzen werden nicht aufgeloest | Ping-Test | 4 - NIEDRIG | BEHOBEN | v5.0.87 | Drei-Stufen-Validierung (IPv4, lokaler Hostname, Domain/FQDN) + isLocalTarget() mit LOCAL_SUFFIXES + reverseDNS() per Google DNS PTR | Drei-Stufen-Validierung + Reverse-DNS |
+| 5 | Google laesst sich nicht aufloesen | SSL/TLS-Checker | 2 - HOCH | OFFEN | — | — | |
+| 6 | Unschoener Umbruch bei Beispiel-Chips auf mobilen Geraeten (z.B. SSL-Zertifikat) | Alle Tools | 2 - HOCH | BEHOBEN | v5.0.88 | flex-wrap:nowrap + overflow-x:auto auf Mobile, flex-wrap:wrap ab 768px Desktop | Gemeldet von Alex in v5.0.87 |
 
 ---
 

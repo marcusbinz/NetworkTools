@@ -19,10 +19,13 @@
 4. In `ASSETS[]` Array in `sw.js` eintragen
 5. Version bumpen: `version.json` (build + version) und `sw.js` (CACHE_NAME)
 
-## Versionierung
-- Schema: `MAJOR.MINOR.BUILD` (z.B. 3.0.69)
-- Major steigt bei neuen Tools
-- Immer `version.json` UND `sw.js` CACHE_NAME gemeinsam aktualisieren
+## Versionierung (Semantic Versioning)
+- Schema: `MAJOR.MINOR.PATCH` (z.B. 5.0.89)
+- **PATCH** (letztes Segment): Bugfixes, kleine Anpassungen, UI-Tweaks → bei jedem Commit erhoehen
+- **MINOR** (mittleres Segment): Neues Tool, grosses Feature-Set → PATCH auf 0 zuruecksetzen
+- **MAJOR** (erstes Segment): Grundlegender Umbau, komplett neues UI-Design
+- Zahlen sind KEINE Dezimalzahlen — 5.0.100 ist voellig valide, KEIN automatischer Ueberlauf!
+- Immer `version.json` UND `sw.js` CACHE_NAME UND `docs/DEVELOPER.md` (Header + Footer) gemeinsam aktualisieren
 - Datum in version.json auf aktuelles Datum setzen
 
 ## Dokumentation — WICHTIG
@@ -71,6 +74,7 @@ Frage nacheinander ab (eine Frage pro Nachricht):
 3. Prioritaet (1-5)?
 4. Bemerkung? (optional, "-" oder "keine" zum Ueberspringen)
 Danach automatisch in `docs/BUG-LIST.md` eintragen mit Status OFFEN.
+Wenn ein Bug behoben wird: Spalte "Loesung" mit knapper technischer Beschreibung des Fixes ausfuellen.
 
 ### Interview-Dialog fuer "neues feature"
 Frage nacheinander ab (eine Frage pro Nachricht):
