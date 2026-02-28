@@ -74,6 +74,19 @@
 .nb-row { border-top: 1px solid var(--card-border); }
 .nb-row:first-child { border-top: none; }
 
+/* Gruppen-Überschriften (Windows CPL/MSC) */
+.nb-group-header {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: #0078d4;
+    padding: 18px 0 6px;
+    border-bottom: 1px solid #0078d430;
+    margin-bottom: 2px;
+}
+.nb-group-header:first-child { padding-top: 4px; }
+
 .nb-row-header {
     display: flex;
     align-items: center;

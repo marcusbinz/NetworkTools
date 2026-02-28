@@ -21,6 +21,29 @@ function init_netzwerk_befehle(container) {
         windows:  { label: 'Windows',        color: '#0078d4' },
     };
 
+    // --- Windows-Gruppen (CPL/MSC Abschnitte) ---
+    const WIN_GROUPS = {
+        'cpl-network':  'CPL \u2014 Netzwerk',
+        'cpl-system':   'CPL \u2014 System',
+        'cpl-hardware': 'CPL \u2014 Hardware',
+        'cpl-access':   'CPL \u2014 Eingabehilfe',
+        'msc-admin':    'MSC \u2014 Verwaltung',
+        'msc-network':  'MSC \u2014 Netzwerk & Sicherheit',
+    };
+    const WIN_GROUPS_MAP = {
+        'ncpa': 'cpl-network', 'firewall-cpl': 'cpl-network', 'inetcpl': 'cpl-network',
+        'sysdm': 'cpl-system', 'appwiz': 'cpl-system', 'powercfg-cpl': 'cpl-system',
+        'timedate': 'cpl-system', 'intl': 'cpl-system', 'wscui': 'cpl-system',
+        'desk': 'cpl-hardware', 'mmsys': 'cpl-hardware', 'main-cpl': 'cpl-hardware',
+        'bthprops': 'cpl-hardware', 'joy': 'cpl-hardware', 'hdwwiz': 'cpl-hardware',
+        'access': 'cpl-access',
+        'compmgmt': 'msc-admin', 'devmgmt': 'msc-admin', 'diskmgmt': 'msc-admin',
+        'services': 'msc-admin', 'taskschd': 'msc-admin', 'eventvwr': 'msc-admin',
+        'lusrmgr': 'msc-admin', 'gpedit': 'msc-admin', 'secpol': 'msc-admin',
+        'perfmon': 'msc-admin',
+        'wf': 'msc-network', 'certmgr': 'msc-network', 'certlm': 'msc-network',
+    };
+
     // --- Command Database (54 Befehle: 25 CLI + 16 CPL + 13 MSC) ---
     const COMMANDS = [
 
@@ -1517,10 +1540,18 @@ function init_netzwerk_befehle(container) {
             return;
         }
 
-        nbList.innerHTML = filtered.map(cmd => {
+        let html = '';
+        let lastGroup = null;
+        filtered.forEach(cmd => {
+            // Gruppen-Überschrift für Windows CPL/MSC
+            const group = WIN_GROUPS_MAP[cmd.id];
+            if (group && group !== lastGroup) {
+                html += `<div class="nb-group-header">${WIN_GROUPS[group]}</div>`;
+                lastGroup = group;
+            }
             const cat = CATEGORIES[cmd.cat] || CATEGORIES.all;
             const isExpanded = expandedId === cmd.id;
-            return `
+            html += `
                 <div class="nb-row${isExpanded ? ' expanded' : ''}" data-id="${cmd.id}">
                     <div class="nb-row-header">
                         <div class="nb-name-block">
@@ -1538,7 +1569,8 @@ function init_netzwerk_befehle(container) {
                     </div>
                 </div>
             `;
-        }).join('');
+        });
+        nbList.innerHTML = html;
     }
 
     // --- Accordion toggle ---
