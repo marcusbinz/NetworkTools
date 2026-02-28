@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.97 | **Build:** 97 | **Stand:** 2026-02-28
+> **Version:** 5.1.0 | **Build:** 100 | **Stand:** 2026-02-28
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -830,4 +830,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-28 | v5.0.97*
+*Letzte Aktualisierung: 2026-02-28 | v5.1.0*
