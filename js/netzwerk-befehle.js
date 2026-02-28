@@ -18,9 +18,10 @@ function init_netzwerk_befehle(container) {
         transfer: { label: 'Transfer',       color: 'var(--red)' },
         remote:   { label: 'Remote',         color: '#2dd4bf' },
         info:     { label: 'Info',           color: '#f472b6' },
+        windows:  { label: 'Windows',        color: '#0078d4' },
     };
 
-    // --- Command Database (24 Befehle) ---
+    // --- Command Database (54 Befehle: 25 CLI + 16 CPL + 13 MSC) ---
     const COMMANDS = [
 
         // ===== DIAGNOSE (4) =====
@@ -240,7 +241,7 @@ function init_netzwerk_befehle(container) {
             }
         },
         {
-            id: 'ncpa', name: 'ncpa.cpl', cat: 'config',
+            id: 'ncpa', name: 'ncpa.cpl', cat: 'windows',
             desc: 'Netzwerkverbindungen GUI \u00f6ffnen (Schnellzugriff)',
             win: {
                 cmd: 'ncpa.cpl',
@@ -896,6 +897,473 @@ function init_netzwerk_befehle(container) {
                     { cmd: 'tcpdump -r capture.pcap',           desc: 'PCAP-Datei analysieren' },
                 ]
             }
+        },
+        // ===== WINDOWS CPL-MODULE (15) =====
+        {
+            id: 'firewall-cpl', name: 'firewall.cpl', cat: 'windows',
+            desc: 'Windows Defender Firewall \u00f6ffnen',
+            win: {
+                cmd: 'firewall.cpl',
+                syntax: 'firewall.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Startet direkt die Windows Defender Firewall' },
+                ],
+                examples: [
+                    { cmd: 'firewall.cpl',           desc: 'Firewall-Einstellungen \u00f6ffnen' },
+                    { cmd: 'control firewall.cpl',   desc: 'Alternative \u00fcber control' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Kein direktes Pendant. Verwende ufw (Befehlszeile) oder iptables.'
+        },
+        {
+            id: 'inetcpl', name: 'inetcpl.cpl', cat: 'windows',
+            desc: 'Interneteigenschaften (Proxy, Sicherheit, Zertifikate)',
+            win: {
+                cmd: 'inetcpl.cpl',
+                syntax: 'inetcpl.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Startet Interneteigenschaften (IE/System-Proxy)' },
+                ],
+                examples: [
+                    { cmd: 'inetcpl.cpl',          desc: 'Interneteigenschaften \u00f6ffnen' },
+                    { cmd: 'control inetcpl.cpl',  desc: 'Alternative \u00fcber control' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Proxy-Einstellungen \u00fcber /etc/environment oder Einstellungen der Desktop-Umgebung.'
+        },
+        {
+            id: 'sysdm', name: 'sysdm.cpl', cat: 'windows',
+            desc: 'Systemeigenschaften (Computername, Hardware, Remotedesktop)',
+            win: {
+                cmd: 'sysdm.cpl',
+                syntax: 'sysdm.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Systemeigenschaften \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'sysdm.cpl',      desc: 'Systemeigenschaften \u00f6ffnen' },
+                    { cmd: 'sysdm.cpl ,3',   desc: 'Direkt Tab "Erweitert" \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Systeminfos: hostnamectl, uname -a, /etc/os-release.'
+        },
+        {
+            id: 'appwiz', name: 'appwiz.cpl', cat: 'windows',
+            desc: 'Programme und Features (Deinstallation)',
+            win: {
+                cmd: 'appwiz.cpl',
+                syntax: 'appwiz.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Liste aller installierten Programme' },
+                ],
+                examples: [
+                    { cmd: 'appwiz.cpl',          desc: 'Programme und Features \u00f6ffnen' },
+                    { cmd: 'control appwiz.cpl',  desc: 'Alternative \u00fcber control' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Paketverwaltung: apt list --installed, dnf list installed, dpkg -l.'
+        },
+        {
+            id: 'powercfg-cpl', name: 'powercfg.cpl', cat: 'windows',
+            desc: 'Energieoptionen (Energiesparpl\u00e4ne, Ruhezustand)',
+            win: {
+                cmd: 'powercfg.cpl',
+                syntax: 'powercfg.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Energieoptionen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'powercfg.cpl',   desc: 'Energieoptionen \u00f6ffnen' },
+                    { cmd: 'powercfg /l',    desc: 'Energiep\u00e4ne per CLI auflisten' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Energieverwaltung: TLP, powertop, systemctl suspend/hibernate.'
+        },
+        {
+            id: 'timedate', name: 'timedate.cpl', cat: 'windows',
+            desc: 'Datum und Uhrzeit (Zeitzone, NTP-Synchronisation)',
+            win: {
+                cmd: 'timedate.cpl',
+                syntax: 'timedate.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Datum- und Uhrzeit-Einstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'timedate.cpl',    desc: 'Datums- und Uhrzeit-Dialog \u00f6ffnen' },
+                    { cmd: 'w32tm /resync',   desc: 'Zeit per CLI sofort synchronisieren' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Zeitverwaltung: timedatectl, timedatectl set-timezone Europe/Berlin.'
+        },
+        {
+            id: 'intl', name: 'intl.cpl', cat: 'windows',
+            desc: 'Region und Sprache (Zahlenformat, W\u00e4hrung, Tastaturlayout)',
+            win: {
+                cmd: 'intl.cpl',
+                syntax: 'intl.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Regions- und Spracheinstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'intl.cpl',         desc: 'Regionseinstellungen \u00f6ffnen' },
+                    { cmd: 'control intl.cpl', desc: 'Alternative \u00fcber control' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Regionseinstellungen: localectl, /etc/locale.conf, locale-gen.'
+        },
+        {
+            id: 'wscui', name: 'wscui.cpl', cat: 'windows',
+            desc: 'Sicherheit und Wartung (Action Center)',
+            win: {
+                cmd: 'wscui.cpl',
+                syntax: 'wscui.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Sicherheits- und Wartungscenter \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'wscui.cpl', desc: 'Sicherheit und Wartung \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Kein direktes Pendant. Sicherheitsstatus: ufw status, rkhunter --check.'
+        },
+        {
+            id: 'desk', name: 'desk.cpl', cat: 'windows',
+            desc: 'Anzeigeeinstellungen (Aufl\u00f6sung, Orientierung, Mehrere Monitore)',
+            win: {
+                cmd: 'desk.cpl',
+                syntax: 'desk.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Anzeigeeinstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'desk.cpl', desc: 'Anzeigeeinstellungen \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Anzeigeeinstellungen: xrandr, arandr (GUI), GNOME/KDE Bildschirmeinstellungen.'
+        },
+        {
+            id: 'mmsys', name: 'mmsys.cpl', cat: 'windows',
+            desc: 'Sound-Einstellungen (Wiedergabe, Aufnahme, Systemkl\u00e4nge)',
+            win: {
+                cmd: 'mmsys.cpl',
+                syntax: 'mmsys.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Soundeinstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'mmsys.cpl',      desc: 'Sound-Dialog \u00f6ffnen' },
+                    { cmd: 'mmsys.cpl ,1',   desc: 'Direkt Tab "Aufnahme" \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Audioeinstellungen: alsamixer (TUI), pavucontrol (GUI), pactl list sinks.'
+        },
+        {
+            id: 'main-cpl', name: 'main.cpl', cat: 'windows',
+            desc: 'Maus-Einstellungen (Zeiger, Tasten, Zeigerrad)',
+            win: {
+                cmd: 'main.cpl',
+                syntax: 'main.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Mauseinstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'main.cpl', desc: 'Maus-Einstellungen \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Mauseinstellungen: xinput, xset m, GNOME/KDE Mauseinstellungen.'
+        },
+        {
+            id: 'bthprops', name: 'bthprops.cpl', cat: 'windows',
+            desc: 'Bluetooth-Ger\u00e4te verwalten',
+            win: {
+                cmd: 'bthprops.cpl',
+                syntax: 'bthprops.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Bluetooth-Einstellungen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'bthprops.cpl', desc: 'Bluetooth-Einstellungen \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Bluetooth: bluetoothctl, blueman-manager (GUI).'
+        },
+        {
+            id: 'joy', name: 'joy.cpl', cat: 'windows',
+            desc: 'Gamecontroller und Joysticks konfigurieren',
+            win: {
+                cmd: 'joy.cpl',
+                syntax: 'joy.cpl',
+                switches: [
+                    { flag: '(keine)', desc: '\u00d6ffnet den Gamecontroller-Dialog' },
+                ],
+                examples: [
+                    { cmd: 'joy.cpl', desc: 'Gamecontroller-Einstellungen \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Controller-Test: jstest /dev/input/js0, evtest.'
+        },
+        {
+            id: 'hdwwiz', name: 'hdwwiz.cpl', cat: 'windows',
+            desc: 'Hardware-Assistent (Legacy-Ger\u00e4te manuell installieren)',
+            win: {
+                cmd: 'hdwwiz.cpl',
+                syntax: 'hdwwiz.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Hardware-Assistent starten' },
+                ],
+                examples: [
+                    { cmd: 'hdwwiz.cpl', desc: 'Hardware-Assistent \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Hardware-Erkennung: udev, modprobe, lspci -k, lsusb.'
+        },
+        {
+            id: 'access', name: 'access.cpl', cat: 'windows',
+            desc: 'Center f\u00fcr erleichterte Bedienung (Barrierefreiheit)',
+            win: {
+                cmd: 'access.cpl',
+                syntax: 'access.cpl',
+                switches: [
+                    { flag: '(keine)', desc: 'Bedienungshilfen \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'access.cpl', desc: 'Bedienungshilfen \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Bedienungshilfen: Zug\u00e4nglichkeitseinstellungen in GNOME/KDE.'
+        },
+
+        // ===== WINDOWS MSC-SNAPINS (13) =====
+        {
+            id: 'compmgmt', name: 'compmgmt.msc', cat: 'windows',
+            desc: 'Computerverwaltung (Ger\u00e4te, Dienste, Datentr\u00e4ger, lokale Benutzer)',
+            win: {
+                cmd: 'compmgmt.msc',
+                syntax: 'compmgmt.msc',
+                switches: [
+                    { flag: '(keine)', desc: '\u00d6ffnet die Computerverwaltung' },
+                ],
+                examples: [
+                    { cmd: 'compmgmt.msc', desc: 'Computerverwaltung \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Kein direktes Pendant — entspricht einer Sammlung aus: systemctl, lsblk, useradd u.a.'
+        },
+        {
+            id: 'devmgmt', name: 'devmgmt.msc', cat: 'windows',
+            desc: 'Ger\u00e4te-Manager (Treiber, Hardware-Status, Fehlerdiagnose)',
+            win: {
+                cmd: 'devmgmt.msc',
+                syntax: 'devmgmt.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Ger\u00e4te-Manager \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'devmgmt.msc', desc: 'Ger\u00e4te-Manager \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Ger\u00e4te-Info: lspci, lsusb, lshw, dmesg | grep -i error.'
+        },
+        {
+            id: 'diskmgmt', name: 'diskmgmt.msc', cat: 'windows',
+            desc: 'Datentr\u00e4gerverwaltung (Partitionen, Laufwerksbuchstaben, Volumes)',
+            win: {
+                cmd: 'diskmgmt.msc',
+                syntax: 'diskmgmt.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Datentr\u00e4gerverwaltung \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'diskmgmt.msc',  desc: 'Datentr\u00e4gerverwaltung \u00f6ffnen' },
+                    { cmd: 'diskpart',      desc: 'CLI-Alternative f\u00fcr Partitionierung' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Partitionierung: fdisk, parted, gparted (GUI), lsblk.'
+        },
+        {
+            id: 'services', name: 'services.msc', cat: 'windows',
+            desc: 'Dienste (starten, stoppen, Starttyp konfigurieren)',
+            win: {
+                cmd: 'services.msc',
+                syntax: 'services.msc',
+                switches: [
+                    { flag: '(keine)', desc: '\u00d6ffnet die Diensteverwaltung' },
+                ],
+                examples: [
+                    { cmd: 'services.msc',       desc: 'Dienste-Manager \u00f6ffnen' },
+                    { cmd: 'sc query <Dienst>',  desc: 'Dienststatus per CLI abfragen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Dienstverwaltung: systemctl start/stop/status <Dienst>.'
+        },
+        {
+            id: 'taskschd', name: 'taskschd.msc', cat: 'windows',
+            desc: 'Aufgabenplanung (geplante Tasks erstellen und verwalten)',
+            win: {
+                cmd: 'taskschd.msc',
+                syntax: 'taskschd.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Aufgabenplanung \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'taskschd.msc',    desc: 'Aufgabenplanung \u00f6ffnen' },
+                    { cmd: 'schtasks /query', desc: 'Alle Tasks per CLI auflisten' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Aufgabenplanung: crontab -e (cron), systemctl list-timers (systemd timer).'
+        },
+        {
+            id: 'eventvwr', name: 'eventvwr.msc', cat: 'windows',
+            desc: 'Ereignisanzeige (System-, Anwendungs- und Sicherheitslogs)',
+            win: {
+                cmd: 'eventvwr.msc',
+                syntax: 'eventvwr.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Ereignisanzeige \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'eventvwr.msc',        desc: 'Ereignisanzeige \u00f6ffnen' },
+                    { cmd: 'eventvwr /l:System',  desc: 'Direkt Systemlog \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Systemlogs: journalctl -xe, journalctl -u <Dienst>, /var/log/.'
+        },
+        {
+            id: 'lusrmgr', name: 'lusrmgr.msc', cat: 'windows',
+            desc: 'Lokale Benutzer und Gruppen (Konten, Kennw\u00f6rter, Gruppenmitgliedschaft)',
+            win: {
+                cmd: 'lusrmgr.msc',
+                syntax: 'lusrmgr.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Benutzerverwaltung \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'lusrmgr.msc',  desc: 'Lokale Benutzer und Gruppen \u00f6ffnen' },
+                    { cmd: 'net user',     desc: 'Alle lokalen Benutzer per CLI' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Benutzerverwaltung: useradd, usermod, passwd, groupadd, /etc/passwd.'
+        },
+        {
+            id: 'gpedit', name: 'gpedit.msc', cat: 'windows',
+            desc: 'Gruppenrichtlinien-Editor (lokale Richtlinien f\u00fcr System und Benutzer)',
+            win: {
+                cmd: 'gpedit.msc',
+                syntax: 'gpedit.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Gruppenrichtlinien-Editor \u00f6ffnen (nur Pro/Enterprise)' },
+                ],
+                examples: [
+                    { cmd: 'gpedit.msc',       desc: 'Lokale Gruppenrichtlinien \u00f6ffnen' },
+                    { cmd: 'gpupdate /force',  desc: 'Richtlinien sofort anwenden' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Kein direktes Pendant. Einstellungen \u00fcber /etc/security/, PAM-Module oder Ansible.'
+        },
+        {
+            id: 'secpol', name: 'secpol.msc', cat: 'windows',
+            desc: 'Lokale Sicherheitsrichtlinie (Kennwortrichtlinien, Auditing, Benutzerrechte)',
+            win: {
+                cmd: 'secpol.msc',
+                syntax: 'secpol.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Sicherheitsrichtlinie \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'secpol.msc', desc: 'Lokale Sicherheitsrichtlinie \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Sicherheitsrichtlinien: /etc/security/limits.conf, PAM-Konfiguration, /etc/pam.d/.'
+        },
+        {
+            id: 'perfmon', name: 'perfmon.msc', cat: 'windows',
+            desc: 'Leistungs\u00fcberwachung (CPU, RAM, Datentr\u00e4ger, Netzwerk — Live-Graphen)',
+            win: {
+                cmd: 'perfmon.msc',
+                syntax: 'perfmon.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Leistungs\u00fcberwachung \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'perfmon.msc',      desc: 'Leistungs\u00fcberwachung \u00f6ffnen' },
+                    { cmd: 'perfmon /report',  desc: 'Systemdiagnose-Bericht erstellen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Leistungs\u00fcberwachung: top, htop, iostat, vmstat, nmon, glances.'
+        },
+        {
+            id: 'wf', name: 'wf.msc', cat: 'windows',
+            desc: 'Windows Defender Firewall mit erweiterter Sicherheit (Eingehend/Ausgehend)',
+            win: {
+                cmd: 'wf.msc',
+                syntax: 'wf.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Erweiterte Firewall-Konsole \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'wf.msc',                       desc: 'Erweiterte Firewall \u00f6ffnen' },
+                    { cmd: 'netsh advfirewall show all',   desc: 'Firewall-Status per CLI' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Firewall: iptables -L -v, ufw status verbose, nftables.'
+        },
+        {
+            id: 'certmgr', name: 'certmgr.msc', cat: 'windows',
+            desc: 'Zertifikat-Manager (Benutzer-Zertifikate, pers\u00f6nlich, vertrauensw\u00fcrdige Stellen)',
+            win: {
+                cmd: 'certmgr.msc',
+                syntax: 'certmgr.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Zertifikatspeicher des aktuellen Benutzers \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'certmgr.msc', desc: 'Benutzer-Zertifikate \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Zertifikatsverwaltung: /etc/ssl/certs/, update-ca-certificates, openssl x509 -in cert.pem -text.'
+        },
+        {
+            id: 'certlm', name: 'certlm.msc', cat: 'windows',
+            desc: 'Zertifikate des lokalen Computers (Maschinenweite Zertifikate, IIS, VPN)',
+            win: {
+                cmd: 'certlm.msc',
+                syntax: 'certlm.msc',
+                switches: [
+                    { flag: '(keine)', desc: 'Zertifikatspeicher des lokalen Computers \u00f6ffnen' },
+                ],
+                examples: [
+                    { cmd: 'certlm.msc', desc: 'Computer-Zertifikate \u00f6ffnen' },
+                ]
+            },
+            linux: null,
+            linuxHint: 'Systemweite Zertifikate: /etc/ssl/certs/, update-ca-certificates, /usr/local/share/ca-certificates/.'
         },
     ];
 

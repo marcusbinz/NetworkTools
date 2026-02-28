@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.0.96 | **Build:** 96 | **Stand:** 2026-02-20
+> **Version:** 5.0.97 | **Build:** 97 | **Stand:** 2026-02-28
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -438,7 +438,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **ID** | `netzwerk-befehle` |
 | **Dateien** | `js/netzwerk-befehle.js`, `css/netzwerk-befehle.css` |
 | **API** | Keine (statische Datenbank) |
-| **Features** | 24 Netzwerk-Befehle mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
+| **Features** | 54 Befehle (25 CLI + 16 CPL + 13 MSC) mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info, Windows), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
 
 ### 5.15 QR-Code Generator (`qr-generator`)
 
@@ -830,4 +830,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-20 | v5.0.96*
+*Letzte Aktualisierung: 2026-02-28 | v5.0.97*
