@@ -1533,7 +1533,7 @@ function init_netzwerk_befehle(container) {
                     <div class="nb-detail">
                         <div class="nb-platforms">
                             ${renderPlatform(cmd.win, 'Windows', WIN_ICON, cmd.winHint)}
-                            ${renderPlatform(cmd.linux, 'Linux', LINUX_ICON, cmd.linuxHint)}
+                            ${cmd.cat !== 'windows' ? renderPlatform(cmd.linux, 'Linux', LINUX_ICON, cmd.linuxHint) : ''}
                         </div>
                     </div>
                 </div>
