@@ -72,11 +72,6 @@ function init_home(container) {
             <div class="home-changelog">${changelogHtml}</div>
         </section>
 
-        <div class="home-footer">
-            <span>${document.getElementById('footer-version')?.textContent || ''}</span>
-            <span class="home-footer-sep">·</span>
-            <span>${t('home.author')}: Dipl.-Ing. Marcus Binz</span>
-        </div>
     `;
 }
 
