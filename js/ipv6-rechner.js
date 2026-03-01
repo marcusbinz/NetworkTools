@@ -1,10 +1,94 @@
 // === IPv6-Rechner Tool ===
 
 function init_ipv6_rechner(container) {
+    // --- i18n Strings ---
+    I18N.register('v6', {
+        de: {
+            'label':        'IPv6-Adresse',
+            'prefixLabel':  'Prefix-L\u00e4nge',
+            'examples':     'Beispiele',
+            'exSample':     'Beispiel',
+            'exLinkLocal':  'Link-Local',
+            'exLoopback':   'Loopback',
+            'exDoc':        'Doku',
+            'resultTitle':  'IPv6 Ergebnis',
+            'formats':      'Formate',
+            'binary':       'Bin\u00e4rdarstellung',
+            'type':         'Typ',
+            'network':      'Netzwerk',
+            'firstAddr':    'Erste Adresse',
+            'lastAddr':     'Letzte Adresse',
+            'prefixLen':    'Prefix-L\u00e4nge',
+            'subnetSize':   'Adressen im Subnetz',
+            'expanded':     'Voll expandiert',
+            'compressed':   'Komprimiert',
+            'errPrefix':    'Prefix muss zwischen 0 und 128 liegen.',
+            'errInvalid':   'Ung\u00fcltige IPv6-Adresse. Beispiel: 2001:db8::1/64',
+            // IPv6 Typen
+            'tLoopback':    'Loopback',
+            'tUnspecified': 'Unspecified',
+            'tLinkLocal':   'Link-Local',
+            'tUniqueLocal': 'Unique Local',
+            'tMulticast':   'Multicast',
+            'tGlobal':      'Global Unicast',
+            'tDoc':         'Dokumentation',
+            'tReserved':    'Reserviert',
+            // IPv6 Typ-Beschreibungen
+            'dLoopback':    '::1 \u2014 Lokale Loopback-Adresse',
+            'dUnspecified': ':: \u2014 Nicht spezifizierte Adresse',
+            'dLinkLocal':   'fe80::/10 \u2014 Nur im lokalen Netzwerk g\u00fcltig',
+            'dUniqueLocal7':'fc00::/7 \u2014 Privates Netzwerk (wie IPv4 RFC1918)',
+            'dUniqueLocal8':'fd00::/8 \u2014 Privates Netzwerk (lokal generiert)',
+            'dMulticast':   'ff00::/8 \u2014 Multicast-Adresse',
+            'dGlobal':      '2000::/3 \u2014 \u00d6ffentlich routbar (Internet)',
+            'dDoc':         '2001:db8::/32 \u2014 Nur f\u00fcr Dokumentation',
+            'dReserved':    'Reservierter Adressbereich',
+        },
+        en: {
+            'label':        'IPv6 Address',
+            'prefixLabel':  'Prefix Length',
+            'examples':     'Examples',
+            'exSample':     'Example',
+            'exLinkLocal':  'Link-Local',
+            'exLoopback':   'Loopback',
+            'exDoc':        'Docs',
+            'resultTitle':  'IPv6 Result',
+            'formats':      'Formats',
+            'binary':       'Binary Representation',
+            'type':         'Type',
+            'network':      'Network',
+            'firstAddr':    'First Address',
+            'lastAddr':     'Last Address',
+            'prefixLen':    'Prefix Length',
+            'subnetSize':   'Addresses in Subnet',
+            'expanded':     'Fully Expanded',
+            'compressed':   'Compressed',
+            'errPrefix':    'Prefix must be between 0 and 128.',
+            'errInvalid':   'Invalid IPv6 address. Example: 2001:db8::1/64',
+            'tLoopback':    'Loopback',
+            'tUnspecified': 'Unspecified',
+            'tLinkLocal':   'Link-Local',
+            'tUniqueLocal': 'Unique Local',
+            'tMulticast':   'Multicast',
+            'tGlobal':      'Global Unicast',
+            'tDoc':         'Documentation',
+            'tReserved':    'Reserved',
+            'dLoopback':    '::1 \u2014 Local loopback address',
+            'dUnspecified': ':: \u2014 Unspecified address',
+            'dLinkLocal':   'fe80::/10 \u2014 Valid only on local network',
+            'dUniqueLocal7':'fc00::/7 \u2014 Private network (like IPv4 RFC1918)',
+            'dUniqueLocal8':'fd00::/8 \u2014 Private network (locally generated)',
+            'dMulticast':   'ff00::/8 \u2014 Multicast address',
+            'dGlobal':      '2000::/3 \u2014 Publicly routable (Internet)',
+            'dDoc':         '2001:db8::/32 \u2014 Documentation only',
+            'dReserved':    'Reserved address range',
+        }
+    });
+
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card v6-input-card">
-            <label for="v6-input">IPv6-Adresse</label>
+            <label for="v6-input">${t('v6.label')}</label>
             <div class="v6-input-row">
                 <input type="text" id="v6-input" placeholder="2001:db8::1/64" autocomplete="off" spellcheck="false">
                 <button class="v6-calc-btn" id="v6-calc-btn">
@@ -12,7 +96,7 @@ function init_ipv6_rechner(container) {
                 </button>
             </div>
 
-            <label class="v6-prefix-label">Prefix-Länge</label>
+            <label class="v6-prefix-label">${t('v6.prefixLabel')}</label>
             <div class="v6-prefix-chips" id="v6-prefix-chips">
                 <span class="chip v6-prefix-chip" data-prefix="32">/32</span>
                 <span class="chip v6-prefix-chip" data-prefix="48">/48</span>
@@ -20,18 +104,18 @@ function init_ipv6_rechner(container) {
                 <span class="chip v6-prefix-chip" data-prefix="128">/128</span>
             </div>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('v6.examples')}</label>
             <div class="quick-examples v6-examples">
-                <span class="chip" data-addr="2001:0db8:85a3::8a2e:0370:7334/64">Beispiel</span>
-                <span class="chip" data-addr="fe80::1/10">Link-Local</span>
-                <span class="chip" data-addr="::1/128">Loopback</span>
-                <span class="chip" data-addr="2001:db8::/32">Doku</span>
+                <span class="chip" data-addr="2001:0db8:85a3::8a2e:0370:7334/64">${t('v6.exSample')}</span>
+                <span class="chip" data-addr="fe80::1/10">${t('v6.exLinkLocal')}</span>
+                <span class="chip" data-addr="::1/128">${t('v6.exLoopback')}</span>
+                <span class="chip" data-addr="2001:db8::/32">${t('v6.exDoc')}</span>
             </div>
         </section>
 
         <section class="card v6-result-card" id="v6-result-card" style="display:none;">
             <div class="v6-result-header">
-                <h3 id="v6-result-title">IPv6 Ergebnis</h3>
+                <h3 id="v6-result-title">${t('v6.resultTitle')}</h3>
                 <span class="v6-type-badge" id="v6-type-badge"></span>
             </div>
 
@@ -39,13 +123,13 @@ function init_ipv6_rechner(container) {
 
             <!-- Expanded / Compressed -->
             <div class="v6-format-section" id="v6-format-section">
-                <h4 class="v6-section-title">Formate</h4>
+                <h4 class="v6-section-title">${t('v6.formats')}</h4>
                 <div id="v6-formats"></div>
             </div>
 
             <!-- Binary -->
             <div class="v6-binary-section" id="v6-binary-section">
-                <h4 class="v6-section-title">Binärdarstellung</h4>
+                <h4 class="v6-section-title">${t('v6.binary')}</h4>
                 <div class="v6-binary-grid" id="v6-binary-grid"></div>
             </div>
         </section>
@@ -156,15 +240,15 @@ function init_ipv6_rechner(container) {
         const full = groups.join(':');
         const binary = groupsToBinary(groups);
 
-        if (full === '0000:0000:0000:0000:0000:0000:0000:0001') return { type: 'Loopback', color: 'var(--purple)', desc: '::1 — Lokale Loopback-Adresse' };
-        if (full === '0000:0000:0000:0000:0000:0000:0000:0000') return { type: 'Unspecified', color: 'var(--text-dim)', desc: ':: — Nicht spezifizierte Adresse' };
-        if (binary.startsWith('11111110 10'.replace(/ /g, ''))) return { type: 'Link-Local', color: 'var(--orange)', desc: 'fe80::/10 — Nur im lokalen Netzwerk gültig' };
-        if (binary.startsWith('11111100')) return { type: 'Unique Local', color: 'var(--orange)', desc: 'fc00::/7 — Privates Netzwerk (wie IPv4 RFC1918)' };
-        if (binary.startsWith('11111101')) return { type: 'Unique Local', color: 'var(--orange)', desc: 'fd00::/8 — Privates Netzwerk (lokal generiert)' };
-        if (binary.startsWith('11111111')) return { type: 'Multicast', color: 'var(--red)', desc: 'ff00::/8 — Multicast-Adresse' };
-        if (binary.startsWith('001')) return { type: 'Global Unicast', color: 'var(--green)', desc: '2000::/3 — Öffentlich routbar (Internet)' };
-        if (groups[0] === '2001' && groups[1] === '0db8') return { type: 'Dokumentation', color: 'var(--text-dim)', desc: '2001:db8::/32 — Nur für Dokumentation' };
-        return { type: 'Reserviert', color: 'var(--text-dim)', desc: 'Reservierter Adressbereich' };
+        if (full === '0000:0000:0000:0000:0000:0000:0000:0001') return { type: t('v6.tLoopback'), color: 'var(--purple)', desc: t('v6.dLoopback') };
+        if (full === '0000:0000:0000:0000:0000:0000:0000:0000') return { type: t('v6.tUnspecified'), color: 'var(--text-dim)', desc: t('v6.dUnspecified') };
+        if (binary.startsWith('11111110 10'.replace(/ /g, ''))) return { type: t('v6.tLinkLocal'), color: 'var(--orange)', desc: t('v6.dLinkLocal') };
+        if (binary.startsWith('11111100')) return { type: t('v6.tUniqueLocal'), color: 'var(--orange)', desc: t('v6.dUniqueLocal7') };
+        if (binary.startsWith('11111101')) return { type: t('v6.tUniqueLocal'), color: 'var(--orange)', desc: t('v6.dUniqueLocal8') };
+        if (binary.startsWith('11111111')) return { type: t('v6.tMulticast'), color: 'var(--red)', desc: t('v6.dMulticast') };
+        if (binary.startsWith('001')) return { type: t('v6.tGlobal'), color: 'var(--green)', desc: t('v6.dGlobal') };
+        if (groups[0] === '2001' && groups[1] === '0db8') return { type: t('v6.tDoc'), color: 'var(--text-dim)', desc: t('v6.dDoc') };
+        return { type: t('v6.tReserved'), color: 'var(--text-dim)', desc: t('v6.dReserved') };
     }
 
     // Calculate network address
@@ -197,9 +281,10 @@ function init_ipv6_rechner(container) {
 
     // Count addresses in subnet
     function getSubnetSize(prefix) {
+        const loc = I18N.getLang() === 'de' ? 'de-DE' : 'en-US';
         const hostBits = 128 - prefix;
         if (hostBits === 0) return '1';
-        if (hostBits <= 53) return Math.pow(2, hostBits).toLocaleString('de-DE');
+        if (hostBits <= 53) return Math.pow(2, hostBits).toLocaleString(loc);
         // For very large numbers use exponential notation
         return `2^${hostBits}`;
     }
@@ -215,7 +300,7 @@ function init_ipv6_rechner(container) {
         if (prefixMatch) {
             prefix = parseInt(prefixMatch[1]);
             if (prefix < 0 || prefix > 128) {
-                showError('Prefix muss zwischen 0 und 128 liegen.');
+                showError(t('v6.errPrefix'));
                 return;
             }
         }
@@ -223,7 +308,7 @@ function init_ipv6_rechner(container) {
         // Parse address
         const groups = expandIPv6(input);
         if (!groups) {
-            showError('Ungültige IPv6-Adresse. Beispiel: 2001:db8::1/64');
+            showError(t('v6.errInvalid'));
             return;
         }
 
@@ -246,27 +331,27 @@ function init_ipv6_rechner(container) {
         const grid = document.getElementById('v6-results-grid');
         grid.innerHTML = `
             <div class="result-item full-width">
-                <span class="result-label">Typ</span>
+                <span class="result-label">${t('v6.type')}</span>
                 <span class="result-value" style="font-size:13px; color:var(--text-dim)">${typeInfo.desc}</span>
             </div>
             <div class="result-item full-width">
-                <span class="result-label">Netzwerk</span>
+                <span class="result-label">${t('v6.network')}</span>
                 <span class="result-value">${compressIPv6(networkGroups)}/${prefix}</span>
             </div>
             <div class="result-item full-width">
-                <span class="result-label">Erste Adresse</span>
+                <span class="result-label">${t('v6.firstAddr')}</span>
                 <span class="result-value">${compressIPv6(firstGroups)}</span>
             </div>
             <div class="result-item full-width">
-                <span class="result-label">Letzte Adresse</span>
+                <span class="result-label">${t('v6.lastAddr')}</span>
                 <span class="result-value">${compressIPv6(lastGroups)}</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Prefix-Länge</span>
+                <span class="result-label">${t('v6.prefixLen')}</span>
                 <span class="result-value">/${prefix}</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Adressen im Subnetz</span>
+                <span class="result-label">${t('v6.subnetSize')}</span>
                 <span class="result-value">${getSubnetSize(prefix)}</span>
             </div>
         `;
@@ -275,11 +360,11 @@ function init_ipv6_rechner(container) {
         const formats = document.getElementById('v6-formats');
         formats.innerHTML = `
             <div class="v6-format-block">
-                <span class="v6-format-label">Voll expandiert</span>
+                <span class="v6-format-label">${t('v6.expanded')}</span>
                 <span class="v6-format-value">${groups.join(':')}</span>
             </div>
             <div class="v6-format-block">
-                <span class="v6-format-label">Komprimiert</span>
+                <span class="v6-format-label">${t('v6.compressed')}</span>
                 <span class="v6-format-value">${compressIPv6(groups)}</span>
             </div>
         `;

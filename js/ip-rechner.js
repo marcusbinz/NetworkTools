@@ -3,26 +3,160 @@
 let _ipRechnerGeoAbort = null;
 
 function init_ip_rechner(container) {
+    // --- i18n Strings ---
+    I18N.register('ip', {
+        de: {
+            'label':        'IP-Adresse',
+            'cidrLabel':    'Subnetzmaske / CIDR',
+            'myIp':         'Meine IP-Adresse',
+            'myIpLoading':  'Ermittle...',
+            'myIpV6Only':   'Nur IPv6 verf\u00fcgbar \u2014 IPv4 nicht gefunden',
+            'myIpError':    'Fehler \u2014 nochmal versuchen',
+            'examples':     'Beispiele',
+            'ex24':         '/24 Heim',
+            'exA':          'Klasse A',
+            'exB':          'Klasse B priv.',
+            'exDns':        'Google DNS',
+            'network':      'Netzadresse',
+            'broadcast':    'Broadcast',
+            'firstHost':    'Erster Host',
+            'lastHost':     'Letzter Host',
+            'hostCount':    'Anzahl Hosts',
+            'subnetMask':   'Subnetzmaske',
+            'wildcard':     'Wildcard-Maske',
+            'ipClass':      'IP-Klasse',
+            'binary':       'Bin\u00e4rdarstellung',
+            'binIp':        'IP',
+            'binMask':      'Maske',
+            'binNet':       'Netz',
+            'vizTitle':     'Subnetz-Visualisierung',
+            'vizNet':       'Netz',
+            'vizFirst':     '1. Host',
+            'vizHosts':     'Hosts',
+            'vizLast':      'Letzter',
+            'vizBc':        'BC',
+            'vizLegNet':    'Netzadresse',
+            'vizLegHosts':  'Nutzbare Hosts',
+            'vizLegBc':     'Broadcast',
+            'vizBits':      '32 Bits',
+            'vizNetBits':   'Netz-Bits',
+            'vizHostBits':  'Host-Bits',
+            'geoTitle':     'Standort',
+            'geoLoading':   'Suche...',
+            'geoCountry':   'Land',
+            'geoRegion':    'Region',
+            'geoCity':      'Stadt',
+            'geoZip':       'Postleitzahl',
+            'geoTimezone':  'Zeitzone',
+            'geoIsp':       'ISP',
+            'geoCoords':    'Koordinaten',
+            'geoMap':       'Auf Karte anzeigen',
+            'geoError':     'Standort konnte nicht ermittelt werden: {msg}',
+            'geoUnknown':   'Unbekannter Fehler',
+            'invalidIp':    'Ung\u00fcltige IP-Adresse. Format: x.x.x.x (0-255)',
+            'hosts':        'Hosts',
+            'class':        'Klasse {cls}',
+            'private':      'Privat (RFC 1918)',
+            'loopback':     'Loopback',
+            'currentNet':   'Aktuelles Netz',
+            'linkLocal':    'Link-Local (APIPA)',
+            'multicast':    'Multicast',
+            'reserved':     'Reserviert',
+            'carrierNat':   'Carrier-Grade NAT',
+            'ietf':         'IETF Protokoll',
+            'benchmark':    'Benchmark-Tests',
+            'documentation':'Dokumentation',
+            'public':       '\u00d6ffentlich',
+            'routable':     'Internet-routbar',
+        },
+        en: {
+            'label':        'IP Address',
+            'cidrLabel':    'Subnet Mask / CIDR',
+            'myIp':         'My IP Address',
+            'myIpLoading':  'Detecting...',
+            'myIpV6Only':   'IPv6 only \u2014 IPv4 not found',
+            'myIpError':    'Error \u2014 try again',
+            'examples':     'Examples',
+            'ex24':         '/24 Home',
+            'exA':          'Class A',
+            'exB':          'Class B priv.',
+            'exDns':        'Google DNS',
+            'network':      'Network Address',
+            'broadcast':    'Broadcast',
+            'firstHost':    'First Host',
+            'lastHost':     'Last Host',
+            'hostCount':    'Host Count',
+            'subnetMask':   'Subnet Mask',
+            'wildcard':     'Wildcard Mask',
+            'ipClass':      'IP Class',
+            'binary':       'Binary Representation',
+            'binIp':        'IP',
+            'binMask':      'Mask',
+            'binNet':       'Net',
+            'vizTitle':     'Subnet Visualization',
+            'vizNet':       'Net',
+            'vizFirst':     '1st Host',
+            'vizHosts':     'Hosts',
+            'vizLast':      'Last',
+            'vizBc':        'BC',
+            'vizLegNet':    'Network Address',
+            'vizLegHosts':  'Usable Hosts',
+            'vizLegBc':     'Broadcast',
+            'vizBits':      '32 Bits',
+            'vizNetBits':   'Net Bits',
+            'vizHostBits':  'Host Bits',
+            'geoTitle':     'Location',
+            'geoLoading':   'Searching...',
+            'geoCountry':   'Country',
+            'geoRegion':    'Region',
+            'geoCity':      'City',
+            'geoZip':       'Postal Code',
+            'geoTimezone':  'Timezone',
+            'geoIsp':       'ISP',
+            'geoCoords':    'Coordinates',
+            'geoMap':       'Show on map',
+            'geoError':     'Could not determine location: {msg}',
+            'geoUnknown':   'Unknown error',
+            'invalidIp':    'Invalid IP address. Format: x.x.x.x (0-255)',
+            'hosts':        'Hosts',
+            'class':        'Class {cls}',
+            'private':      'Private (RFC 1918)',
+            'loopback':     'Loopback',
+            'currentNet':   'Current Network',
+            'linkLocal':    'Link-Local (APIPA)',
+            'multicast':    'Multicast',
+            'reserved':     'Reserved',
+            'carrierNat':   'Carrier-Grade NAT',
+            'ietf':         'IETF Protocol',
+            'benchmark':    'Benchmark Tests',
+            'documentation':'Documentation',
+            'public':       'Public',
+            'routable':     'Internet-routable',
+        }
+    });
+
+    const loc = I18N.getLang() === 'de' ? 'de-DE' : 'en-US';
+
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card input-card">
-            <label for="ip-input">IP-Adresse</label>
+            <label for="ip-input">${t('ip.label')}</label>
             <input type="text" id="ip-input" inputmode="decimal" placeholder="192.168.1.0" autocomplete="off">
 
-            <label for="cidr-select">Subnetzmaske / CIDR</label>
+            <label for="cidr-select">${t('ip.cidrLabel')}</label>
             <select id="cidr-select"></select>
 
             <button class="my-ip-btn" id="my-ip-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Meine IP-Adresse
+                ${t('ip.myIp')}
             </button>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('ip.examples')}</label>
             <div class="quick-examples">
-                <span class="chip" data-ip="192.168.1.0" data-cidr="24">/24 Heim</span>
-                <span class="chip" data-ip="10.0.0.0" data-cidr="8">Klasse A</span>
-                <span class="chip" data-ip="172.16.0.0" data-cidr="12">Klasse B priv.</span>
-                <span class="chip" data-ip="8.8.8.0" data-cidr="24">Google DNS</span>
+                <span class="chip" data-ip="192.168.1.0" data-cidr="24">${t('ip.ex24')}</span>
+                <span class="chip" data-ip="10.0.0.0" data-cidr="8">${t('ip.exA')}</span>
+                <span class="chip" data-ip="172.16.0.0" data-cidr="12">${t('ip.exB')}</span>
+                <span class="chip" data-ip="8.8.8.0" data-cidr="24">${t('ip.exDns')}</span>
             </div>
         </section>
 
@@ -30,64 +164,64 @@ function init_ip_rechner(container) {
             <div class="ip-type-badge" id="ip-type-badge"></div>
             <div class="result-grid">
                 <div class="result-item">
-                    <span class="result-label">Netzadresse</span>
+                    <span class="result-label">${t('ip.network')}</span>
                     <span class="result-value" id="res-network"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Broadcast</span>
+                    <span class="result-label">${t('ip.broadcast')}</span>
                     <span class="result-value" id="res-broadcast"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Erster Host</span>
+                    <span class="result-label">${t('ip.firstHost')}</span>
                     <span class="result-value" id="res-first-host"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Letzter Host</span>
+                    <span class="result-label">${t('ip.lastHost')}</span>
                     <span class="result-value" id="res-last-host"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Anzahl Hosts</span>
+                    <span class="result-label">${t('ip.hostCount')}</span>
                     <span class="result-value" id="res-host-count"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Subnetzmaske</span>
+                    <span class="result-label">${t('ip.subnetMask')}</span>
                     <span class="result-value" id="res-subnet-mask"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">Wildcard-Maske</span>
+                    <span class="result-label">${t('ip.wildcard')}</span>
                     <span class="result-value" id="res-wildcard"></span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">IP-Klasse</span>
+                    <span class="result-label">${t('ip.ipClass')}</span>
                     <span class="result-value" id="res-class"></span>
                 </div>
             </div>
             <div class="binary-section">
-                <h3>Binärdarstellung</h3>
+                <h3>${t('ip.binary')}</h3>
                 <div class="binary-row">
-                    <span class="binary-label">IP</span>
+                    <span class="binary-label">${t('ip.binIp')}</span>
                     <span class="binary-value" id="bin-ip"></span>
                 </div>
                 <div class="binary-row">
-                    <span class="binary-label">Maske</span>
+                    <span class="binary-label">${t('ip.binMask')}</span>
                     <span class="binary-value" id="bin-mask"></span>
                 </div>
                 <div class="binary-row">
-                    <span class="binary-label">Netz</span>
+                    <span class="binary-label">${t('ip.binNet')}</span>
                     <span class="binary-value" id="bin-network"></span>
                 </div>
             </div>
         </section>
 
         <section class="card viz-card" id="viz-card" style="display:none;">
-            <h3 class="viz-title">Subnetz-Visualisierung</h3>
+            <h3 class="viz-title">${t('ip.vizTitle')}</h3>
             <div class="viz-bar-container">
                 <div class="viz-bar">
-                    <div class="viz-segment viz-net" id="viz-net"><span class="viz-seg-label">Netz</span></div>
-                    <div class="viz-segment viz-first" id="viz-first"><span class="viz-seg-label">1. Host</span></div>
-                    <div class="viz-segment viz-hosts" id="viz-hosts"><span class="viz-seg-label" id="viz-hosts-label">Hosts</span></div>
-                    <div class="viz-segment viz-last" id="viz-last"><span class="viz-seg-label">Letzter</span></div>
-                    <div class="viz-segment viz-broadcast" id="viz-broadcast"><span class="viz-seg-label">BC</span></div>
+                    <div class="viz-segment viz-net" id="viz-net"><span class="viz-seg-label">${t('ip.vizNet')}</span></div>
+                    <div class="viz-segment viz-first" id="viz-first"><span class="viz-seg-label">${t('ip.vizFirst')}</span></div>
+                    <div class="viz-segment viz-hosts" id="viz-hosts"><span class="viz-seg-label" id="viz-hosts-label">${t('ip.vizHosts')}</span></div>
+                    <div class="viz-segment viz-last" id="viz-last"><span class="viz-seg-label">${t('ip.vizLast')}</span></div>
+                    <div class="viz-segment viz-broadcast" id="viz-broadcast"><span class="viz-seg-label">${t('ip.vizBc')}</span></div>
                 </div>
             </div>
             <div class="viz-addresses">
@@ -95,61 +229,61 @@ function init_ip_rechner(container) {
                 <span class="viz-addr" id="viz-addr-end"></span>
             </div>
             <div class="viz-legend">
-                <span class="viz-legend-item"><span class="viz-dot viz-dot-net"></span>Netzadresse</span>
-                <span class="viz-legend-item"><span class="viz-dot viz-dot-hosts"></span>Nutzbare Hosts</span>
-                <span class="viz-legend-item"><span class="viz-dot viz-dot-bc"></span>Broadcast</span>
+                <span class="viz-legend-item"><span class="viz-dot viz-dot-net"></span>${t('ip.vizLegNet')}</span>
+                <span class="viz-legend-item"><span class="viz-dot viz-dot-hosts"></span>${t('ip.vizLegHosts')}</span>
+                <span class="viz-legend-item"><span class="viz-dot viz-dot-bc"></span>${t('ip.vizLegBc')}</span>
             </div>
             <div class="viz-bits-section">
-                <div class="viz-bits-label">32 Bits</div>
+                <div class="viz-bits-label">${t('ip.vizBits')}</div>
                 <div class="viz-bits-bar">
                     <div class="viz-bits-net" id="viz-bits-net"><span id="viz-bits-net-label"></span></div>
                     <div class="viz-bits-host" id="viz-bits-host"><span id="viz-bits-host-label"></span></div>
                 </div>
                 <div class="viz-bits-labels">
-                    <span>Netz-Bits</span>
-                    <span>Host-Bits</span>
+                    <span>${t('ip.vizNetBits')}</span>
+                    <span>${t('ip.vizHostBits')}</span>
                 </div>
             </div>
         </section>
 
         <section class="card geo-card" id="geo-card" style="display:none;">
             <div class="geo-header">
-                <h3>Standort</h3>
-                <span class="geo-loading" id="geo-loading">Suche...</span>
+                <h3>${t('ip.geoTitle')}</h3>
+                <span class="geo-loading" id="geo-loading">${t('ip.geoLoading')}</span>
             </div>
             <div class="geo-content" id="geo-content">
                 <div class="geo-flag" id="geo-flag"></div>
                 <div class="result-grid">
                     <div class="result-item">
-                        <span class="result-label">Land</span>
+                        <span class="result-label">${t('ip.geoCountry')}</span>
                         <span class="result-value" id="geo-country"></span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">Region</span>
+                        <span class="result-label">${t('ip.geoRegion')}</span>
                         <span class="result-value" id="geo-region"></span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">Stadt</span>
+                        <span class="result-label">${t('ip.geoCity')}</span>
                         <span class="result-value" id="geo-city"></span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">Postleitzahl</span>
+                        <span class="result-label">${t('ip.geoZip')}</span>
                         <span class="result-value" id="geo-zip"></span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">Zeitzone</span>
+                        <span class="result-label">${t('ip.geoTimezone')}</span>
                         <span class="result-value" id="geo-timezone"></span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label">ISP</span>
+                        <span class="result-label">${t('ip.geoIsp')}</span>
                         <span class="result-value" id="geo-isp"></span>
                     </div>
                     <div class="result-item full-width">
-                        <span class="result-label">Koordinaten</span>
+                        <span class="result-label">${t('ip.geoCoords')}</span>
                         <span class="result-value" id="geo-coords"></span>
                     </div>
                 </div>
-                <a class="map-link" id="geo-map-link" href="#" target="_blank" rel="noopener">Auf Karte anzeigen</a>
+                <a class="map-link" id="geo-map-link" href="#" target="_blank" rel="noopener">${t('ip.geoMap')}</a>
             </div>
             <div class="geo-error" id="geo-error" style="display:none;">
                 <p id="geo-error-msg"></p>
@@ -183,7 +317,7 @@ function init_ip_rechner(container) {
             const hosts = i <= 30 ? (Math.pow(2, 32 - i) - 2) : (i === 31 ? 2 : 1);
             const opt = document.createElement('option');
             opt.value = i;
-            opt.textContent = `/${i}  —  ${mask}  —  ${hosts.toLocaleString('de-DE')} Hosts`;
+            opt.textContent = `/${i}  \u2014  ${mask}  \u2014  ${hosts.toLocaleString(loc)} ${t('ip.hosts')}`;
             if (i === 24) opt.selected = true;
             cidrSelect.appendChild(opt);
         }
@@ -228,23 +362,23 @@ function init_ip_rechner(container) {
         const first = (ipInt >>> 24) & 255;
         const second = (ipInt >>> 16) & 255;
 
-        if (first === 10) return { type: 'private', label: 'Privat (RFC 1918)', detail: '10.0.0.0/8' };
-        if (first === 172 && second >= 16 && second <= 31) return { type: 'private', label: 'Privat (RFC 1918)', detail: '172.16.0.0/12' };
-        if (first === 192 && second === 168) return { type: 'private', label: 'Privat (RFC 1918)', detail: '192.168.0.0/16' };
+        if (first === 10) return { type: 'private', label: t('ip.private'), detail: '10.0.0.0/8' };
+        if (first === 172 && second >= 16 && second <= 31) return { type: 'private', label: t('ip.private'), detail: '172.16.0.0/12' };
+        if (first === 192 && second === 168) return { type: 'private', label: t('ip.private'), detail: '192.168.0.0/16' };
 
-        if (first === 127) return { type: 'special', label: 'Loopback', detail: '127.0.0.0/8' };
-        if (first === 0) return { type: 'special', label: 'Aktuelles Netz', detail: '0.0.0.0/8' };
-        if (first === 169 && second === 254) return { type: 'special', label: 'Link-Local (APIPA)', detail: '169.254.0.0/16' };
-        if (first >= 224 && first <= 239) return { type: 'special', label: 'Multicast', detail: '224.0.0.0/4' };
-        if (first >= 240) return { type: 'special', label: 'Reserviert', detail: '240.0.0.0/4' };
-        if (first === 100 && second >= 64 && second <= 127) return { type: 'special', label: 'Carrier-Grade NAT', detail: '100.64.0.0/10' };
-        if (first === 192 && second === 0 && ((ipInt >>> 8) & 255) === 0) return { type: 'special', label: 'IETF Protokoll', detail: '192.0.0.0/24' };
-        if (first === 198 && (second === 18 || second === 19)) return { type: 'special', label: 'Benchmark-Tests', detail: '198.18.0.0/15' };
-        if (first === 192 && second === 0 && ((ipInt >>> 8) & 255) === 2) return { type: 'special', label: 'Dokumentation', detail: '192.0.2.0/24' };
-        if (first === 198 && second === 51 && ((ipInt >>> 8) & 255) === 100) return { type: 'special', label: 'Dokumentation', detail: '198.51.100.0/24' };
-        if (first === 203 && second === 0 && ((ipInt >>> 8) & 255) === 113) return { type: 'special', label: 'Dokumentation', detail: '203.0.113.0/24' };
+        if (first === 127) return { type: 'special', label: t('ip.loopback'), detail: '127.0.0.0/8' };
+        if (first === 0) return { type: 'special', label: t('ip.currentNet'), detail: '0.0.0.0/8' };
+        if (first === 169 && second === 254) return { type: 'special', label: t('ip.linkLocal'), detail: '169.254.0.0/16' };
+        if (first >= 224 && first <= 239) return { type: 'special', label: t('ip.multicast'), detail: '224.0.0.0/4' };
+        if (first >= 240) return { type: 'special', label: t('ip.reserved'), detail: '240.0.0.0/4' };
+        if (first === 100 && second >= 64 && second <= 127) return { type: 'special', label: t('ip.carrierNat'), detail: '100.64.0.0/10' };
+        if (first === 192 && second === 0 && ((ipInt >>> 8) & 255) === 0) return { type: 'special', label: t('ip.ietf'), detail: '192.0.0.0/24' };
+        if (first === 198 && (second === 18 || second === 19)) return { type: 'special', label: t('ip.benchmark'), detail: '198.18.0.0/15' };
+        if (first === 192 && second === 0 && ((ipInt >>> 8) & 255) === 2) return { type: 'special', label: t('ip.documentation'), detail: '192.0.2.0/24' };
+        if (first === 198 && second === 51 && ((ipInt >>> 8) & 255) === 100) return { type: 'special', label: t('ip.documentation'), detail: '198.51.100.0/24' };
+        if (first === 203 && second === 0 && ((ipInt >>> 8) & 255) === 113) return { type: 'special', label: t('ip.documentation'), detail: '203.0.113.0/24' };
 
-        return { type: 'public', label: 'Öffentlich', detail: 'Internet-routbar' };
+        return { type: 'public', label: t('ip.public'), detail: t('ip.routable') };
     }
 
     function getIPClass(ipInt) {
@@ -252,8 +386,8 @@ function init_ip_rechner(container) {
         if (first <= 127) return 'A';
         if (first <= 191) return 'B';
         if (first <= 223) return 'C';
-        if (first <= 239) return 'D (Multicast)';
-        return 'E (Reserviert)';
+        if (first <= 239) return 'D (' + t('ip.multicast') + ')';
+        return 'E (' + t('ip.reserved') + ')';
     }
 
     // --- Binary with coloring ---
@@ -286,7 +420,7 @@ function init_ip_rechner(container) {
         }
 
         if (!validateIP(ip)) {
-            errorMsg.textContent = 'Ungültige IP-Adresse. Format: x.x.x.x (0-255)';
+            errorMsg.textContent = t('ip.invalidIp');
             errorCard.style.display = 'block';
             document.getElementById('viz-card').style.display = 'none';
             geoCard.style.display = 'none';
@@ -317,14 +451,14 @@ function init_ip_rechner(container) {
         document.getElementById('res-broadcast').textContent = intToIP(broadcastInt);
         document.getElementById('res-first-host').textContent = firstHost;
         document.getElementById('res-last-host').textContent = lastHost;
-        document.getElementById('res-host-count').textContent = hostCount.toLocaleString('de-DE');
+        document.getElementById('res-host-count').textContent = hostCount.toLocaleString(loc);
         document.getElementById('res-subnet-mask').textContent = intToIP(maskInt);
         document.getElementById('res-wildcard').textContent = intToIP(wildcardInt);
-        document.getElementById('res-class').textContent = `Klasse ${ipClass}`;
+        document.getElementById('res-class').textContent = t('ip.class', { cls: ipClass });
 
         const badge = document.getElementById('ip-type-badge');
         badge.className = `ip-type-badge ${classification.type}`;
-        badge.textContent = `${classification.label} — ${classification.detail}`;
+        badge.textContent = `${classification.label} \u2014 ${classification.detail}`;
 
         document.getElementById('bin-ip').innerHTML = formatBinary(ipInt, cidr);
         document.getElementById('bin-mask').innerHTML = formatBinary(maskInt, cidr);
@@ -358,7 +492,7 @@ function init_ip_rechner(container) {
         document.getElementById('viz-last').style.width = `${Math.max(lastPct, 5)}%`;
         document.getElementById('viz-broadcast').style.width = `${Math.max(bcPct, 3)}%`;
 
-        document.getElementById('viz-hosts-label').textContent = `${hostCount.toLocaleString('de-DE')} Hosts`;
+        document.getElementById('viz-hosts-label').textContent = `${hostCount.toLocaleString(loc)} ${t('ip.hosts')}`;
         document.getElementById('viz-addr-start').textContent = intToIP(networkInt);
         document.getElementById('viz-addr-end').textContent = intToIP(broadcastInt);
 
@@ -394,7 +528,7 @@ function init_ip_rechner(container) {
                 return res.json();
             })
             .then(data => {
-                if (data.error) throw new Error(data.reason || 'Unbekannter Fehler');
+                if (data.error) throw new Error(data.reason || t('ip.geoUnknown'));
 
                 geoLoading.style.display = 'none';
                 geoContent.style.display = 'block';
@@ -403,12 +537,12 @@ function init_ip_rechner(container) {
                     ? String.fromCodePoint(...[...data.country_code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65))
                     : '';
                 document.getElementById('geo-flag').textContent = flag;
-                document.getElementById('geo-country').textContent = data.country_name || '—';
-                document.getElementById('geo-region').textContent = data.region || '—';
-                document.getElementById('geo-city').textContent = data.city || '—';
-                document.getElementById('geo-zip').textContent = data.postal || '—';
-                document.getElementById('geo-timezone').textContent = data.timezone || '—';
-                document.getElementById('geo-isp').textContent = data.org || '—';
+                document.getElementById('geo-country').textContent = data.country_name || '\u2014';
+                document.getElementById('geo-region').textContent = data.region || '\u2014';
+                document.getElementById('geo-city').textContent = data.city || '\u2014';
+                document.getElementById('geo-zip').textContent = data.postal || '\u2014';
+                document.getElementById('geo-timezone').textContent = data.timezone || '\u2014';
+                document.getElementById('geo-isp').textContent = data.org || '\u2014';
 
                 const lat = data.latitude;
                 const lon = data.longitude;
@@ -418,7 +552,7 @@ function init_ip_rechner(container) {
                     mapLink.href = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(lat)}&mlon=${encodeURIComponent(lon)}#map=12/${encodeURIComponent(lat)}/${encodeURIComponent(lon)}`;
                     mapLink.style.display = 'inline-block';
                 } else {
-                    document.getElementById('geo-coords').textContent = '—';
+                    document.getElementById('geo-coords').textContent = '\u2014';
                     document.getElementById('geo-map-link').style.display = 'none';
                 }
             })
@@ -426,7 +560,7 @@ function init_ip_rechner(container) {
                 if (err.name === 'AbortError') return;
                 geoLoading.style.display = 'none';
                 geoError.style.display = 'block';
-                geoErrorMsg.textContent = `Standort konnte nicht ermittelt werden: ${err.message}`;
+                geoErrorMsg.textContent = t('ip.geoError', { msg: err.message });
             });
     }
 
@@ -488,7 +622,7 @@ function init_ip_rechner(container) {
     // My IP Button
     myIpBtn.addEventListener('click', () => {
         myIpBtn.disabled = true;
-        myIpBtn.textContent = 'Ermittle...';
+        myIpBtn.textContent = t('ip.myIpLoading');
 
         fetch('https://ipapi.co/json/')
             .then(res => res.json())
@@ -507,16 +641,16 @@ function init_ip_rechner(container) {
                     cidrSelect.value = 24;
                     calculate();
                 } else {
-                    myIpBtn.textContent = 'Nur IPv6 verfügbar — IPv4 nicht gefunden';
+                    myIpBtn.textContent = t('ip.myIpV6Only');
                 }
             })
             .catch(() => {
-                myIpBtn.textContent = 'Fehler — nochmal versuchen';
+                myIpBtn.textContent = t('ip.myIpError');
             })
             .finally(() => {
                 setTimeout(() => {
                     myIpBtn.disabled = false;
-                    myIpBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Meine IP-Adresse';
+                    myIpBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ' + t('ip.myIp');
                 }, 1000);
             });
     });
