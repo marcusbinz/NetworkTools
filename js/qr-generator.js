@@ -563,7 +563,7 @@ const QRCode = (() => {
         const data = encoder.encode(text);
 
         const version = selectVersion(data.length);
-        if (version < 0) throw new Error('Daten zu lang fuer QR-Code');
+        if (version < 0) throw new Error('QR_TOO_LONG');
 
         // Encode data + EC
         const dataCodewords = encodeData(data, version);
@@ -636,6 +636,80 @@ const QRCode = (() => {
 // ─── Tool UI ───
 
 function init_qr_generator(container) {
+    // --- i18n Strings ---
+    I18N.register('qr', {
+        de: {
+            modeWifi: 'WLAN',
+            modeEmail: 'E-Mail',
+            examples: 'Beispiele',
+            labelUrl: 'URL',
+            labelText: 'Text',
+            phUrl: 'https://example.com',
+            phText: 'Beliebigen Text eingeben...',
+            exHello: 'Hallo Welt!',
+            exPhone: 'Telefonnummer',
+            exInquiry: 'Beispiel-Anfrage',
+            ssid: 'SSID (Netzwerkname)',
+            encryption: 'Verschlüsselung',
+            encNone: 'Keine',
+            password: 'Passwort',
+            phWifiPass: 'WLAN-Passwort',
+            showPass: 'Passwort anzeigen',
+            hiddenNet: 'Verstecktes Netzwerk',
+            emailAddr: 'E-Mail-Adresse',
+            subject: 'Betreff',
+            phSubject: 'Betreff der E-Mail',
+            message: 'Nachricht',
+            phMessage: 'Nachricht eingeben...',
+            phInqSubject: 'Anfrage',
+            phInqBody: 'Hallo, ich habe eine Frage.',
+            sizeSmall: 'Klein',
+            sizeMedium: 'Mittel',
+            sizeLarge: 'Groß',
+            downloadPng: 'Als PNG',
+            copy: 'Kopieren',
+            copied: 'Kopiert!',
+            info: 'Version {version} \u2022 {size}\u00D7{size} Module \u2022 {bytes} Bytes',
+            errTooLong: 'Daten zu lang für QR-Code.',
+            errGeneric: 'Fehler beim Erstellen des QR-Codes.',
+        },
+        en: {
+            modeWifi: 'WiFi',
+            modeEmail: 'Email',
+            examples: 'Examples',
+            labelUrl: 'URL',
+            labelText: 'Text',
+            phUrl: 'https://example.com',
+            phText: 'Enter any text...',
+            exHello: 'Hello World!',
+            exPhone: 'Phone number',
+            exInquiry: 'Sample inquiry',
+            ssid: 'SSID (Network name)',
+            encryption: 'Encryption',
+            encNone: 'None',
+            password: 'Password',
+            phWifiPass: 'WiFi password',
+            showPass: 'Show password',
+            hiddenNet: 'Hidden network',
+            emailAddr: 'Email address',
+            subject: 'Subject',
+            phSubject: 'Email subject',
+            message: 'Message',
+            phMessage: 'Enter message...',
+            phInqSubject: 'Inquiry',
+            phInqBody: 'Hello, I have a question.',
+            sizeSmall: 'Small',
+            sizeMedium: 'Medium',
+            sizeLarge: 'Large',
+            downloadPng: 'As PNG',
+            copy: 'Copy',
+            copied: 'Copied!',
+            info: 'Version {version} \u2022 {size}\u00D7{size} modules \u2022 {bytes} bytes',
+            errTooLong: 'Data too long for QR code.',
+            errGeneric: 'Error creating QR code.',
+        }
+    });
+    const t = I18N.t;
 
     let currentMode = 'url';
     let currentSize = 300;
@@ -648,13 +722,13 @@ function init_qr_generator(container) {
             <div class="qr-mode-chips" id="qr-mode-chips">
                 <span class="chip qr-mode-chip active" data-mode="url">URL</span>
                 <span class="chip qr-mode-chip" data-mode="text">Text</span>
-                <span class="chip qr-mode-chip" data-mode="wifi">WLAN</span>
-                <span class="chip qr-mode-chip" data-mode="email">E-Mail</span>
+                <span class="chip qr-mode-chip" data-mode="wifi">${t('qr.modeWifi')}</span>
+                <span class="chip qr-mode-chip" data-mode="email">${t('qr.modeEmail')}</span>
             </div>
 
             <div id="qr-form"></div>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('qr.examples')}</label>
             <div class="quick-examples qr-examples" id="qr-examples"></div>
         </section>
 
@@ -664,19 +738,19 @@ function init_qr_generator(container) {
             </div>
 
             <div class="qr-size-chips" id="qr-size-chips">
-                <span class="chip qr-size-chip" data-size="200">Klein</span>
-                <span class="chip qr-size-chip active" data-size="300">Mittel</span>
-                <span class="chip qr-size-chip" data-size="500">Gro\u00DF</span>
+                <span class="chip qr-size-chip" data-size="200">${t('qr.sizeSmall')}</span>
+                <span class="chip qr-size-chip active" data-size="300">${t('qr.sizeMedium')}</span>
+                <span class="chip qr-size-chip" data-size="500">${t('qr.sizeLarge')}</span>
             </div>
 
             <div class="qr-actions">
                 <button class="qr-action-btn primary" id="qr-download-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Als PNG
+                    ${t('qr.downloadPng')}
                 </button>
                 <button class="qr-action-btn" id="qr-copy-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                    Kopieren
+                    ${t('qr.copy')}
                 </button>
             </div>
 
@@ -727,8 +801,8 @@ function init_qr_generator(container) {
         switch (currentMode) {
             case 'url':
                 html = `
-                    <label>URL</label>
-                    <input type="url" class="qr-input" id="qr-url-input" placeholder="https://example.com" autocomplete="off" spellcheck="false">
+                    <label>${t('qr.labelUrl')}</label>
+                    <input type="url" class="qr-input" id="qr-url-input" placeholder="${t('qr.phUrl')}" autocomplete="off" spellcheck="false">
                 `;
                 examples = `
                     <span class="chip" data-val="https://google.com">Google</span>
@@ -739,39 +813,39 @@ function init_qr_generator(container) {
 
             case 'text':
                 html = `
-                    <label>Text</label>
-                    <textarea class="qr-textarea" id="qr-text-input" placeholder="Beliebigen Text eingeben..." rows="4"></textarea>
+                    <label>${t('qr.labelText')}</label>
+                    <textarea class="qr-textarea" id="qr-text-input" placeholder="${t('qr.phText')}" rows="4"></textarea>
                 `;
                 examples = `
-                    <span class="chip" data-val="Hallo Welt!">Hallo Welt!</span>
-                    <span class="chip" data-val="Tel: +49 123 456789">Telefonnummer</span>
+                    <span class="chip" data-val="${t('qr.exHello')}">${t('qr.exHello')}</span>
+                    <span class="chip" data-val="Tel: +49 123 456789">${t('qr.exPhone')}</span>
                 `;
                 break;
 
             case 'wifi':
                 html = `
-                    <label>SSID (Netzwerkname)</label>
+                    <label>${t('qr.ssid')}</label>
                     <input type="text" class="qr-input" id="qr-wifi-ssid" placeholder="MeinWLAN" autocomplete="off" spellcheck="false">
 
-                    <label>Verschl\u00FCsselung</label>
+                    <label>${t('qr.encryption')}</label>
                     <div class="qr-enc-chips" id="qr-enc-chips">
                         <span class="chip qr-enc-chip active" data-enc="WPA">WPA/WPA2</span>
                         <span class="chip qr-enc-chip" data-enc="SAE">WPA3</span>
                         <span class="chip qr-enc-chip" data-enc="WEP">WEP</span>
-                        <span class="chip qr-enc-chip" data-enc="nopass">Keine</span>
+                        <span class="chip qr-enc-chip" data-enc="nopass">${t('qr.encNone')}</span>
                     </div>
 
-                    <label>Passwort</label>
+                    <label>${t('qr.password')}</label>
                     <div class="qr-password-row">
-                        <input type="password" class="qr-input" id="qr-wifi-pass" placeholder="WLAN-Passwort" autocomplete="off">
-                        <button class="qr-toggle-vis" id="qr-toggle-vis" type="button" title="Passwort anzeigen">
+                        <input type="password" class="qr-input" id="qr-wifi-pass" placeholder="${t('qr.phWifiPass')}" autocomplete="off">
+                        <button class="qr-toggle-vis" id="qr-toggle-vis" type="button" title="${t('qr.showPass')}">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
 
                     <label class="qr-hidden-row" id="qr-hidden-row">
                         <input type="checkbox" id="qr-wifi-hidden">
-                        <span class="qr-hidden-label">Verstecktes Netzwerk</span>
+                        <span class="qr-hidden-label">${t('qr.hiddenNet')}</span>
                     </label>
                 `;
                 examples = '';
@@ -779,17 +853,17 @@ function init_qr_generator(container) {
 
             case 'email':
                 html = `
-                    <label>E-Mail-Adresse</label>
+                    <label>${t('qr.emailAddr')}</label>
                     <input type="email" class="qr-input" id="qr-email-addr" placeholder="name@example.com" autocomplete="off" spellcheck="false">
 
-                    <label>Betreff</label>
-                    <input type="text" class="qr-input" id="qr-email-subject" placeholder="Betreff der E-Mail" autocomplete="off">
+                    <label>${t('qr.subject')}</label>
+                    <input type="text" class="qr-input" id="qr-email-subject" placeholder="${t('qr.phSubject')}" autocomplete="off">
 
-                    <label>Nachricht</label>
-                    <textarea class="qr-textarea" id="qr-email-body" placeholder="Nachricht eingeben..." rows="3"></textarea>
+                    <label>${t('qr.message')}</label>
+                    <textarea class="qr-textarea" id="qr-email-body" placeholder="${t('qr.phMessage')}" rows="3"></textarea>
                 `;
                 examples = `
-                    <span class="chip" data-email="info@example.com" data-subject="Anfrage" data-body="Hallo, ich habe eine Frage.">Beispiel-Anfrage</span>
+                    <span class="chip" data-email="info@example.com" data-subject="${t('qr.phInqSubject')}" data-body="${t('qr.phInqBody')}">${t('qr.exInquiry')}</span>
                 `;
                 break;
         }
@@ -952,14 +1026,15 @@ function init_qr_generator(container) {
             renderQR(qr);
 
             // Info text
-            infoEl.textContent = `Version ${qr.version} \u2022 ${qr.size}\u00D7${qr.size} Module \u2022 ${qr.dataLength} Bytes`;
+            infoEl.textContent = t('qr.info', { version: qr.version, size: qr.size, bytes: qr.dataLength });
 
             outputCard.style.display = 'block';
             outputCard.style.animation = 'none';
             outputCard.offsetHeight;
             outputCard.style.animation = 'slideUp 0.3s ease-out';
         } catch (err) {
-            errorEl.textContent = err.message || 'Fehler beim Erstellen des QR-Codes.';
+            const msg = err.message === 'QR_TOO_LONG' ? t('qr.errTooLong') : t('qr.errGeneric');
+            errorEl.textContent = msg;
             errorEl.style.display = 'block';
             outputCard.style.display = 'none';
             lastQrData = null;
@@ -1016,7 +1091,7 @@ function init_qr_generator(container) {
                 const origHTML = copyBtn.innerHTML;
                 copyBtn.innerHTML = `
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    Kopiert!
+                    ${t('qr.copied')}
                 `;
                 copyBtn.classList.add('copied');
                 setTimeout(() => {
@@ -1029,7 +1104,7 @@ function init_qr_generator(container) {
                     const origHTML = copyBtn.innerHTML;
                     copyBtn.innerHTML = `
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        Kopiert!
+                        ${t('qr.copied')}
                     `;
                     copyBtn.classList.add('copied');
                     setTimeout(() => {

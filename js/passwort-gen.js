@@ -1,6 +1,57 @@
 // === Passwort-Generator Tool ===
 
 function init_passwort_gen(container) {
+    // --- i18n Strings ---
+    I18N.register('pw', {
+        de: {
+            length: 'Länge:',
+            chars: 'Zeichen',
+            charTypes: 'Zeichentypen',
+            upper: 'ABC Großbuchstaben',
+            lower: 'abc Kleinbuchstaben',
+            digits: '123 Zahlen',
+            special: '!@# Sonderzeichen',
+            count: 'Anzahl Passwörter',
+            generate: 'Passwort generieren',
+            quoteTitle: 'Film-Zitat Passwort',
+            quoteDesc: 'Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Leet-Speak Substitutionen.',
+            filmLabel: 'Film wählen',
+            quoteBtn: 'Zitat-Passwort generieren (Leet Speak)',
+            resultTitle: 'Generierte Passwörter',
+            quoteResultTitle: 'Zitat-Passwort (Leet Speak)',
+            copy: 'Kopieren',
+            veryStrong: 'Sehr stark',
+            strong: 'Stark',
+            medium: 'Mittel',
+            weak: 'Schwach',
+            errNoType: 'Bitte mindestens einen Zeichentyp auswählen.',
+        },
+        en: {
+            length: 'Length:',
+            chars: 'characters',
+            charTypes: 'Character types',
+            upper: 'ABC Uppercase',
+            lower: 'abc Lowercase',
+            digits: '123 Numbers',
+            special: '!@# Special characters',
+            count: 'Number of passwords',
+            generate: 'Generate password',
+            quoteTitle: 'Movie Quote Password',
+            quoteDesc: 'Creates a memorable, secure password from the first letters of a movie quote with leet-speak substitutions.',
+            filmLabel: 'Choose movie',
+            quoteBtn: 'Generate quote password (Leet Speak)',
+            resultTitle: 'Generated Passwords',
+            quoteResultTitle: 'Quote Password (Leet Speak)',
+            copy: 'Copy',
+            veryStrong: 'Very strong',
+            strong: 'Strong',
+            medium: 'Medium',
+            weak: 'Weak',
+            errNoType: 'Please select at least one character type.',
+        }
+    });
+    const t = I18N.t;
+
     // --- Character sets ---
     const CHARSETS = {
         upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -112,34 +163,34 @@ function init_passwort_gen(container) {
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card pw-input-card">
-            <label>Länge: <span id="pw-length-display">20</span> Zeichen</label>
+            <label>${t('pw.length')} <span id="pw-length-display">20</span> ${t('pw.chars')}</label>
             <div class="pw-slider-row">
                 <span class="pw-slider-min">8</span>
                 <input type="range" id="pw-length" min="8" max="64" value="20" class="pw-slider">
                 <span class="pw-slider-max">64</span>
             </div>
 
-            <label class="pw-options-label">Zeichentypen</label>
+            <label class="pw-options-label">${t('pw.charTypes')}</label>
             <div class="pw-options" id="pw-options">
                 <label class="pw-option">
                     <input type="checkbox" id="pw-upper" checked>
-                    <span class="pw-option-text">ABC Großbuchstaben</span>
+                    <span class="pw-option-text">${t('pw.upper')}</span>
                 </label>
                 <label class="pw-option">
                     <input type="checkbox" id="pw-lower" checked>
-                    <span class="pw-option-text">abc Kleinbuchstaben</span>
+                    <span class="pw-option-text">${t('pw.lower')}</span>
                 </label>
                 <label class="pw-option">
                     <input type="checkbox" id="pw-digits" checked>
-                    <span class="pw-option-text">123 Zahlen</span>
+                    <span class="pw-option-text">${t('pw.digits')}</span>
                 </label>
                 <label class="pw-option">
                     <input type="checkbox" id="pw-special" checked>
-                    <span class="pw-option-text">!@# Sonderzeichen</span>
+                    <span class="pw-option-text">${t('pw.special')}</span>
                 </label>
             </div>
 
-            <label class="pw-count-label">Anzahl Passwörter</label>
+            <label class="pw-count-label">${t('pw.count')}</label>
             <div class="pw-count-chips" id="pw-count-chips">
                 <span class="chip pw-count-chip active" data-count="1">1</span>
                 <span class="chip pw-count-chip" data-count="3">3</span>
@@ -149,21 +200,15 @@ function init_passwort_gen(container) {
 
             <button class="pw-generate-btn" id="pw-generate-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                Passwort generieren
+                ${t('pw.generate')}
             </button>
         </section>
 
         <section class="card pw-quote-card">
-            <label>Film-Zitat Passwort</label>
-            <p class="pw-quote-desc">Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Leet-Speak Substitutionen.</p>
+            <label>${t('pw.quoteTitle')}</label>
+            <p class="pw-quote-desc">${t('pw.quoteDesc')}</p>
 
-            <label class="pw-film-label">Sprache</label>
-            <div class="pw-lang-chips" id="pw-lang-chips">
-                <span class="chip pw-lang-chip active" data-lang="de">Deutsch</span>
-                <span class="chip pw-lang-chip" data-lang="en">English</span>
-            </div>
-
-            <label class="pw-film-label">Film wählen</label>
+            <label class="pw-film-label">${t('pw.filmLabel')}</label>
             <div class="pw-film-chips" id="pw-film-chips">
                 ${Object.entries(FILM_QUOTES).map(([key, film], i) =>
                     `<span class="chip pw-film-chip${i === 0 ? ' active' : ''}" data-film="${key}" data-color="${film.color}">${film.label}</span>`
@@ -172,13 +217,13 @@ function init_passwort_gen(container) {
 
             <button class="pw-generate-btn pw-quote-btn" id="pw-quote-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                Zitat-Passwort generieren (Leet Speak)
+                ${t('pw.quoteBtn')}
             </button>
         </section>
 
         <section class="card pw-result-card" id="pw-result-card" style="display:none;">
             <div class="pw-result-header">
-                <h3>Generierte Passwörter</h3>
+                <h3>${t('pw.resultTitle')}</h3>
                 <span class="pw-strength" id="pw-strength"></span>
             </div>
             <div id="pw-results"></div>
@@ -186,7 +231,7 @@ function init_passwort_gen(container) {
 
         <section class="card pw-quote-result-card" id="pw-quote-result-card" style="display:none;">
             <div class="pw-result-header">
-                <h3>Zitat-Passwort (Leet Speak)</h3>
+                <h3>${t('pw.quoteResultTitle')}</h3>
                 <span class="pw-strength" id="pw-quote-strength"></span>
             </div>
             <div class="pw-quote-source" id="pw-quote-source"></div>
@@ -289,10 +334,10 @@ function init_passwort_gen(container) {
 
         const entropy = Math.floor(length * Math.log2(poolSize));
 
-        if (entropy >= 128) return { label: 'Sehr stark', color: 'var(--green)', entropy };
-        if (entropy >= 80) return { label: 'Stark', color: 'var(--accent)', entropy };
-        if (entropy >= 60) return { label: 'Mittel', color: 'var(--orange)', entropy };
-        return { label: 'Schwach', color: 'var(--red)', entropy };
+        if (entropy >= 128) return { label: t('pw.veryStrong'), color: 'var(--green)', entropy };
+        if (entropy >= 80) return { label: t('pw.strong'), color: 'var(--accent)', entropy };
+        if (entropy >= 60) return { label: t('pw.medium'), color: 'var(--orange)', entropy };
+        return { label: t('pw.weak'), color: 'var(--red)', entropy };
     }
 
     // --- Copy to clipboard ---
@@ -314,7 +359,7 @@ function init_passwort_gen(container) {
 
         const pw = generatePassword(length);
         if (!pw) {
-            errorMsg.textContent = 'Bitte mindestens einen Zeichentyp auswählen.';
+            errorMsg.textContent = t('pw.errNoType');
             errorCard.style.display = 'block';
             resultCard.style.display = 'none';
             return;
@@ -340,7 +385,7 @@ function init_passwort_gen(container) {
         resultsEl.innerHTML = passwords.map((p, i) => `
             <div class="pw-password-row">
                 <div class="pw-password-text" id="pw-text-${i}">${colorizePassword(p)}</div>
-                <button class="pw-copy-btn" data-index="${i}" title="Kopieren">
+                <button class="pw-copy-btn" data-index="${i}" title="${t('pw.copy')}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 </button>
             </div>
@@ -367,18 +412,6 @@ function init_passwort_gen(container) {
             return `<span class="pw-char-special">${escHtml(c)}</span>`;
         }).join('');
     }
-
-    // --- Language Chips ---
-    const langChips = container.querySelectorAll('.pw-lang-chip');
-    let selectedLang = 'de';
-
-    langChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            langChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            selectedLang = chip.dataset.lang;
-        });
-    });
 
     // --- Film Chips ---
     const filmChips = container.querySelectorAll('.pw-film-chip');
@@ -418,8 +451,9 @@ function init_passwort_gen(container) {
         const film = FILM_QUOTES[selectedFilm];
         if (!film) return;
 
-        // Pick random quote in selected language
-        const quotes = film.quotes[selectedLang];
+        // Pick random quote in current app language
+        const lang = I18N.getLang();
+        const quotes = film.quotes[lang] || film.quotes.de;
         const rnd = new Uint32Array(1);
         crypto.getRandomValues(rnd);
         const quoteIndex = rnd[0] % quotes.length;
@@ -466,15 +500,14 @@ function init_passwort_gen(container) {
         // Calculate strength
         const entropy = Math.floor(password.length * Math.log2(72)); // mixed charset ~72
         let strength;
-        if (entropy >= 128) strength = { label: 'Sehr stark', color: 'var(--green)', entropy };
-        else if (entropy >= 80) strength = { label: 'Stark', color: 'var(--accent)', entropy };
-        else if (entropy >= 60) strength = { label: 'Mittel', color: 'var(--orange)', entropy };
-        else strength = { label: 'Schwach', color: 'var(--red)', entropy };
+        if (entropy >= 128) strength = { label: t('pw.veryStrong'), color: 'var(--green)', entropy };
+        else if (entropy >= 80) strength = { label: t('pw.strong'), color: 'var(--accent)', entropy };
+        else if (entropy >= 60) strength = { label: t('pw.medium'), color: 'var(--orange)', entropy };
+        else strength = { label: t('pw.weak'), color: 'var(--red)', entropy };
 
         // Render source quote
-        const langLabel = selectedLang === 'de' ? 'Deutsch' : 'English';
         const sourceEl = document.getElementById('pw-quote-source');
-        sourceEl.innerHTML = `<span class="pw-quote-film" style="color:${film.color}">${film.label} <span class="pw-quote-lang">(${langLabel})</span></span> <span class="pw-quote-text">"${quote}"</span>`;
+        sourceEl.innerHTML = `<span class="pw-quote-film" style="color:${film.color}">${film.label}</span> <span class="pw-quote-text">"${quote}"</span>`;
 
         // Render breakdown
         const breakdownEl = document.getElementById('pw-quote-breakdown');
@@ -495,7 +528,7 @@ function init_passwort_gen(container) {
         resultsEl.innerHTML = `
             <div class="pw-password-row">
                 <div class="pw-password-text">${colorizePassword(password)}</div>
-                <button class="pw-copy-btn" id="pw-quote-copy" title="Kopieren">
+                <button class="pw-copy-btn" id="pw-quote-copy" title="${t('pw.copy')}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 </button>
             </div>
