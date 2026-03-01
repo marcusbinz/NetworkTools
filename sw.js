@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v109';
+﻿const CACHE_NAME = 'network-tools-v110';
 const ASSETS = [
     './',
     './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
     './icon-192.png',
     './icon-512.png',
     './css/shared.css',
+    './css/home.css',
     './css/ip-rechner.css',
     './css/mx-lookup.css',
     './css/dns-lookup.css',
@@ -20,6 +21,7 @@ const ASSETS = [
     './css/ping-test.css',
     './js/i18n.js',
     './js/app.js',
+    './js/home.js',
     './js/ip-rechner.js',
     './js/mx-lookup.js',
     './js/dns-lookup.js',

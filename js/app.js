@@ -156,8 +156,40 @@ let currentToolId = null;
 
 // --- Router ---
 function navigateTo(toolId) {
+    // Home als Sonderfall (nicht im TOOLS[]-Array, kein Drawer-Eintrag)
+    if (toolId === 'home' || !toolId) {
+        if (currentToolId === 'home') return;
+        if (currentToolId) {
+            const teardownFn = window[`teardown_${currentToolId.replace(/-/g, '_')}`];
+            if (typeof teardownFn === 'function') teardownFn();
+        }
+        if (window.location.hash && window.location.hash !== '#home') {
+            window.location.hash = 'home';
+        }
+        contentArea.innerHTML = '';
+        subtitle.textContent = '';
+        // Load home CSS + JS
+        if (!document.querySelector('link[href="css/home.css"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'css/home.css';
+            document.head.appendChild(link);
+        }
+        if (!document.querySelector('script[src="js/home.js"]')) {
+            const script = document.createElement('script');
+            script.src = 'js/home.js';
+            script.onload = () => { if (typeof init_home === 'function') init_home(contentArea); };
+            document.body.appendChild(script);
+        } else {
+            if (typeof init_home === 'function') init_home(contentArea);
+        }
+        currentToolId = 'home';
+        updateDrawerActive();
+        return;
+    }
+
     const tool = TOOLS.find(t => t.id === toolId);
-    if (!tool) return navigateTo(TOOLS[0].id);
+    if (!tool) return navigateTo('home');
     if (currentToolId === tool.id) return;
 
     // Teardown previous tool
@@ -319,8 +351,10 @@ window.addEventListener('langchange', () => {
     langLabel.textContent = lang.toUpperCase();
 
     // Subtitle aktualisieren
-    if (currentToolId) {
+    if (currentToolId && currentToolId !== 'home') {
         subtitle.textContent = t('app.sub.' + currentToolId);
+    } else {
+        subtitle.textContent = '';
     }
 
     // Drawer neu rendern (Labels uebersetzen)
@@ -350,7 +384,7 @@ window.addEventListener('hashchange', () => {
 
 // --- Init ---
 renderDrawer();
-navigateTo(window.location.hash.slice(1) || 'passwort-gen');
+navigateTo(window.location.hash.slice(1) || 'home');
 
 // Register Service Worker + Update Detection
 if ('serviceWorker' in navigator) {
