@@ -1,6 +1,75 @@
 // === Email Header Analyzer Tool ===
 
 function init_email_header(container) {
+    // --- i18n Strings ---
+    I18N.register('eh', {
+        de: {
+            'label':        'E-Mail Header einf\u00fcgen',
+            'placeholder':  'Vollst\u00e4ndigen E-Mail Header hier einf\u00fcgen\u2026',
+            'analyze':      'Analysieren',
+            'clear':        'Leeren',
+            'examples':     'Beispiele',
+            'loadExample':  'Beispiel laden',
+            'auth':         'Authentifizierung',
+            'sender':       'Absender-Informationen',
+            'routing':      'Routing-Pfad',
+            'security':     'Sicherheitsanalyse',
+            'showHeaders':  'Alle Header anzeigen',
+            'hideHeaders':  'Header ausblenden',
+            'errEmpty':     'Bitte f\u00fcge einen E-Mail Header in das Textfeld ein.',
+            'errInvalid':   'Keine g\u00fcltigen Header-Zeilen erkannt. Bitte pr\u00fcfe die Eingabe.',
+            'notPresent':   'Nicht vorhanden',
+            'from':         'Von (From)',
+            'to':           'An (To)',
+            'subject':      'Betreff',
+            'date':         'Datum',
+            'replyTo':      'Reply-To',
+            'returnPath':   'Return-Path',
+            'messageId':    'Message-ID',
+            'mismatch':     'From-Domain ({from}) stimmt nicht mit Return-Path-Domain ({rp}) \u00fcberein',
+            'hops':         'Hops',
+            'total':        'Gesamt',
+            'maxDelay':     'Max. Verz\u00f6gerung',
+            'hop':          'Hop {n}',
+            'spamStatus':   'Spam-Status',
+            'spamScore':    'Spam-Score',
+            'senderMismatch':'Absender-Abweichung',
+        },
+        en: {
+            'label':        'Paste email header',
+            'placeholder':  'Paste full email header here\u2026',
+            'analyze':      'Analyze',
+            'clear':        'Clear',
+            'examples':     'Examples',
+            'loadExample':  'Load example',
+            'auth':         'Authentication',
+            'sender':       'Sender Information',
+            'routing':      'Routing Path',
+            'security':     'Security Analysis',
+            'showHeaders':  'Show all headers',
+            'hideHeaders':  'Hide headers',
+            'errEmpty':     'Please paste an email header into the text field.',
+            'errInvalid':   'No valid header lines detected. Please check the input.',
+            'notPresent':   'Not present',
+            'from':         'From',
+            'to':           'To',
+            'subject':      'Subject',
+            'date':         'Date',
+            'replyTo':      'Reply-To',
+            'returnPath':   'Return-Path',
+            'messageId':    'Message-ID',
+            'mismatch':     'From domain ({from}) does not match Return-Path domain ({rp})',
+            'hops':         'Hops',
+            'total':        'Total',
+            'maxDelay':     'Max Delay',
+            'hop':          'Hop {n}',
+            'spamStatus':   'Spam Status',
+            'spamScore':    'Spam Score',
+            'senderMismatch':'Sender Mismatch',
+        }
+    });
+
+    const loc = I18N.getLang() === 'de' ? 'de-DE' : 'en-US';
 
     // --- Example Header (for the demo chip) ---
     const EXAMPLE_HEADER = `Delivered-To: user@example.com
@@ -39,18 +108,18 @@ Content-Type: text/plain; charset=UTF-8`;
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card eh-input-card">
-            <label for="eh-input">E-Mail Header einf\u00fcgen</label>
-            <textarea id="eh-input" placeholder="Vollst\u00e4ndigen E-Mail Header hier einf\u00fcgen\u2026" spellcheck="false"></textarea>
+            <label for="eh-input">${t('eh.label')}</label>
+            <textarea id="eh-input" placeholder="${t('eh.placeholder')}" spellcheck="false"></textarea>
             <div class="eh-btn-row">
                 <button class="eh-analyze-btn" id="eh-analyze-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Analysieren
+                    ${t('eh.analyze')}
                 </button>
-                <button class="eh-clear-btn" id="eh-clear-btn">Leeren</button>
+                <button class="eh-clear-btn" id="eh-clear-btn">${t('eh.clear')}</button>
             </div>
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('eh.examples')}</label>
             <div class="quick-examples eh-examples">
-                <span class="chip" id="eh-example-btn">Beispiel laden</span>
+                <span class="chip" id="eh-example-btn">${t('eh.loadExample')}</span>
             </div>
         </section>
 
@@ -58,7 +127,7 @@ Content-Type: text/plain; charset=UTF-8`;
         <section class="card eh-result-card" id="eh-auth-card" style="display:none;">
             <h4 class="eh-section-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Authentifizierung
+                ${t('eh.auth')}
             </h4>
             <div class="eh-auth-grid" id="eh-auth-grid"></div>
         </section>
@@ -67,7 +136,7 @@ Content-Type: text/plain; charset=UTF-8`;
         <section class="card eh-result-card" id="eh-sender-card" style="display:none;">
             <h4 class="eh-section-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Absender-Informationen
+                ${t('eh.sender')}
             </h4>
             <div class="eh-info-grid" id="eh-info-grid"></div>
             <div id="eh-warnings"></div>
@@ -77,7 +146,7 @@ Content-Type: text/plain; charset=UTF-8`;
         <section class="card eh-result-card" id="eh-routing-card" style="display:none;">
             <h4 class="eh-section-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Routing-Pfad
+                ${t('eh.routing')}
             </h4>
             <div class="eh-timing-summary" id="eh-timing-summary"></div>
             <div class="eh-hop-timeline" id="eh-hop-timeline"></div>
@@ -87,14 +156,14 @@ Content-Type: text/plain; charset=UTF-8`;
         <section class="card eh-result-card" id="eh-security-card" style="display:none;">
             <h4 class="eh-section-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                Sicherheitsanalyse
+                ${t('eh.security')}
             </h4>
             <div id="eh-security-list"></div>
         </section>
 
         <!-- Raw Headers (collapsible) -->
         <section class="card eh-result-card" id="eh-raw-card" style="display:none;">
-            <button class="eh-raw-toggle" id="eh-raw-toggle">Alle Header anzeigen</button>
+            <button class="eh-raw-toggle" id="eh-raw-toggle">${t('eh.showHeaders')}</button>
             <div class="eh-raw-content" id="eh-raw-content" style="display:none;"></div>
         </section>
 
@@ -256,7 +325,7 @@ Content-Type: text/plain; charset=UTF-8`;
     function analyze() {
         const raw = headerInput.value.trim();
         if (!raw) {
-            showError('Bitte f\u00fcge einen E-Mail Header in das Textfeld ein.');
+            showError(t('eh.errEmpty'));
             return;
         }
 
@@ -265,7 +334,7 @@ Content-Type: text/plain; charset=UTF-8`;
         const { headers, headerMap } = parseHeaders(raw);
 
         if (headers.length === 0) {
-            showError('Keine g\u00fcltigen Header-Zeilen erkannt. Bitte pr\u00fcfe die Eingabe.');
+            showError(t('eh.errInvalid'));
             return;
         }
 
@@ -279,7 +348,7 @@ Content-Type: text/plain; charset=UTF-8`;
             authGrid.innerHTML = ['SPF', 'DKIM', 'DMARC'].map(protocol => {
                 const key = protocol.toLowerCase();
                 const value = auth[key];
-                const displayValue = value ? value.toUpperCase() : 'Nicht vorhanden';
+                const displayValue = value ? value.toUpperCase() : t('eh.notPresent');
                 const cls = getAuthClass(value);
                 const icon = getAuthIcon(value);
                 return `
@@ -295,13 +364,13 @@ Content-Type: text/plain; charset=UTF-8`;
 
         // ===== 2. Sender Information =====
         const senderFields = [
-            { key: 'from', label: 'Von (From)', fullWidth: false },
-            { key: 'to', label: 'An (To)', fullWidth: false },
-            { key: 'subject', label: 'Betreff', fullWidth: true },
-            { key: 'date', label: 'Datum', fullWidth: false },
-            { key: 'reply-to', label: 'Reply-To', fullWidth: false },
-            { key: 'return-path', label: 'Return-Path', fullWidth: false },
-            { key: 'message-id', label: 'Message-ID', fullWidth: true },
+            { key: 'from', label: t('eh.from'), fullWidth: false },
+            { key: 'to', label: t('eh.to'), fullWidth: false },
+            { key: 'subject', label: t('eh.subject'), fullWidth: true },
+            { key: 'date', label: t('eh.date'), fullWidth: false },
+            { key: 'reply-to', label: t('eh.replyTo'), fullWidth: false },
+            { key: 'return-path', label: t('eh.returnPath'), fullWidth: false },
+            { key: 'message-id', label: t('eh.messageId'), fullWidth: true },
         ];
 
         const infoItems = senderFields
@@ -334,7 +403,7 @@ Content-Type: text/plain; charset=UTF-8`;
                     warningsEl.innerHTML = `
                         <div class="eh-mismatch-warning">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            From-Domain (${escHtml(fromDomain)}) stimmt nicht mit Return-Path-Domain (${escHtml(rpDomain)}) \u00fcberein
+                            ${t('eh.mismatch', { from: escHtml(fromDomain), rp: escHtml(rpDomain) })}
                         </div>
                     `;
                 }
@@ -361,15 +430,15 @@ Content-Type: text/plain; charset=UTF-8`;
             document.getElementById('eh-timing-summary').innerHTML = `
                 <div class="eh-timing-item">
                     <span class="eh-timing-num">${hops.length}</span>
-                    <span class="eh-timing-label">Hops</span>
+                    <span class="eh-timing-label">${t('eh.hops')}</span>
                 </div>
                 <div class="eh-timing-item">
                     <span class="eh-timing-num">${formatDelay(totalDelay)}</span>
-                    <span class="eh-timing-label">Gesamt</span>
+                    <span class="eh-timing-label">${t('eh.total')}</span>
                 </div>
                 <div class="eh-timing-item">
                     <span class="eh-timing-num">${formatDelay(maxDelay)}</span>
-                    <span class="eh-timing-label">Max. Verz\u00f6gerung</span>
+                    <span class="eh-timing-label">${t('eh.maxDelay')}</span>
                 </div>
             `;
 
@@ -393,12 +462,12 @@ Content-Type: text/plain; charset=UTF-8`;
 
                 let timeHtml = '';
                 if (hop.timestamp) {
-                    timeHtml = `<div class="eh-hop-time">${escHtml(hop.timestamp.toLocaleString('de-DE'))} ${delayHtml}</div>`;
+                    timeHtml = `<div class="eh-hop-time">${escHtml(hop.timestamp.toLocaleString(loc))} ${delayHtml}</div>`;
                 }
 
                 return `
                     <div class="eh-hop">
-                        <div class="eh-hop-number">Hop ${i + 1}</div>
+                        <div class="eh-hop-number">${t('eh.hop', { n: i + 1 })}</div>
                         <div class="eh-hop-servers">${serversHtml}</div>
                         ${timeHtml}
                     </div>
@@ -415,7 +484,7 @@ Content-Type: text/plain; charset=UTF-8`;
         if (xSpamStatus) {
             const isSpam = xSpamStatus.toLowerCase().startsWith('yes');
             securityItems.push({
-                name: 'Spam-Status',
+                name: t('eh.spamStatus'),
                 detail: xSpamStatus,
                 status: isSpam ? 'danger' : 'safe',
             });
@@ -425,7 +494,7 @@ Content-Type: text/plain; charset=UTF-8`;
         if (xSpamScore) {
             const score = parseFloat(xSpamScore);
             securityItems.push({
-                name: 'Spam-Score',
+                name: t('eh.spamScore'),
                 detail: xSpamScore,
                 status: isNaN(score) ? 'neutral' : (score >= 5 ? 'danger' : score >= 2 ? 'warning' : 'safe'),
             });
@@ -448,7 +517,7 @@ Content-Type: text/plain; charset=UTF-8`;
             const rpEmail2 = extractEmail(rpVal2).replace(/^<|>$/g, '').toLowerCase();
             if (fromEmail2 !== rpEmail2) {
                 securityItems.push({
-                    name: 'Absender-Abweichung',
+                    name: t('eh.senderMismatch'),
                     detail: `From: ${fromEmail2} / Return-Path: ${rpEmail2}`,
                     status: 'warning',
                 });
@@ -485,7 +554,7 @@ Content-Type: text/plain; charset=UTF-8`;
         rawToggle.onclick = () => {
             const isVisible = rawContent.style.display !== 'none';
             rawContent.style.display = isVisible ? 'none' : 'block';
-            rawToggle.textContent = isVisible ? 'Alle Header anzeigen' : 'Header ausblenden';
+            rawToggle.textContent = isVisible ? t('eh.showHeaders') : t('eh.hideHeaders');
         };
     }
 
