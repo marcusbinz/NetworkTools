@@ -387,8 +387,11 @@ renderDrawer();
 navigateTo(window.location.hash.slice(1) || 'home');
 
 // Register Service Worker + Update Detection
+var _swReg = null;
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => {
+        _swReg = reg;
+
         // Check for SW updates every 60 seconds
         setInterval(() => reg.update(), 60000);
 
@@ -402,11 +405,14 @@ if ('serviceWorker' in navigator) {
                 }
             });
         });
+
+        // If a waiting SW exists already on page load
+        if (reg.waiting) showUpdateBanner();
     });
 
-    // If a waiting SW exists already on page load
-    navigator.serviceWorker.ready.then(reg => {
-        if (reg.waiting) showUpdateBanner();
+    // Reload when new SW takes control
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
     });
 }
 
@@ -417,17 +423,16 @@ function showUpdateBanner() {
 }
 
 document.getElementById('update-btn').addEventListener('click', () => {
-    // Tell waiting SW to take over
     navigator.serviceWorker.getRegistration().then(reg => {
         if (reg && reg.waiting) {
+            // Normal flow: tell waiting SW to take over (controllerchange triggers reload)
             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+            // iOS fallback: no waiting SW yet — force update check, then reload
+            if (reg) reg.update();
+            window.location.reload();
         }
     });
-});
-
-// Reload when new SW takes control
-navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
 });
 
 // Load and display version + check for remote updates
@@ -441,6 +446,8 @@ fetch('version.json?_cb=' + Date.now())
         const cachedBuild = localStorage.getItem('network-tools-build');
         if (cachedBuild && parseInt(cachedBuild) < v.build) {
             showUpdateBanner();
+            // Force SW update check (important for iOS PWAs)
+            if (_swReg) _swReg.update();
         }
         localStorage.setItem('network-tools-build', v.build);
     })
