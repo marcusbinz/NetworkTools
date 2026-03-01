@@ -14,11 +14,11 @@ function init_passwort_gen(container) {
             count: 'Anzahl Passwörter',
             generate: 'Passwort generieren',
             quoteTitle: 'Film-Zitat Passwort',
-            quoteDesc: 'Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Leet-Speak Substitutionen.',
+            quoteDesc: 'Erstellt ein merkbares, sicheres Passwort aus Anfangsbuchstaben eines Film-Zitats mit Zeichensubstitutionen (a→@, e→3 etc.).',
             filmLabel: 'Film wählen',
-            quoteBtn: 'Zitat-Passwort generieren (Leet Speak)',
+            quoteBtn: 'Zitat-Passwort generieren',
             resultTitle: 'Generierte Passwörter',
-            quoteResultTitle: 'Zitat-Passwort (Leet Speak)',
+            quoteResultTitle: 'Zitat-Passwort (Mnemonik)',
             copy: 'Kopieren',
             veryStrong: 'Sehr stark',
             strong: 'Stark',
@@ -37,11 +37,11 @@ function init_passwort_gen(container) {
             count: 'Number of passwords',
             generate: 'Generate password',
             quoteTitle: 'Movie Quote Password',
-            quoteDesc: 'Creates a memorable, secure password from the first letters of a movie quote with leet-speak substitutions.',
+            quoteDesc: 'Creates a memorable, secure password from the first letters of a movie quote with character substitutions (a→@, e→3 etc.).',
             filmLabel: 'Choose movie',
-            quoteBtn: 'Generate quote password (Leet Speak)',
+            quoteBtn: 'Generate quote password',
             resultTitle: 'Generated Passwords',
-            quoteResultTitle: 'Quote Password (Leet Speak)',
+            quoteResultTitle: 'Quote Password (Mnemonic)',
             copy: 'Copy',
             veryStrong: 'Very strong',
             strong: 'Strong',
@@ -154,8 +154,8 @@ function init_passwort_gen(container) {
         }
     };
 
-    // Leet-Speak substitutions for passphrase generation
-    const LEET_MAP = {
+    // Character substitutions for passphrase generation
+    const SUBST_MAP = {
         'a': '@', 'e': '3', 'i': '!', 'o': '0', 's': '$',
         't': '7', 'g': '9', 'b': '8', 'l': '1',
     };
@@ -463,7 +463,7 @@ function init_passwort_gen(container) {
         const words = quote.split(/\s+/);
         let initials = words.map(w => w[0]).join('');
 
-        // Build password with leet-speak substitutions
+        // Build password with character substitutions
         const rndCase = new Uint32Array(initials.length);
         crypto.getRandomValues(rndCase);
 
@@ -472,12 +472,12 @@ function init_passwort_gen(container) {
 
         for (let i = 0; i < initials.length; i++) {
             const ch = initials[i].toLowerCase();
-            const leetChar = LEET_MAP[ch];
+            const substChar = SUBST_MAP[ch];
 
-            if (leetChar && rndCase[i] % 3 === 0) {
-                // ~33% chance: leet substitution
-                password += leetChar;
-                breakdown.push({ word: words[i], char: leetChar, type: 'leet' });
+            if (substChar && rndCase[i] % 3 === 0) {
+                // ~33% chance: character substitution
+                password += substChar;
+                breakdown.push({ word: words[i], char: substChar, type: 'subst' });
             } else if (rndCase[i] % 2 === 0) {
                 // ~50% remaining: uppercase
                 password += ch.toUpperCase();
@@ -512,7 +512,7 @@ function init_passwort_gen(container) {
         // Render breakdown
         const breakdownEl = document.getElementById('pw-quote-breakdown');
         breakdownEl.innerHTML = breakdown.map(b => {
-            const cls = b.type === 'leet' ? 'pw-char-special' : b.type === 'upper' ? 'pw-char-upper' : 'pw-char-lower';
+            const cls = b.type === 'subst' ? 'pw-char-special' : b.type === 'upper' ? 'pw-char-upper' : 'pw-char-lower';
             return `<span class="pw-breakdown-item"><span class="pw-breakdown-word">${b.word}</span><span class="pw-breakdown-arrow">&rarr;</span><span class="${cls}">${escHtml(b.char)}</span></span>`;
         }).join('');
 

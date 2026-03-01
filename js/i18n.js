@@ -94,6 +94,7 @@ I18N.register('app', {
         // Footer
         'installHint':      'Installiere als App: Teilen \u2192 Zum Home-Bildschirm',
         'copyright':        '\u00A9 2026 Dipl.-Ing. Marcus Binz \u2014 with my CoPilot Claude Code',
+        'startseite':       'Startseite',
         'impressum':        'Impressum',
         'datenschutz':      'Datenschutz',
 
@@ -146,6 +147,7 @@ I18N.register('app', {
         // Footer
         'installHint':      'Install as app: Share \u2192 Add to home screen',
         'copyright':        '\u00A9 2026 Dipl.-Ing. Marcus Binz \u2014 with my CoPilot Claude Code',
+        'startseite':       'Home',
         'impressum':        'Legal Notice',
         'datenschutz':      'Privacy Policy',
 
