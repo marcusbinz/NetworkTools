@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.1.0 | **Build:** 100 | **Stand:** 2026-02-28
+> **Version:** 5.1.1 | **Build:** 101 | **Stand:** 2026-03-01
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -431,14 +431,14 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **API** | Keine (rein lokal) |
 | **Features** | Bandbreiten-Umrechnung (Kbps/Mbps/Gbps <-> KB/MB/GB/TB), Transfer-Zeit Berechnung fuer Standard-Dateigroessen (100MB bis 1TB), Referenz-Tabelle gaengiger Bandbreiten (DSL 16 bis 10G Ethernet), Quick-Examples |
 
-### 5.14 Netzwerk-Befehle (`netzwerk-befehle`)
+### 5.14 Befehls-Referenz (`netzwerk-befehle`)
 
 | Eigenschaft | Wert |
 |---|---|
 | **ID** | `netzwerk-befehle` |
 | **Dateien** | `js/netzwerk-befehle.js`, `css/netzwerk-befehle.css` |
 | **API** | Keine (statische Datenbank) |
-| **Features** | 54 Befehle (25 CLI + 16 CPL + 13 MSC) mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info, Windows), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
+| **Features** | 54 Befehle (25 CLI + 16 CPL + 13 MSC) mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info, Windows CPL, Windows MSC), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
 
 ### 5.15 QR-Code Generator (`qr-generator`)
 
@@ -830,4 +830,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-02-28 | v5.1.0*
+*Letzte Aktualisierung: 2026-03-01 | v5.1.1*

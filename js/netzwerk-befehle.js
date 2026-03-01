@@ -18,7 +18,8 @@ function init_netzwerk_befehle(container) {
         transfer: { label: 'Transfer',       color: 'var(--red)' },
         remote:   { label: 'Remote',         color: '#2dd4bf' },
         info:     { label: 'Info',           color: '#f472b6' },
-        windows:  { label: 'Windows',        color: '#0078d4' },
+        'win-cpl':  { label: 'Windows CPL',    color: '#0078d4' },
+        'win-msc':  { label: 'Windows MSC',    color: '#00a4ef' },
     };
 
     // --- Windows-Gruppen (CPL/MSC Abschnitte) ---
@@ -264,7 +265,7 @@ function init_netzwerk_befehle(container) {
             }
         },
         {
-            id: 'ncpa', name: 'ncpa.cpl', cat: 'windows',
+            id: 'ncpa', name: 'ncpa.cpl', cat: 'win-cpl',
             desc: 'Netzwerkverbindungen GUI \u00f6ffnen (Schnellzugriff)',
             win: {
                 cmd: 'ncpa.cpl',
@@ -923,7 +924,7 @@ function init_netzwerk_befehle(container) {
         },
         // ===== WINDOWS CPL-MODULE (15) =====
         {
-            id: 'firewall-cpl', name: 'firewall.cpl', cat: 'windows',
+            id: 'firewall-cpl', name: 'firewall.cpl', cat: 'win-cpl',
             desc: 'Windows Defender Firewall \u00f6ffnen',
             win: {
                 cmd: 'firewall.cpl',
@@ -940,7 +941,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Kein direktes Pendant. Verwende ufw (Befehlszeile) oder iptables.'
         },
         {
-            id: 'inetcpl', name: 'inetcpl.cpl', cat: 'windows',
+            id: 'inetcpl', name: 'inetcpl.cpl', cat: 'win-cpl',
             desc: 'Interneteigenschaften (Proxy, Sicherheit, Zertifikate)',
             win: {
                 cmd: 'inetcpl.cpl',
@@ -957,7 +958,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Proxy-Einstellungen \u00fcber /etc/environment oder Einstellungen der Desktop-Umgebung.'
         },
         {
-            id: 'sysdm', name: 'sysdm.cpl', cat: 'windows',
+            id: 'sysdm', name: 'sysdm.cpl', cat: 'win-cpl',
             desc: 'Systemeigenschaften (Computername, Hardware, Remotedesktop)',
             win: {
                 cmd: 'sysdm.cpl',
@@ -974,7 +975,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Systeminfos: hostnamectl, uname -a, /etc/os-release.'
         },
         {
-            id: 'appwiz', name: 'appwiz.cpl', cat: 'windows',
+            id: 'appwiz', name: 'appwiz.cpl', cat: 'win-cpl',
             desc: 'Programme und Features (Deinstallation)',
             win: {
                 cmd: 'appwiz.cpl',
@@ -991,7 +992,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Paketverwaltung: apt list --installed, dnf list installed, dpkg -l.'
         },
         {
-            id: 'powercfg-cpl', name: 'powercfg.cpl', cat: 'windows',
+            id: 'powercfg-cpl', name: 'powercfg.cpl', cat: 'win-cpl',
             desc: 'Energieoptionen (Energiesparpl\u00e4ne, Ruhezustand)',
             win: {
                 cmd: 'powercfg.cpl',
@@ -1008,7 +1009,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Energieverwaltung: TLP, powertop, systemctl suspend/hibernate.'
         },
         {
-            id: 'timedate', name: 'timedate.cpl', cat: 'windows',
+            id: 'timedate', name: 'timedate.cpl', cat: 'win-cpl',
             desc: 'Datum und Uhrzeit (Zeitzone, NTP-Synchronisation)',
             win: {
                 cmd: 'timedate.cpl',
@@ -1025,7 +1026,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Zeitverwaltung: timedatectl, timedatectl set-timezone Europe/Berlin.'
         },
         {
-            id: 'intl', name: 'intl.cpl', cat: 'windows',
+            id: 'intl', name: 'intl.cpl', cat: 'win-cpl',
             desc: 'Region und Sprache (Zahlenformat, W\u00e4hrung, Tastaturlayout)',
             win: {
                 cmd: 'intl.cpl',
@@ -1042,7 +1043,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Regionseinstellungen: localectl, /etc/locale.conf, locale-gen.'
         },
         {
-            id: 'wscui', name: 'wscui.cpl', cat: 'windows',
+            id: 'wscui', name: 'wscui.cpl', cat: 'win-cpl',
             desc: 'Sicherheit und Wartung (Action Center)',
             win: {
                 cmd: 'wscui.cpl',
@@ -1058,7 +1059,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Kein direktes Pendant. Sicherheitsstatus: ufw status, rkhunter --check.'
         },
         {
-            id: 'desk', name: 'desk.cpl', cat: 'windows',
+            id: 'desk', name: 'desk.cpl', cat: 'win-cpl',
             desc: 'Anzeigeeinstellungen (Aufl\u00f6sung, Orientierung, Mehrere Monitore)',
             win: {
                 cmd: 'desk.cpl',
@@ -1074,7 +1075,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Anzeigeeinstellungen: xrandr, arandr (GUI), GNOME/KDE Bildschirmeinstellungen.'
         },
         {
-            id: 'mmsys', name: 'mmsys.cpl', cat: 'windows',
+            id: 'mmsys', name: 'mmsys.cpl', cat: 'win-cpl',
             desc: 'Sound-Einstellungen (Wiedergabe, Aufnahme, Systemkl\u00e4nge)',
             win: {
                 cmd: 'mmsys.cpl',
@@ -1091,7 +1092,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Audioeinstellungen: alsamixer (TUI), pavucontrol (GUI), pactl list sinks.'
         },
         {
-            id: 'main-cpl', name: 'main.cpl', cat: 'windows',
+            id: 'main-cpl', name: 'main.cpl', cat: 'win-cpl',
             desc: 'Maus-Einstellungen (Zeiger, Tasten, Zeigerrad)',
             win: {
                 cmd: 'main.cpl',
@@ -1107,7 +1108,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Mauseinstellungen: xinput, xset m, GNOME/KDE Mauseinstellungen.'
         },
         {
-            id: 'bthprops', name: 'bthprops.cpl', cat: 'windows',
+            id: 'bthprops', name: 'bthprops.cpl', cat: 'win-cpl',
             desc: 'Bluetooth-Ger\u00e4te verwalten',
             win: {
                 cmd: 'bthprops.cpl',
@@ -1123,7 +1124,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Bluetooth: bluetoothctl, blueman-manager (GUI).'
         },
         {
-            id: 'joy', name: 'joy.cpl', cat: 'windows',
+            id: 'joy', name: 'joy.cpl', cat: 'win-cpl',
             desc: 'Gamecontroller und Joysticks konfigurieren',
             win: {
                 cmd: 'joy.cpl',
@@ -1139,7 +1140,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Controller-Test: jstest /dev/input/js0, evtest.'
         },
         {
-            id: 'hdwwiz', name: 'hdwwiz.cpl', cat: 'windows',
+            id: 'hdwwiz', name: 'hdwwiz.cpl', cat: 'win-cpl',
             desc: 'Hardware-Assistent (Legacy-Ger\u00e4te manuell installieren)',
             win: {
                 cmd: 'hdwwiz.cpl',
@@ -1155,7 +1156,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Hardware-Erkennung: udev, modprobe, lspci -k, lsusb.'
         },
         {
-            id: 'access', name: 'access.cpl', cat: 'windows',
+            id: 'access', name: 'access.cpl', cat: 'win-cpl',
             desc: 'Center f\u00fcr erleichterte Bedienung (Barrierefreiheit)',
             win: {
                 cmd: 'access.cpl',
@@ -1173,7 +1174,7 @@ function init_netzwerk_befehle(container) {
 
         // ===== WINDOWS MSC-SNAPINS (13) =====
         {
-            id: 'compmgmt', name: 'compmgmt.msc', cat: 'windows',
+            id: 'compmgmt', name: 'compmgmt.msc', cat: 'win-msc',
             desc: 'Computerverwaltung (Ger\u00e4te, Dienste, Datentr\u00e4ger, lokale Benutzer)',
             win: {
                 cmd: 'compmgmt.msc',
@@ -1189,7 +1190,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Kein direktes Pendant — entspricht einer Sammlung aus: systemctl, lsblk, useradd u.a.'
         },
         {
-            id: 'devmgmt', name: 'devmgmt.msc', cat: 'windows',
+            id: 'devmgmt', name: 'devmgmt.msc', cat: 'win-msc',
             desc: 'Ger\u00e4te-Manager (Treiber, Hardware-Status, Fehlerdiagnose)',
             win: {
                 cmd: 'devmgmt.msc',
@@ -1205,7 +1206,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Ger\u00e4te-Info: lspci, lsusb, lshw, dmesg | grep -i error.'
         },
         {
-            id: 'diskmgmt', name: 'diskmgmt.msc', cat: 'windows',
+            id: 'diskmgmt', name: 'diskmgmt.msc', cat: 'win-msc',
             desc: 'Datentr\u00e4gerverwaltung (Partitionen, Laufwerksbuchstaben, Volumes)',
             win: {
                 cmd: 'diskmgmt.msc',
@@ -1222,7 +1223,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Partitionierung: fdisk, parted, gparted (GUI), lsblk.'
         },
         {
-            id: 'services', name: 'services.msc', cat: 'windows',
+            id: 'services', name: 'services.msc', cat: 'win-msc',
             desc: 'Dienste (starten, stoppen, Starttyp konfigurieren)',
             win: {
                 cmd: 'services.msc',
@@ -1239,7 +1240,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Dienstverwaltung: systemctl start/stop/status <Dienst>.'
         },
         {
-            id: 'taskschd', name: 'taskschd.msc', cat: 'windows',
+            id: 'taskschd', name: 'taskschd.msc', cat: 'win-msc',
             desc: 'Aufgabenplanung (geplante Tasks erstellen und verwalten)',
             win: {
                 cmd: 'taskschd.msc',
@@ -1256,7 +1257,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Aufgabenplanung: crontab -e (cron), systemctl list-timers (systemd timer).'
         },
         {
-            id: 'eventvwr', name: 'eventvwr.msc', cat: 'windows',
+            id: 'eventvwr', name: 'eventvwr.msc', cat: 'win-msc',
             desc: 'Ereignisanzeige (System-, Anwendungs- und Sicherheitslogs)',
             win: {
                 cmd: 'eventvwr.msc',
@@ -1273,7 +1274,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Systemlogs: journalctl -xe, journalctl -u <Dienst>, /var/log/.'
         },
         {
-            id: 'lusrmgr', name: 'lusrmgr.msc', cat: 'windows',
+            id: 'lusrmgr', name: 'lusrmgr.msc', cat: 'win-msc',
             desc: 'Lokale Benutzer und Gruppen (Konten, Kennw\u00f6rter, Gruppenmitgliedschaft)',
             win: {
                 cmd: 'lusrmgr.msc',
@@ -1290,7 +1291,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Benutzerverwaltung: useradd, usermod, passwd, groupadd, /etc/passwd.'
         },
         {
-            id: 'gpedit', name: 'gpedit.msc', cat: 'windows',
+            id: 'gpedit', name: 'gpedit.msc', cat: 'win-msc',
             desc: 'Gruppenrichtlinien-Editor (lokale Richtlinien f\u00fcr System und Benutzer)',
             win: {
                 cmd: 'gpedit.msc',
@@ -1307,7 +1308,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Kein direktes Pendant. Einstellungen \u00fcber /etc/security/, PAM-Module oder Ansible.'
         },
         {
-            id: 'secpol', name: 'secpol.msc', cat: 'windows',
+            id: 'secpol', name: 'secpol.msc', cat: 'win-msc',
             desc: 'Lokale Sicherheitsrichtlinie (Kennwortrichtlinien, Auditing, Benutzerrechte)',
             win: {
                 cmd: 'secpol.msc',
@@ -1323,7 +1324,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Sicherheitsrichtlinien: /etc/security/limits.conf, PAM-Konfiguration, /etc/pam.d/.'
         },
         {
-            id: 'perfmon', name: 'perfmon.msc', cat: 'windows',
+            id: 'perfmon', name: 'perfmon.msc', cat: 'win-msc',
             desc: 'Leistungs\u00fcberwachung (CPU, RAM, Datentr\u00e4ger, Netzwerk — Live-Graphen)',
             win: {
                 cmd: 'perfmon.msc',
@@ -1340,7 +1341,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Leistungs\u00fcberwachung: top, htop, iostat, vmstat, nmon, glances.'
         },
         {
-            id: 'wf', name: 'wf.msc', cat: 'windows',
+            id: 'wf', name: 'wf.msc', cat: 'win-msc',
             desc: 'Windows Defender Firewall mit erweiterter Sicherheit (Eingehend/Ausgehend)',
             win: {
                 cmd: 'wf.msc',
@@ -1357,7 +1358,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Firewall: iptables -L -v, ufw status verbose, nftables.'
         },
         {
-            id: 'certmgr', name: 'certmgr.msc', cat: 'windows',
+            id: 'certmgr', name: 'certmgr.msc', cat: 'win-msc',
             desc: 'Zertifikat-Manager (Benutzer-Zertifikate, pers\u00f6nlich, vertrauensw\u00fcrdige Stellen)',
             win: {
                 cmd: 'certmgr.msc',
@@ -1373,7 +1374,7 @@ function init_netzwerk_befehle(container) {
             linuxHint: 'Zertifikatsverwaltung: /etc/ssl/certs/, update-ca-certificates, openssl x509 -in cert.pem -text.'
         },
         {
-            id: 'certlm', name: 'certlm.msc', cat: 'windows',
+            id: 'certlm', name: 'certlm.msc', cat: 'win-msc',
             desc: 'Zertifikate des lokalen Computers (Maschinenweite Zertifikate, IIS, VPN)',
             win: {
                 cmd: 'certlm.msc',
@@ -1410,7 +1411,7 @@ function init_netzwerk_befehle(container) {
         </section>
         <section class="card nb-result-card" id="nb-result-card">
             <div class="nb-result-header">
-                <h3>Netzwerk-Befehle</h3>
+                <h3>Befehls-Referenz</h3>
                 <span class="nb-count" id="nb-count">${COMMANDS.length} Befehle</span>
             </div>
             <div class="nb-list" id="nb-list"></div>
@@ -1564,7 +1565,7 @@ function init_netzwerk_befehle(container) {
                     <div class="nb-detail">
                         <div class="nb-platforms">
                             ${renderPlatform(cmd.win, 'Windows', WIN_ICON, cmd.winHint)}
-                            ${cmd.cat !== 'windows' ? renderPlatform(cmd.linux, 'Linux', LINUX_ICON, cmd.linuxHint) : ''}
+                            ${(cmd.cat !== 'win-cpl' && cmd.cat !== 'win-msc') ? renderPlatform(cmd.linux, 'Linux', LINUX_ICON, cmd.linuxHint) : ''}
                         </div>
                     </div>
                 </div>
