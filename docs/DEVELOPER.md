@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.2.8 | **Build:** 110 | **Stand:** 2026-03-01
+> **Version:** 5.2.9 | **Build:** 111 | **Stand:** 2026-03-01
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -14,7 +14,7 @@
 | Technologie | HTML, CSS, Vanilla JavaScript |
 | Framework | Keines (bewusste Entscheidung) |
 | Typ | Progressive Web App (PWA) |
-| Sprache (UI) | Deutsch |
+| Sprache (UI) | Deutsch / Englisch (zweisprachig, umschaltbar) |
 | Hosting | Statisches Hosting (GitHub Pages o.Ae.) |
 | Browser-Support | Moderne Browser (Chrome, Firefox, Safari, Edge) |
 | Responsive | Mobile-first, Desktop ab 768px |
@@ -36,6 +36,7 @@ NetworkTools/
 |
 |-- css/
 |   |-- shared.css           # Globales Design-System (Variablen, Layout, Shared Components)
+|   |-- home.css             # Startseite (.home- Prefix)
 |   |-- ip-rechner.css       # Tool-spezifische Styles (.ip- Prefix)
 |   |-- ipv6-rechner.css     # (.v6- Prefix)
 |   |-- mx-lookup.css        # (.mx- Prefix)
@@ -54,8 +55,9 @@ NetworkTools/
 |   |-- netzwerk-wiki.css   # (.wiki- Prefix)
 |
 |-- js/
-|   |-- i18n.js              # Internationalisierung (DE/EN), t()-Funktion, Sprachverwaltung
+|   |-- i18n.js              # Internationalisierung (DE/EN), I18N-Modul, t()/register()
 |   |-- app.js               # Router, Theme, Drawer, Tool-Registry, Service Worker, escHtml()
+|   |-- home.js              # Startseite (Logo, Beschreibung, Changelog)
 |   |-- ip-rechner.js        # IPv4-Subnetz-Rechner
 |   |-- ipv6-rechner.js      # IPv6-Rechner
 |   |-- mx-lookup.js         # MX / SPF / DMARC / DKIM Lookup
@@ -101,7 +103,7 @@ Die `index.html` definiert das Grundgeruest der App:
 +---------------------------------------------+
 ```
 
-- **Header:** App-Titel, Tool-Subtitle, Theme-Toggle Button
+- **Header:** App-Titel, Tool-Subtitle, Sprach-Toggle (DE/EN), Theme-Toggle Button
 - **Content:** Leerer `<main>` Container — wird vom Router befuellt
 - **Footer:** Copyright, Install-Hinweis, Impressum & Datenschutz Links (mbinz.de), Versions-Anzeige
 - **FAB:** Floating Action Button (Mobile), oeffnet den Drawer
@@ -187,6 +189,93 @@ Ab `768px` Viewport-Breite:
 - **Content** bekommt `margin-left: 220px`
 - **Result-Grids** wechseln von 2 auf 4 Spalten
 
+### 3.7 Startseite (Home)
+
+Die Startseite ist **kein regulaeres Tool** im `TOOLS[]`-Array, sondern wird als Sonderfall im Router behandelt:
+
+- Route: `#home` (oder kein Hash = Standard)
+- Dateien: `js/home.js` + `css/home.css` (lazy-loaded)
+- Lifecycle: `init_home(container)` / `teardown_home()`
+- Kein Eintrag in der Sidebar (kein Scrollen noetig)
+- Zeigt: Logo (SVG, 3 Netzwerk-Knoten), Beschreibung, Fakten-Zeile, Changelog
+
+### 3.8 Internationalisierung (i18n)
+
+Die App ist vollstaendig zweisprachig (Deutsch/Englisch). Die Sprache wird ueber einen Toggle im Header umgeschaltet.
+
+#### I18N-Modul (`js/i18n.js`)
+
+Globales `I18N`-Objekt mit folgenden Methoden:
+
+| Methode | Beschreibung |
+|---|---|
+| `I18N.getLang()` | Aktuelle Sprache abrufen (`'de'` oder `'en'`) |
+| `I18N.setLang(lang)` | Sprache setzen, speichert in localStorage, feuert `langchange`-Event |
+| `I18N.register(namespace, { de: {...}, en: {...} })` | Strings registrieren (Keys werden zu `namespace.key`) |
+| `I18N.t(key, params)` | Uebersetzung holen — Fallback: aktuelle Sprache -> DE -> Key |
+
+**Persistierung:** `localStorage.setItem('network-tools-lang', lang)`
+**Event:** `window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }))` bei Sprachwechsel.
+
+#### Hybrid-Architektur
+
+Jedes Tool registriert seine Strings inline in der `init_`-Funktion:
+
+```javascript
+function init_mein_tool(container) {
+    I18N.register('mt', {
+        de: { title: 'Mein Tool', desc: 'Beschreibung' },
+        en: { title: 'My Tool', desc: 'Description' },
+    });
+    const t = I18N.t;
+    // ...
+    container.innerHTML = `<h2>${t('mt.title')}</h2>`;
+}
+```
+
+#### txt()-Helper fuer Datenobjekte
+
+Fuer bilinguale Daten-Arrays (Befehle, Wiki-Artikel, Ports) wird ein `txt()`-Helper verwendet:
+
+```javascript
+const txt = (obj) => typeof obj === 'string' ? obj : (obj[I18N.getLang()] || obj.de);
+```
+
+Datenobjekte speichern Texte als `{ de: '...', en: '...' }`:
+
+```javascript
+const COMMANDS = [
+    { name: 'ping', desc: { de: 'Erreichbarkeit pruefen', en: 'Check reachability' } },
+];
+// Rendering: txt(cmd.desc) → liefert DE oder EN je nach Sprache
+```
+
+#### tKey-Pattern fuer Kategorien
+
+Kategorien/Gruppen nutzen einen `tKey`-Verweis statt direkter Labels:
+
+```javascript
+const CATEGORIES = [
+    { tKey: 'nb.catDiag', color: '#38bdf8' },  // → t('nb.catDiag') = "Diagnose"
+];
+```
+
+#### Sprachwechsel-Verhalten
+
+1. **Statische Tools** (Befehle, Wiki, Ports): `langchange`-Event loest `renderAll()` aus — komplettes Neurendern
+2. **Interaktive Tools** (DNS, MX, Ping etc.): UI-Labels werden via `langchange` aktualisiert, Ergebnisse bleiben erhalten
+3. **App-Shell** (Header, Footer, Drawer): Reagiert auf `langchange` und aktualisiert Labels, Subtitle, Footer-Texte
+
+#### Uebersetzte Module (Stand v5.2.8)
+
+| Modul | Strings | Methode |
+|---|---|---|
+| App-Shell (app.js) | ~50 | `I18N.register('app', ...)` |
+| Alle 15 Tools | je 5-30 | Inline `I18N.register()` in jeder init-Funktion |
+| Netzwerk-Befehle | ~600 | 54 Befehle mit `{de, en}`-Objekten + 30 UI-Strings |
+| Netzwerk-Wiki | ~500 | 94 Artikel mit `{de, en}`-Objekten + 10 UI-Strings |
+| Port-Referenz | ~200 | 58 Ports mit `{de, en}`-Beschreibungen + 15 UI-Strings |
+
 ---
 
 ## 4. CSS Design-System
@@ -249,6 +338,7 @@ Jedes Tool verwendet einen eigenen CSS-Klassen-Prefix, um Konflikte zu vermeiden
 
 | Tool | Prefix | Beispiel |
 |---|---|---|
+| Home | `.home-` | `.home-hero` |
 | IP-Rechner | `.ip-` | `.ip-type-badge` |
 | IPv6-Rechner | `.v6-` | `.v6-input-row` |
 | MX Lookup | `.mx-` | `.mx-security-row` |
@@ -383,7 +473,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **ID** | `port-referenz` |
 | **Dateien** | `js/port-referenz.js`, `css/port-referenz.css` |
 | **API** | Keine (statische Datenbank) |
-| **Features** | Nachschlagewerk fuer Netzwerk-Ports, 50+ Ports mit Protokoll/Service/Beschreibung, Kategorien (Web, Mail, Remote, DNS, etc.), Suchfunktion, Kategorie-Filter |
+| **Features** | Nachschlagewerk fuer Netzwerk-Ports, 58 Ports mit Protokoll/Service/Beschreibung (DE/EN), Kategorien (Web, Mail, Remote, DNS, etc.), Suchfunktion, Kategorie-Filter |
 
 ### 5.9 Blacklist Check (`blacklist-check`)
 
@@ -439,7 +529,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **ID** | `netzwerk-befehle` |
 | **Dateien** | `js/netzwerk-befehle.js`, `css/netzwerk-befehle.css` |
 | **API** | Keine (statische Datenbank) |
-| **Features** | 54 Befehle (25 CLI + 16 CPL + 13 MSC) mit Windows + Linux Syntax, Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info, Windows CPL, Windows MSC), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
+| **Features** | 54 Befehle (25 CLI + 16 CPL + 13 MSC) mit Windows + Linux Syntax (DE/EN), Kategorien (Diagnose, Konfiguration, DNS, Routing, Transfer, Remote, Info, Windows CPL, Windows MSC), Suchfunktion, Copy-to-Clipboard, Beispiele und Parameter-Erklaerung |
 
 ### 5.15 QR-Code Generator (`qr-generator`)
 
@@ -457,7 +547,7 @@ Jede Evaluation-Funktion liefert ein optionales `recommendation`-Property. Bei n
 | **ID** | `netzwerk-wiki` |
 | **Dateien** | `js/netzwerk-wiki.js`, `css/netzwerk-wiki.css` |
 | **API** | Keine (statische Datenbank) |
-| **Features** | Netzwerk-Lexikon mit 50+ Eintraegen, Kategorien (OSI-Modell, Protokolle, Kabeltypen, Geraete, Adressierung, Sicherheit, E-Mail), Volltext-Suche ueber Titel/Beschreibung/Tags, Accordion-Darstellung, OSI-Schicht Badges |
+| **Features** | Netzwerk-Lexikon mit 94 Eintraegen (DE/EN), Kategorien (OSI-Modell, Protokolle, Kabeltypen, Geraete, Adressierung, Sicherheit, E-Mail), Volltext-Suche ueber Titel/Beschreibung/Tags, Accordion-Darstellung, OSI-Schicht Badges |
 
 ---
 
@@ -569,16 +659,23 @@ Datei: `js/mein-tool.js`
 let _meinToolAbort = null;  // Optional: fuer API-Calls
 
 function init_mein_tool(container) {
+    // i18n Strings registrieren
+    I18N.register('mt', {
+        de: { input: 'Eingabe', result: 'Ergebnis' },
+        en: { input: 'Input', result: 'Result' },
+    });
+    const t = I18N.t;
+
     // HTML Template
     container.innerHTML = `
         <section class="card mt-input-card">
-            <label for="mt-input">Eingabe</label>
+            <label for="mt-input">${t('mt.input')}</label>
             <input type="text" id="mt-input" placeholder="...">
         </section>
         <section class="card" id="mt-result" style="display:none;">
             <div class="result-grid">
                 <div class="result-item">
-                    <span class="result-label">Ergebnis</span>
+                    <span class="result-label">${t('mt.result')}</span>
                     <span class="result-value" id="mt-value">—</span>
                 </div>
             </div>
@@ -680,7 +777,7 @@ git push
 
 ### UI/UX
 
-- Alle Texte auf **Deutsch**
+- Alle Texte **zweisprachig** (DE/EN) via `I18N.register()` und `t()`/`txt()`
 - Monospace-Font fuer technische Werte: `'SF Mono', 'Fira Code', 'Consolas', monospace`
 - Quick-Examples als Chips unter jedem Eingabefeld
 - Loading-States mit Spinner-Animation
@@ -831,4 +928,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-03-01 | v5.2.8*
+*Letzte Aktualisierung: 2026-03-01 | v5.2.9*

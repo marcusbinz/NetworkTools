@@ -24,9 +24,9 @@ function init_home(container) {
 
     // --- Changelog (letzte Änderungen) ---
     const CHANGELOG = [
+        { ver: '5.2.9', de: 'i18n-Dokumentation und Feinschliff abgeschlossen', en: 'i18n documentation and final polish completed' },
+        { ver: '5.2.8', de: 'Neue Startseite mit Logo, Beschreibung und Changelog', en: 'New home page with logo, description and changelog' },
         { ver: '5.2.7', de: 'Netzwerk-Befehle: 54 Befehle vollständig DE/EN übersetzt', en: 'Network Commands: 54 commands fully translated DE/EN' },
-        { ver: '5.2.6', de: 'Netzwerk-Wiki: 94 Artikel mit Tags vollständig DE/EN', en: 'Network Wiki: 94 articles with tags fully DE/EN' },
-        { ver: '5.2.5', de: 'Port-Referenz: 58 Port-Beschreibungen DE/EN', en: 'Port Reference: 58 port descriptions DE/EN' },
         { ver: '5.2.0', de: 'Sprachwechsel DE/EN — App jetzt zweisprachig', en: 'Language toggle DE/EN — app now bilingual' },
         { ver: '5.1.0', de: 'Neue Startseite mit Tool-Übersicht', en: 'New home page with tool overview' },
     ];
