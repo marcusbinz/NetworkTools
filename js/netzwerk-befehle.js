@@ -2,6 +2,50 @@
 
 function init_netzwerk_befehle(container) {
 
+    // --- i18n ---
+    I18N.register('nb', {
+        de: {
+            searchLabel: 'Suche (Befehl, Beschreibung oder Schalter)',
+            searchPlaceholder: 'z.B. ping, DNS, Firewall...',
+            catLabel: 'Kategorie',
+            catAll: 'Alle', catDiag: 'Diagnose', catConfig: 'Konfiguration',
+            catDns: 'DNS', catRouting: 'Routing', catTransfer: 'Transfer',
+            catRemote: 'Remote', catInfo: 'Info',
+            catWinCpl: 'Windows CPL', catWinMsc: 'Windows MSC',
+            title: 'Befehls-Referenz',
+            commands: '{n} Befehle', command: '{n} Befehl',
+            noResults: 'Keine Befehle gefunden',
+            syntax: 'Syntax', switches: 'Wichtige Schalter', examples: 'Beispiele',
+            noEquiv: 'Kein direktes Pendant unter {platform}.',
+            copy: 'Kopieren',
+            helpWin: 'Alle Parameter anzeigen',
+            grpCplNetwork: 'CPL \u2014 Netzwerk', grpCplSystem: 'CPL \u2014 System',
+            grpCplHardware: 'CPL \u2014 Hardware', grpCplAccess: 'CPL \u2014 Eingabehilfe',
+            grpMscAdmin: 'MSC \u2014 Verwaltung', grpMscNetwork: 'MSC \u2014 Netzwerk & Sicherheit',
+        },
+        en: {
+            searchLabel: 'Search (command, description or switch)',
+            searchPlaceholder: 'e.g. ping, DNS, firewall...',
+            catLabel: 'Category',
+            catAll: 'All', catDiag: 'Diagnostics', catConfig: 'Configuration',
+            catDns: 'DNS', catRouting: 'Routing', catTransfer: 'Transfer',
+            catRemote: 'Remote', catInfo: 'Info',
+            catWinCpl: 'Windows CPL', catWinMsc: 'Windows MSC',
+            title: 'Command Reference',
+            commands: '{n} commands', command: '{n} command',
+            noResults: 'No commands found',
+            syntax: 'Syntax', switches: 'Key Switches', examples: 'Examples',
+            noEquiv: 'No direct equivalent on {platform}.',
+            copy: 'Copy',
+            helpWin: 'Show all parameters',
+            grpCplNetwork: 'CPL \u2014 Network', grpCplSystem: 'CPL \u2014 System',
+            grpCplHardware: 'CPL \u2014 Hardware', grpCplAccess: 'CPL \u2014 Accessibility',
+            grpMscAdmin: 'MSC \u2014 Administration', grpMscNetwork: 'MSC \u2014 Network & Security',
+        },
+    });
+    const t = I18N.t;
+    const txt = (obj) => typeof obj === 'string' ? obj : (obj[I18N.getLang()] || obj.de);
+
     // --- Icons ---
     const COPY_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
     const CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -9,27 +53,27 @@ function init_netzwerk_befehle(container) {
     const LINUX_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.2 2 7 5.1 7 8.5c0 1.6.4 3 1.1 4.2-.8.5-2.6 1.8-2.8 3.4-.3 2 1.4 3.6 3.2 3.8.7.1 1.3-.1 1.8-.3.5.5 1.1.8 1.7.8s1.2-.3 1.7-.8c.5.2 1.1.4 1.8.3 1.8-.2 3.5-1.8 3.2-3.8-.2-1.6-2-2.9-2.8-3.4.7-1.2 1.1-2.6 1.1-4.2C17 5.1 14.8 2 12 2zm-2 8c-.6 0-1-.7-1-1.5S9.4 7 10 7s1 .7 1 1.5S10.6 10 10 10zm4 0c-.6 0-1-.7-1-1.5S13.4 7 14 7s1 .7 1 1.5S14.6 10 14 10zm-3.5 3h3c-.2.6-.7 1-1.5 1s-1.3-.4-1.5-1z"/></svg>';
 
     // --- Categories ---
-    const CATEGORIES = {
-        all:      { label: 'Alle',           color: 'var(--text-dim)' },
-        diagnose: { label: 'Diagnose',       color: 'var(--accent)' },
-        config:   { label: 'Konfiguration',  color: 'var(--green)' },
-        dns:      { label: 'DNS',            color: 'var(--purple)' },
-        routing:  { label: 'Routing',        color: 'var(--orange)' },
-        transfer: { label: 'Transfer',       color: 'var(--red)' },
-        remote:   { label: 'Remote',         color: '#2dd4bf' },
-        info:     { label: 'Info',           color: '#f472b6' },
-        'win-cpl':  { label: 'Windows CPL',    color: '#0078d4' },
-        'win-msc':  { label: 'Windows MSC',    color: '#00a4ef' },
+    const CAT_KEYS = {
+        all:      { tKey: 'nb.catAll',     color: 'var(--text-dim)' },
+        diagnose: { tKey: 'nb.catDiag',    color: 'var(--accent)' },
+        config:   { tKey: 'nb.catConfig',  color: 'var(--green)' },
+        dns:      { tKey: 'nb.catDns',     color: 'var(--purple)' },
+        routing:  { tKey: 'nb.catRouting', color: 'var(--orange)' },
+        transfer: { tKey: 'nb.catTransfer',color: 'var(--red)' },
+        remote:   { tKey: 'nb.catRemote',  color: '#2dd4bf' },
+        info:     { tKey: 'nb.catInfo',    color: '#f472b6' },
+        'win-cpl':{ tKey: 'nb.catWinCpl',  color: '#0078d4' },
+        'win-msc':{ tKey: 'nb.catWinMsc',  color: '#00a4ef' },
     };
 
-    // --- Windows-Gruppen (CPL/MSC Abschnitte) ---
-    const WIN_GROUPS = {
-        'cpl-network':  'CPL \u2014 Netzwerk',
-        'cpl-system':   'CPL \u2014 System',
-        'cpl-hardware': 'CPL \u2014 Hardware',
-        'cpl-access':   'CPL \u2014 Eingabehilfe',
-        'msc-admin':    'MSC \u2014 Verwaltung',
-        'msc-network':  'MSC \u2014 Netzwerk & Sicherheit',
+    // --- Windows-Gruppen ---
+    const WIN_GROUP_KEYS = {
+        'cpl-network':  'nb.grpCplNetwork',
+        'cpl-system':   'nb.grpCplSystem',
+        'cpl-hardware': 'nb.grpCplHardware',
+        'cpl-access':   'nb.grpCplAccess',
+        'msc-admin':    'nb.grpMscAdmin',
+        'msc-network':  'nb.grpMscNetwork',
     };
     const WIN_GROUPS_MAP = {
         'ncpa': 'cpl-network', 'firewall-cpl': 'cpl-network', 'inetcpl': 'cpl-network',
@@ -51,141 +95,141 @@ function init_netzwerk_befehle(container) {
         // ===== DIAGNOSE (4) =====
         {
             id: 'ping', name: 'ping', cat: 'diagnose',
-            desc: 'Erreichbarkeit eines Hosts testen (ICMP Echo)',
+            desc: { de: 'Erreichbarkeit eines Hosts testen (ICMP Echo)', en: 'Test host reachability (ICMP Echo)' },
             win: {
                 cmd: 'ping',
                 syntax: 'ping [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-t',         desc: 'Ping fortlaufend senden (Strg+C stoppt)' },
-                    { flag: '-n <Anz>',   desc: 'Anzahl der Echo-Anfragen' },
-                    { flag: '-l <Bytes>', desc: 'Paketgr\u00f6\u00dfe (Standard: 32)' },
-                    { flag: '-i <TTL>',   desc: 'Time-to-Live festlegen' },
-                    { flag: '-w <ms>',    desc: 'Timeout in Millisekunden' },
-                    { flag: '-4 / -6',    desc: 'IPv4 bzw. IPv6 erzwingen' },
+                    { flag: '-t',         desc: { de: 'Ping fortlaufend senden (Strg+C stoppt)', en: 'Send continuous ping (Ctrl+C stops)' } },
+                    { flag: '-n <Anz>',   desc: { de: 'Anzahl der Echo-Anfragen', en: 'Number of echo requests' } },
+                    { flag: '-l <Bytes>', desc: { de: 'Paketgr\u00f6\u00dfe (Standard: 32)', en: 'Packet size (default: 32)' } },
+                    { flag: '-i <TTL>',   desc: { de: 'Time-to-Live festlegen', en: 'Set Time-to-Live' } },
+                    { flag: '-w <ms>',    desc: { de: 'Timeout in Millisekunden', en: 'Timeout in milliseconds' } },
+                    { flag: '-4 / -6',    desc: { de: 'IPv4 bzw. IPv6 erzwingen', en: 'Force IPv4 or IPv6' } },
                 ],
                 examples: [
-                    { cmd: 'ping -t 8.8.8.8',            desc: 'Dauer-Ping an Google DNS' },
-                    { cmd: 'ping -n 10 -l 1000 server1', desc: '10 Pings mit 1000 Bytes' },
+                    { cmd: 'ping -t 8.8.8.8',            desc: { de: 'Dauer-Ping an Google DNS', en: 'Continuous ping to Google DNS' } },
+                    { cmd: 'ping -n 10 -l 1000 server1', desc: { de: '10 Pings mit 1000 Bytes', en: '10 pings with 1000 bytes' } },
                 ]
             },
             linux: {
                 cmd: 'ping',
                 syntax: 'ping [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-c <Anz>',   desc: 'Anzahl der Pings (sonst endlos)' },
-                    { flag: '-i <Sek>',   desc: 'Intervall zwischen Pings (Std: 1s)' },
-                    { flag: '-s <Bytes>', desc: 'Paketgr\u00f6\u00dfe (Standard: 56)' },
-                    { flag: '-t <TTL>',   desc: 'Time-to-Live festlegen' },
-                    { flag: '-W <Sek>',   desc: 'Timeout in Sekunden' },
-                    { flag: '-4 / -6',    desc: 'IPv4 bzw. IPv6 erzwingen' },
+                    { flag: '-c <Anz>',   desc: { de: 'Anzahl der Pings (sonst endlos)', en: 'Number of pings (otherwise infinite)' } },
+                    { flag: '-i <Sek>',   desc: { de: 'Intervall zwischen Pings (Std: 1s)', en: 'Interval between pings (default: 1s)' } },
+                    { flag: '-s <Bytes>', desc: { de: 'Paketgr\u00f6\u00dfe (Standard: 56)', en: 'Packet size (default: 56)' } },
+                    { flag: '-t <TTL>',   desc: { de: 'Time-to-Live festlegen', en: 'Set Time-to-Live' } },
+                    { flag: '-W <Sek>',   desc: { de: 'Timeout in Sekunden', en: 'Timeout in seconds' } },
+                    { flag: '-4 / -6',    desc: { de: 'IPv4 bzw. IPv6 erzwingen', en: 'Force IPv4 or IPv6' } },
                 ],
                 examples: [
-                    { cmd: 'ping -c 5 8.8.8.8',         desc: '5 Pings an Google DNS' },
-                    { cmd: 'ping -i 0.2 -c 50 server1', desc: '50 Schnell-Pings (200ms Intervall)' },
+                    { cmd: 'ping -c 5 8.8.8.8',         desc: { de: '5 Pings an Google DNS', en: '5 pings to Google DNS' } },
+                    { cmd: 'ping -i 0.2 -c 50 server1', desc: { de: '50 Schnell-Pings (200ms Intervall)', en: '50 fast pings (200ms interval)' } },
                 ]
             }
         },
         {
             id: 'traceroute', name: 'traceroute', cat: 'diagnose',
-            desc: 'Routenverfolgung zum Zielhost (Hop-Analyse)',
+            desc: { de: 'Routenverfolgung zum Zielhost (Hop-Analyse)', en: 'Route tracing to target host (hop analysis)' },
             win: {
                 cmd: 'tracert',
                 syntax: 'tracert [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-d',          desc: 'Keine DNS-Aufl\u00f6sung (schneller)' },
-                    { flag: '-h <MaxHops>', desc: 'Maximale Anzahl Hops (Std: 30)' },
-                    { flag: '-w <ms>',     desc: 'Timeout pro Hop in ms' },
-                    { flag: '-4 / -6',     desc: 'IPv4 bzw. IPv6 erzwingen' },
+                    { flag: '-d',          desc: { de: 'Keine DNS-Aufl\u00f6sung (schneller)', en: 'No DNS resolution (faster)' } },
+                    { flag: '-h <MaxHops>', desc: { de: 'Maximale Anzahl Hops (Std: 30)', en: 'Maximum number of hops (default: 30)' } },
+                    { flag: '-w <ms>',     desc: { de: 'Timeout pro Hop in ms', en: 'Timeout per hop in ms' } },
+                    { flag: '-4 / -6',     desc: { de: 'IPv4 bzw. IPv6 erzwingen', en: 'Force IPv4 or IPv6' } },
                 ],
                 examples: [
-                    { cmd: 'tracert -d 8.8.8.8',       desc: 'Route ohne DNS-Aufl\u00f6sung' },
-                    { cmd: 'tracert -h 15 example.com', desc: 'Max. 15 Hops' },
+                    { cmd: 'tracert -d 8.8.8.8',       desc: { de: 'Route ohne DNS-Aufl\u00f6sung', en: 'Route without DNS resolution' } },
+                    { cmd: 'tracert -h 15 example.com', desc: { de: 'Max. 15 Hops', en: 'Max. 15 hops' } },
                 ]
             },
             linux: {
                 cmd: 'traceroute',
                 syntax: 'traceroute [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-n',          desc: 'Keine DNS-Aufl\u00f6sung' },
-                    { flag: '-m <MaxHops>', desc: 'Maximale Anzahl Hops' },
-                    { flag: '-w <Sek>',    desc: 'Timeout pro Hop in Sekunden' },
-                    { flag: '-I',          desc: 'ICMP statt UDP verwenden' },
-                    { flag: '-T',          desc: 'TCP SYN verwenden' },
-                    { flag: '-p <Port>',   desc: 'Zielport festlegen' },
+                    { flag: '-n',          desc: { de: 'Keine DNS-Aufl\u00f6sung', en: 'No DNS resolution' } },
+                    { flag: '-m <MaxHops>', desc: { de: 'Maximale Anzahl Hops', en: 'Maximum number of hops' } },
+                    { flag: '-w <Sek>',    desc: { de: 'Timeout pro Hop in Sekunden', en: 'Timeout per hop in seconds' } },
+                    { flag: '-I',          desc: { de: 'ICMP statt UDP verwenden', en: 'Use ICMP instead of UDP' } },
+                    { flag: '-T',          desc: { de: 'TCP SYN verwenden', en: 'Use TCP SYN' } },
+                    { flag: '-p <Port>',   desc: { de: 'Zielport festlegen', en: 'Set destination port' } },
                 ],
                 examples: [
-                    { cmd: 'traceroute -n 8.8.8.8',              desc: 'Route ohne DNS' },
-                    { cmd: 'traceroute -T -p 443 example.com',   desc: 'TCP-Traceroute auf Port 443' },
+                    { cmd: 'traceroute -n 8.8.8.8',            desc: { de: 'Route ohne DNS', en: 'Route without DNS' } },
+                    { cmd: 'traceroute -T -p 443 example.com', desc: { de: 'TCP-Traceroute auf Port 443', en: 'TCP traceroute on port 443' } },
                 ]
             }
         },
         {
             id: 'pathping', name: 'pathping / mtr', cat: 'diagnose',
-            desc: 'Erweiterte Routenanalyse mit Paketverlust pro Hop',
+            desc: { de: 'Erweiterte Routenanalyse mit Paketverlust pro Hop', en: 'Advanced route analysis with packet loss per hop' },
             win: {
                 cmd: 'pathping',
                 syntax: 'pathping [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-n',          desc: 'Keine DNS-Aufl\u00f6sung' },
-                    { flag: '-h <MaxHops>', desc: 'Maximale Anzahl Hops' },
-                    { flag: '-q <Anz>',    desc: 'Abfragen pro Hop (Std: 100)' },
-                    { flag: '-p <ms>',     desc: 'Pause zwischen Pings in ms' },
+                    { flag: '-n',          desc: { de: 'Keine DNS-Aufl\u00f6sung', en: 'No DNS resolution' } },
+                    { flag: '-h <MaxHops>', desc: { de: 'Maximale Anzahl Hops', en: 'Maximum number of hops' } },
+                    { flag: '-q <Anz>',    desc: { de: 'Abfragen pro Hop (Std: 100)', en: 'Queries per hop (default: 100)' } },
+                    { flag: '-p <ms>',     desc: { de: 'Pause zwischen Pings in ms', en: 'Pause between pings in ms' } },
                 ],
                 examples: [
-                    { cmd: 'pathping -n 8.8.8.8',      desc: 'Hop-Analyse ohne DNS' },
-                    { cmd: 'pathping -q 50 server1',    desc: '50 Abfragen pro Hop' },
+                    { cmd: 'pathping -n 8.8.8.8',    desc: { de: 'Hop-Analyse ohne DNS', en: 'Hop analysis without DNS' } },
+                    { cmd: 'pathping -q 50 server1',  desc: { de: '50 Abfragen pro Hop', en: '50 queries per hop' } },
                 ]
             },
             linux: {
                 cmd: 'mtr',
                 syntax: 'mtr [Optionen] <Ziel>',
                 switches: [
-                    { flag: '-n',          desc: 'Keine DNS-Aufl\u00f6sung' },
-                    { flag: '-c <Anz>',    desc: 'Anzahl Pings pro Hop' },
-                    { flag: '-r',          desc: 'Report-Modus (nicht interaktiv)' },
-                    { flag: '-T',          desc: 'TCP statt ICMP verwenden' },
-                    { flag: '-P <Port>',   desc: 'TCP-Zielport' },
-                    { flag: '-w',          desc: 'Breiter Report (mehr Details)' },
+                    { flag: '-n',          desc: { de: 'Keine DNS-Aufl\u00f6sung', en: 'No DNS resolution' } },
+                    { flag: '-c <Anz>',    desc: { de: 'Anzahl Pings pro Hop', en: 'Number of pings per hop' } },
+                    { flag: '-r',          desc: { de: 'Report-Modus (nicht interaktiv)', en: 'Report mode (non-interactive)' } },
+                    { flag: '-T',          desc: { de: 'TCP statt ICMP verwenden', en: 'Use TCP instead of ICMP' } },
+                    { flag: '-P <Port>',   desc: { de: 'TCP-Zielport', en: 'TCP destination port' } },
+                    { flag: '-w',          desc: { de: 'Breiter Report (mehr Details)', en: 'Wide report (more details)' } },
                 ],
                 examples: [
-                    { cmd: 'mtr -r -c 100 8.8.8.8',          desc: 'Report mit 100 Pings' },
-                    { cmd: 'mtr -T -P 443 example.com',      desc: 'TCP-MTR auf Port 443' },
+                    { cmd: 'mtr -r -c 100 8.8.8.8',     desc: { de: 'Report mit 100 Pings', en: 'Report with 100 pings' } },
+                    { cmd: 'mtr -T -P 443 example.com',  desc: { de: 'TCP-MTR auf Port 443', en: 'TCP MTR on port 443' } },
                 ]
             }
         },
         {
             id: 'netstat', name: 'netstat / ss', cat: 'diagnose',
-            desc: 'Aktive Netzwerkverbindungen und offene Ports anzeigen',
+            desc: { de: 'Aktive Netzwerkverbindungen und offene Ports anzeigen', en: 'Display active network connections and open ports' },
             win: {
                 cmd: 'netstat',
                 syntax: 'netstat [Optionen]',
                 switches: [
-                    { flag: '-a',          desc: 'Alle Verbindungen + Ports anzeigen' },
-                    { flag: '-n',          desc: 'Numerische Adressen (kein DNS)' },
-                    { flag: '-o',          desc: 'Prozess-ID (PID) anzeigen' },
-                    { flag: '-b',          desc: 'Prozessname anzeigen (Admin)' },
-                    { flag: '-r',          desc: 'Routing-Tabelle anzeigen' },
-                    { flag: '-p <Proto>',  desc: 'Filter: TCP, UDP, TCPv6, UDPv6' },
+                    { flag: '-a',          desc: { de: 'Alle Verbindungen + Ports anzeigen', en: 'Show all connections + ports' } },
+                    { flag: '-n',          desc: { de: 'Numerische Adressen (kein DNS)', en: 'Numeric addresses (no DNS)' } },
+                    { flag: '-o',          desc: { de: 'Prozess-ID (PID) anzeigen', en: 'Show Process ID (PID)' } },
+                    { flag: '-b',          desc: { de: 'Prozessname anzeigen (Admin)', en: 'Show process name (admin)' } },
+                    { flag: '-r',          desc: { de: 'Routing-Tabelle anzeigen', en: 'Show routing table' } },
+                    { flag: '-p <Proto>',  desc: { de: 'Filter: TCP, UDP, TCPv6, UDPv6', en: 'Filter: TCP, UDP, TCPv6, UDPv6' } },
                 ],
                 examples: [
-                    { cmd: 'netstat -ano',                 desc: 'Alle Verbindungen mit PID' },
-                    { cmd: 'netstat -an | findstr :443',   desc: 'Nur Port 443 filtern' },
+                    { cmd: 'netstat -ano',               desc: { de: 'Alle Verbindungen mit PID', en: 'All connections with PID' } },
+                    { cmd: 'netstat -an | findstr :443', desc: { de: 'Nur Port 443 filtern', en: 'Filter port 443 only' } },
                 ]
             },
             linux: {
                 cmd: 'ss',
                 syntax: 'ss [Optionen]',
                 switches: [
-                    { flag: '-t',   desc: 'Nur TCP-Verbindungen' },
-                    { flag: '-u',   desc: 'Nur UDP-Verbindungen' },
-                    { flag: '-l',   desc: 'Nur lauschende Ports' },
-                    { flag: '-n',   desc: 'Numerische Adressen' },
-                    { flag: '-p',   desc: 'Prozessname anzeigen' },
-                    { flag: '-a',   desc: 'Alle Sockets anzeigen' },
+                    { flag: '-t',   desc: { de: 'Nur TCP-Verbindungen', en: 'TCP connections only' } },
+                    { flag: '-u',   desc: { de: 'Nur UDP-Verbindungen', en: 'UDP connections only' } },
+                    { flag: '-l',   desc: { de: 'Nur lauschende Ports', en: 'Listening ports only' } },
+                    { flag: '-n',   desc: { de: 'Numerische Adressen', en: 'Numeric addresses' } },
+                    { flag: '-p',   desc: { de: 'Prozessname anzeigen', en: 'Show process name' } },
+                    { flag: '-a',   desc: { de: 'Alle Sockets anzeigen', en: 'Show all sockets' } },
                 ],
                 examples: [
-                    { cmd: 'ss -tulnp',                     desc: 'Alle lauschenden TCP/UDP mit Prozess' },
-                    { cmd: 'ss -tn state established',      desc: 'Nur aktive TCP-Verbindungen' },
+                    { cmd: 'ss -tulnp',                desc: { de: 'Alle lauschenden TCP/UDP mit Prozess', en: 'All listening TCP/UDP with process' } },
+                    { cmd: 'ss -tn state established',  desc: { de: 'Nur aktive TCP-Verbindungen', en: 'Established TCP connections only' } },
                 ]
             }
         },
@@ -193,158 +237,158 @@ function init_netzwerk_befehle(container) {
         // ===== KONFIGURATION (5) =====
         {
             id: 'ipconfig', name: 'ipconfig / ip', cat: 'config',
-            desc: 'IP-Konfiguration und Netzwerkadapter anzeigen/\u00e4ndern',
+            desc: { de: 'IP-Konfiguration und Netzwerkadapter anzeigen/ändern', en: 'View/change IP configuration and network adapters' },
             win: {
                 cmd: 'ipconfig',
                 syntax: 'ipconfig [/Schalter]',
                 switches: [
-                    { flag: '/all',         desc: 'Vollst\u00e4ndige Konfiguration aller Adapter' },
-                    { flag: '/release',     desc: 'DHCP-Lease freigeben' },
-                    { flag: '/renew',       desc: 'DHCP-Lease erneuern' },
-                    { flag: '/flushdns',    desc: 'DNS-Cache leeren' },
-                    { flag: '/displaydns',  desc: 'DNS-Cache anzeigen' },
-                    { flag: '/registerdns', desc: 'DNS-Namen neu registrieren' },
+                    { flag: '/all',         desc: { de: 'Vollständige Konfiguration aller Adapter', en: 'Complete configuration of all adapters' } },
+                    { flag: '/release',     desc: { de: 'DHCP-Lease freigeben', en: 'Release DHCP lease' } },
+                    { flag: '/renew',       desc: { de: 'DHCP-Lease erneuern', en: 'Renew DHCP lease' } },
+                    { flag: '/flushdns',    desc: { de: 'DNS-Cache leeren', en: 'Flush DNS cache' } },
+                    { flag: '/displaydns',  desc: { de: 'DNS-Cache anzeigen', en: 'Display DNS cache' } },
+                    { flag: '/registerdns', desc: { de: 'DNS-Namen neu registrieren', en: 'Re-register DNS names' } },
                 ],
                 examples: [
-                    { cmd: 'ipconfig /all',      desc: 'Alle Adapter mit MAC, DNS, DHCP' },
-                    { cmd: 'ipconfig /flushdns',  desc: 'DNS-Cache leeren' },
-                    { cmd: 'ipconfig /release && ipconfig /renew', desc: 'DHCP erneuern' },
+                    { cmd: 'ipconfig /all',      desc: { de: 'Alle Adapter mit MAC, DNS, DHCP', en: 'All adapters with MAC, DNS, DHCP' } },
+                    { cmd: 'ipconfig /flushdns',  desc: { de: 'DNS-Cache leeren', en: 'Flush DNS cache' } },
+                    { cmd: 'ipconfig /release && ipconfig /renew', desc: { de: 'DHCP erneuern', en: 'Renew DHCP' } },
                 ]
             },
             linux: {
                 cmd: 'ip',
                 syntax: 'ip [Objekt] [Aktion]',
                 switches: [
-                    { flag: 'addr show',              desc: 'IP-Adressen aller Interfaces' },
-                    { flag: 'link show',              desc: 'Interfaces mit Status anzeigen' },
-                    { flag: 'addr add <IP>/<CIDR> dev <IF>', desc: 'IP-Adresse hinzuf\u00fcgen' },
-                    { flag: 'addr del <IP>/<CIDR> dev <IF>', desc: 'IP-Adresse entfernen' },
-                    { flag: 'link set <IF> up/down',  desc: 'Interface aktivieren/deaktivieren' },
+                    { flag: 'addr show',              desc: { de: 'IP-Adressen aller Interfaces', en: 'IP addresses of all interfaces' } },
+                    { flag: 'link show',              desc: { de: 'Interfaces mit Status anzeigen', en: 'Show interfaces with status' } },
+                    { flag: 'addr add <IP>/<CIDR> dev <IF>', desc: { de: 'IP-Adresse hinzufügen', en: 'Add IP address' } },
+                    { flag: 'addr del <IP>/<CIDR> dev <IF>', desc: { de: 'IP-Adresse entfernen', en: 'Remove IP address' } },
+                    { flag: 'link set <IF> up/down',  desc: { de: 'Interface aktivieren/deaktivieren', en: 'Enable/disable interface' } },
                 ],
                 examples: [
-                    { cmd: 'ip addr show',                             desc: 'Alle IP-Adressen anzeigen' },
-                    { cmd: 'ip addr add 192.168.1.10/24 dev eth0',     desc: 'Statische IP setzen' },
-                    { cmd: 'ip link set eth0 up',                      desc: 'Interface aktivieren' },
+                    { cmd: 'ip addr show',                             desc: { de: 'Alle IP-Adressen anzeigen', en: 'Show all IP addresses' } },
+                    { cmd: 'ip addr add 192.168.1.10/24 dev eth0',     desc: { de: 'Statische IP setzen', en: 'Set static IP' } },
+                    { cmd: 'ip link set eth0 up',                      desc: { de: 'Interface aktivieren', en: 'Enable interface' } },
                 ]
             }
         },
         {
             id: 'netsh', name: 'netsh / nmcli', cat: 'config',
-            desc: 'Netzwerkkomponenten konfigurieren (WLAN, Firewall, IP)',
+            desc: { de: 'Netzwerkkomponenten konfigurieren (WLAN, Firewall, IP)', en: 'Configure network components (WiFi, firewall, IP)' },
             win: {
                 cmd: 'netsh',
                 syntax: 'netsh <Kontext> <Befehl>',
                 switches: [
-                    { flag: 'wlan show profiles',         desc: 'Gespeicherte WLAN-Profile' },
-                    { flag: 'wlan show profile name=X key=clear', desc: 'WLAN-Passwort anzeigen' },
-                    { flag: 'interface ip show config',   desc: 'IP-Konfiguration aller Adapter' },
-                    { flag: 'advfirewall set allprofiles state on/off', desc: 'Firewall ein/aus' },
-                    { flag: 'interface ip set address ...', desc: 'Statische IP konfigurieren' },
+                    { flag: 'wlan show profiles',         desc: { de: 'Gespeicherte WLAN-Profile', en: 'Saved WiFi profiles' } },
+                    { flag: 'wlan show profile name=X key=clear', desc: { de: 'WLAN-Passwort anzeigen', en: 'Show WiFi password' } },
+                    { flag: 'interface ip show config',   desc: { de: 'IP-Konfiguration aller Adapter', en: 'IP configuration of all adapters' } },
+                    { flag: 'advfirewall set allprofiles state on/off', desc: { de: 'Firewall ein/aus', en: 'Firewall on/off' } },
+                    { flag: 'interface ip set address ...', desc: { de: 'Statische IP konfigurieren', en: 'Configure static IP' } },
                 ],
                 examples: [
-                    { cmd: 'netsh wlan show profiles',    desc: 'Alle WLAN-Profile auflisten' },
-                    { cmd: 'netsh wlan show profile name="MeinWLAN" key=clear', desc: 'WLAN-Passwort anzeigen' },
-                    { cmd: 'netsh interface ip set address "Ethernet" static 192.168.1.10 255.255.255.0 192.168.1.1', desc: 'Statische IP setzen' },
+                    { cmd: 'netsh wlan show profiles',    desc: { de: 'Alle WLAN-Profile auflisten', en: 'List all WiFi profiles' } },
+                    { cmd: 'netsh wlan show profile name="MeinWLAN" key=clear', desc: { de: 'WLAN-Passwort anzeigen', en: 'Show WiFi password' } },
+                    { cmd: 'netsh interface ip set address "Ethernet" static 192.168.1.10 255.255.255.0 192.168.1.1', desc: { de: 'Statische IP setzen', en: 'Set static IP' } },
                 ]
             },
             linux: {
                 cmd: 'nmcli',
                 syntax: 'nmcli <Objekt> <Aktion>',
                 switches: [
-                    { flag: 'general status',      desc: 'Netzwerkstatus \u00fcbersicht' },
-                    { flag: 'device status',       desc: 'Alle Interfaces mit Status' },
-                    { flag: 'device wifi list',    desc: 'Verf\u00fcgbare WLANs anzeigen' },
-                    { flag: 'connection show',     desc: 'Gespeicherte Verbindungen' },
-                    { flag: 'connection modify <Name> ...', desc: 'Verbindung \u00e4ndern' },
+                    { flag: 'general status',      desc: { de: 'Netzwerkstatus Übersicht', en: 'Network status overview' } },
+                    { flag: 'device status',       desc: { de: 'Alle Interfaces mit Status', en: 'All interfaces with status' } },
+                    { flag: 'device wifi list',    desc: { de: 'Verfügbare WLANs anzeigen', en: 'Show available WiFi networks' } },
+                    { flag: 'connection show',     desc: { de: 'Gespeicherte Verbindungen', en: 'Saved connections' } },
+                    { flag: 'connection modify <Name> ...', desc: { de: 'Verbindung ändern', en: 'Modify connection' } },
                 ],
                 examples: [
-                    { cmd: 'nmcli device status',   desc: 'Interface-Status anzeigen' },
-                    { cmd: 'nmcli device wifi list', desc: 'WLAN-Netze scannen' },
-                    { cmd: 'nmcli connection modify eth0 ipv4.addresses 192.168.1.10/24 ipv4.method manual', desc: 'Statische IP setzen' },
+                    { cmd: 'nmcli device status',   desc: { de: 'Interface-Status anzeigen', en: 'Show interface status' } },
+                    { cmd: 'nmcli device wifi list', desc: { de: 'WLAN-Netze scannen', en: 'Scan WiFi networks' } },
+                    { cmd: 'nmcli connection modify eth0 ipv4.addresses 192.168.1.10/24 ipv4.method manual', desc: { de: 'Statische IP setzen', en: 'Set static IP' } },
                 ]
             }
         },
         {
             id: 'ncpa', name: 'ncpa.cpl', cat: 'win-cpl',
-            desc: 'Netzwerkverbindungen GUI \u00f6ffnen (Schnellzugriff)',
+            desc: { de: 'Netzwerkverbindungen GUI öffnen (Schnellzugriff)', en: 'Open Network Connections GUI (quick access)' },
             win: {
                 cmd: 'ncpa.cpl',
                 syntax: 'ncpa.cpl',
                 switches: [
-                    { flag: '(keine)',  desc: 'Startet direkt die Netzwerkverbindungen' },
+                    { flag: '(keine)',  desc: { de: 'Startet direkt die Netzwerkverbindungen', en: 'Directly opens Network Connections' } },
                 ],
                 examples: [
-                    { cmd: 'ncpa.cpl',                  desc: '\u00d6ffnet Netzwerkverbindungen' },
-                    { cmd: 'control netconnections',    desc: 'Alternative (gleiche Funktion)' },
+                    { cmd: 'ncpa.cpl',                  desc: { de: 'Öffnet Netzwerkverbindungen', en: 'Open Network Connections' } },
+                    { cmd: 'control netconnections',    desc: { de: 'Alternative (gleiche Funktion)', en: 'Alternative (same function)' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Kein direktes Pendant. Verwende nmtui (TUI) oder nmcli / ip addr (CLI).'
+            linuxHint: { de: 'Kein direktes Pendant. Verwende nmtui (TUI) oder nmcli / ip addr (CLI).', en: 'No direct equivalent. Use nmtui (TUI) or nmcli / ip addr (CLI).' }
         },
         {
             id: 'hostname', name: 'hostname', cat: 'config',
-            desc: 'Computername anzeigen oder \u00e4ndern',
+            desc: { de: 'Computername anzeigen oder ändern', en: 'Display or change computer name' },
             win: {
                 cmd: 'hostname',
                 syntax: 'hostname',
                 switches: [
-                    { flag: '(keine)',  desc: 'Zeigt den aktuellen Computernamen' },
+                    { flag: '(keine)',  desc: { de: 'Zeigt den aktuellen Computernamen', en: 'Shows the current computer name' } },
                 ],
                 examples: [
-                    { cmd: 'hostname',  desc: 'Computername anzeigen' },
+                    { cmd: 'hostname',  desc: { de: 'Computername anzeigen', en: 'Show computer name' } },
                 ]
             },
             linux: {
                 cmd: 'hostname / hostnamectl',
                 syntax: 'hostname [Optionen] | hostnamectl [Aktion]',
                 switches: [
-                    { flag: '-f',         desc: 'FQDN (vollst\u00e4ndiger Hostname)' },
-                    { flag: '-I',         desc: 'Alle IP-Adressen des Hosts' },
-                    { flag: '-d',         desc: 'Dom\u00e4nenname anzeigen' },
-                    { flag: 'hostnamectl set-hostname <Name>', desc: 'Hostname \u00e4ndern (persistent)' },
+                    { flag: '-f',         desc: { de: 'FQDN (vollständiger Hostname)', en: 'FQDN (fully qualified hostname)' } },
+                    { flag: '-I',         desc: { de: 'Alle IP-Adressen des Hosts', en: 'All IP addresses of the host' } },
+                    { flag: '-d',         desc: { de: 'Domänenname anzeigen', en: 'Show domain name' } },
+                    { flag: 'hostnamectl set-hostname <Name>', desc: { de: 'Hostname ändern (persistent)', en: 'Change hostname (persistent)' } },
                 ],
                 examples: [
-                    { cmd: 'hostname -f',                         desc: 'FQDN anzeigen' },
-                    { cmd: 'hostnamectl',                         desc: 'Ausf\u00fchrliche System-/Hostname-Info' },
-                    { cmd: 'hostnamectl set-hostname server01',   desc: 'Hostname permanent \u00e4ndern' },
+                    { cmd: 'hostname -f',                         desc: { de: 'FQDN anzeigen', en: 'Show FQDN' } },
+                    { cmd: 'hostnamectl',                         desc: { de: 'Ausführliche System-/Hostname-Info', en: 'Detailed system/hostname info' } },
+                    { cmd: 'hostnamectl set-hostname server01',   desc: { de: 'Hostname permanent ändern', en: 'Change hostname permanently' } },
                 ]
             }
         },
         {
             id: 'proxy', name: 'proxy', cat: 'config',
-            desc: 'Proxy-Einstellungen anzeigen, setzen oder entfernen',
+            desc: { de: 'Proxy-Einstellungen anzeigen, setzen oder entfernen', en: 'View, set or remove proxy settings' },
             win: {
                 cmd: 'netsh winhttp',
                 syntax: 'netsh winhttp [show|set|reset] proxy ...',
                 switches: [
-                    { flag: 'show proxy',              desc: 'Aktuellen Proxy anzeigen' },
-                    { flag: 'set proxy <Proxy:Port>',  desc: 'Proxy setzen' },
-                    { flag: 'set proxy <Proxy> bypass-list="<Liste>"', desc: 'Proxy mit Ausnahmen' },
-                    { flag: 'reset proxy',             desc: 'Proxy entfernen (Direktverbindung)' },
-                    { flag: 'set HTTP_PROXY=...',      desc: 'Umgebungsvariable (CMD/PowerShell)' },
+                    { flag: 'show proxy',              desc: { de: 'Aktuellen Proxy anzeigen', en: 'Show current proxy' } },
+                    { flag: 'set proxy <Proxy:Port>',  desc: { de: 'Proxy setzen', en: 'Set proxy' } },
+                    { flag: 'set proxy <Proxy> bypass-list="<Liste>"', desc: { de: 'Proxy mit Ausnahmen', en: 'Proxy with exceptions' } },
+                    { flag: 'reset proxy',             desc: { de: 'Proxy entfernen (Direktverbindung)', en: 'Remove proxy (direct connection)' } },
+                    { flag: 'set HTTP_PROXY=...',      desc: { de: 'Umgebungsvariable (CMD/PowerShell)', en: 'Environment variable (CMD/PowerShell)' } },
                 ],
                 examples: [
-                    { cmd: 'netsh winhttp show proxy',                          desc: 'Proxy-Status anzeigen' },
-                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080',       desc: 'Proxy konfigurieren' },
-                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080 bypass-list="*.local;10.*"', desc: 'Proxy mit Ausnahmen' },
-                    { cmd: 'netsh winhttp reset proxy',                         desc: 'Proxy entfernen' },
+                    { cmd: 'netsh winhttp show proxy',                          desc: { de: 'Proxy-Status anzeigen', en: 'Show proxy status' } },
+                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080',       desc: { de: 'Proxy konfigurieren', en: 'Configure proxy' } },
+                    { cmd: 'netsh winhttp set proxy proxy.firma.de:8080 bypass-list="*.local;10.*"', desc: { de: 'Proxy mit Ausnahmen', en: 'Proxy with exceptions' } },
+                    { cmd: 'netsh winhttp reset proxy',                         desc: { de: 'Proxy entfernen', en: 'Remove proxy' } },
                 ]
             },
             linux: {
                 cmd: 'export http_proxy / https_proxy',
                 syntax: 'export http_proxy=http://<Proxy:Port>',
                 switches: [
-                    { flag: 'export http_proxy=...',   desc: 'HTTP-Proxy setzen' },
-                    { flag: 'export https_proxy=...',  desc: 'HTTPS-Proxy setzen' },
-                    { flag: 'export no_proxy=...',     desc: 'Ausnahmen (kommagetrennt)' },
-                    { flag: 'unset http_proxy',        desc: 'Proxy entfernen' },
-                    { flag: 'env | grep -i proxy',     desc: 'Aktuelle Proxy-Variablen anzeigen' },
+                    { flag: 'export http_proxy=...',   desc: { de: 'HTTP-Proxy setzen', en: 'Set HTTP proxy' } },
+                    { flag: 'export https_proxy=...',  desc: { de: 'HTTPS-Proxy setzen', en: 'Set HTTPS proxy' } },
+                    { flag: 'export no_proxy=...',     desc: { de: 'Ausnahmen (kommagetrennt)', en: 'Exceptions (comma-separated)' } },
+                    { flag: 'unset http_proxy',        desc: { de: 'Proxy entfernen', en: 'Remove proxy' } },
+                    { flag: 'env | grep -i proxy',     desc: { de: 'Aktuelle Proxy-Variablen anzeigen', en: 'Show current proxy variables' } },
                 ],
                 examples: [
-                    { cmd: 'export http_proxy=http://proxy.firma.de:8080',      desc: 'HTTP-Proxy setzen' },
-                    { cmd: 'export https_proxy=http://proxy.firma.de:8080',     desc: 'HTTPS-Proxy setzen' },
-                    { cmd: 'export no_proxy=localhost,127.0.0.1,.local',        desc: 'Ausnahmen definieren' },
-                    { cmd: 'unset http_proxy https_proxy',                      desc: 'Proxy entfernen' },
+                    { cmd: 'export http_proxy=http://proxy.firma.de:8080',      desc: { de: 'HTTP-Proxy setzen', en: 'Set HTTP proxy' } },
+                    { cmd: 'export https_proxy=http://proxy.firma.de:8080',     desc: { de: 'HTTPS-Proxy setzen', en: 'Set HTTPS proxy' } },
+                    { cmd: 'export no_proxy=localhost,127.0.0.1,.local',        desc: { de: 'Ausnahmen definieren', en: 'Define exceptions' } },
+                    { cmd: 'unset http_proxy https_proxy',                      desc: { de: 'Proxy entfernen', en: 'Remove proxy' } },
                 ]
             }
         },
@@ -352,70 +396,70 @@ function init_netzwerk_befehle(container) {
         // ===== DNS (2) =====
         {
             id: 'nslookup', name: 'nslookup / dig', cat: 'dns',
-            desc: 'DNS-Abfragen (A, MX, AAAA, TXT, NS, SOA, PTR)',
+            desc: { de: 'DNS-Abfragen (A, MX, AAAA, TXT, NS, SOA, PTR)', en: 'DNS queries (A, MX, AAAA, TXT, NS, SOA, PTR)' },
             win: {
                 cmd: 'nslookup',
                 syntax: 'nslookup [-type=<Typ>] <Name> [Server]',
                 switches: [
-                    { flag: '-type=A',     desc: 'IPv4-Adresse abfragen' },
-                    { flag: '-type=AAAA',  desc: 'IPv6-Adresse abfragen' },
-                    { flag: '-type=MX',    desc: 'Mailserver abfragen' },
-                    { flag: '-type=NS',    desc: 'Nameserver abfragen' },
-                    { flag: '-type=TXT',   desc: 'TXT-Records (SPF, DKIM)' },
-                    { flag: '-type=PTR',   desc: 'Reverse-DNS (IP \u2192 Name)' },
+                    { flag: '-type=A',     desc: { de: 'IPv4-Adresse abfragen', en: 'Query IPv4 address' } },
+                    { flag: '-type=AAAA',  desc: { de: 'IPv6-Adresse abfragen', en: 'Query IPv6 address' } },
+                    { flag: '-type=MX',    desc: { de: 'Mailserver abfragen', en: 'Query mail servers' } },
+                    { flag: '-type=NS',    desc: { de: 'Nameserver abfragen', en: 'Query name servers' } },
+                    { flag: '-type=TXT',   desc: { de: 'TXT-Records (SPF, DKIM)', en: 'TXT records (SPF, DKIM)' } },
+                    { flag: '-type=PTR',   desc: { de: 'Reverse-DNS (IP → Name)', en: 'Reverse DNS (IP → name)' } },
                 ],
                 examples: [
-                    { cmd: 'nslookup -type=MX example.com',       desc: 'MX-Records abfragen' },
-                    { cmd: 'nslookup example.com 8.8.8.8',        desc: 'Abfrage \u00fcber Google DNS' },
-                    { cmd: 'nslookup -type=TXT example.com',      desc: 'SPF/DKIM-Records pr\u00fcfen' },
+                    { cmd: 'nslookup -type=MX example.com',       desc: { de: 'MX-Records abfragen', en: 'Query MX records' } },
+                    { cmd: 'nslookup example.com 8.8.8.8',        desc: { de: 'Abfrage über Google DNS', en: 'Query via Google DNS' } },
+                    { cmd: 'nslookup -type=TXT example.com',      desc: { de: 'SPF/DKIM-Records prüfen', en: 'Check SPF/DKIM records' } },
                 ]
             },
             linux: {
                 cmd: 'dig',
                 syntax: 'dig [@Server] <Name> [Typ] [+Optionen]',
                 switches: [
-                    { flag: '@<Server>',   desc: 'DNS-Server angeben' },
-                    { flag: 'A / AAAA / MX / NS / TXT / SOA', desc: 'Record-Typ' },
-                    { flag: '+short',      desc: 'Nur das Ergebnis (kompakt)' },
-                    { flag: '+trace',      desc: 'Vollst\u00e4ndige DNS-Aufl\u00f6sungskette' },
-                    { flag: '+noall +answer', desc: 'Nur Answer-Section' },
-                    { flag: '-x <IP>',     desc: 'Reverse-DNS (PTR)' },
+                    { flag: '@<Server>',   desc: { de: 'DNS-Server angeben', en: 'Specify DNS server' } },
+                    { flag: 'A / AAAA / MX / NS / TXT / SOA', desc: { de: 'Record-Typ', en: 'Record type' } },
+                    { flag: '+short',      desc: { de: 'Nur das Ergebnis (kompakt)', en: 'Result only (compact)' } },
+                    { flag: '+trace',      desc: { de: 'Vollständige DNS-Auflösungskette', en: 'Full DNS resolution chain' } },
+                    { flag: '+noall +answer', desc: { de: 'Nur Answer-Section', en: 'Answer section only' } },
+                    { flag: '-x <IP>',     desc: { de: 'Reverse-DNS (PTR)', en: 'Reverse DNS (PTR)' } },
                 ],
                 examples: [
-                    { cmd: 'dig example.com MX +short',           desc: 'MX-Records (kompakt)' },
-                    { cmd: 'dig @8.8.8.8 example.com AAAA',      desc: 'IPv6 \u00fcber Google DNS' },
-                    { cmd: 'dig -x 8.8.8.8',                     desc: 'Reverse-DNS f\u00fcr 8.8.8.8' },
+                    { cmd: 'dig example.com MX +short',           desc: { de: 'MX-Records (kompakt)', en: 'MX records (compact)' } },
+                    { cmd: 'dig @8.8.8.8 example.com AAAA',      desc: { de: 'IPv6 über Google DNS', en: 'IPv6 via Google DNS' } },
+                    { cmd: 'dig -x 8.8.8.8',                     desc: { de: 'Reverse-DNS für 8.8.8.8', en: 'Reverse DNS for 8.8.8.8' } },
                 ]
             }
         },
         {
             id: 'dns-resolve', name: 'Resolve-DnsName / host', cat: 'dns',
-            desc: 'Schnelle DNS-Aufl\u00f6sung (PowerShell / host)',
+            desc: { de: 'Schnelle DNS-Auflösung (PowerShell / host)', en: 'Quick DNS resolution (PowerShell / host)' },
             win: {
                 cmd: 'Resolve-DnsName',
                 syntax: 'Resolve-DnsName <Name> [-Type <Typ>] [-Server <DNS>]',
                 switches: [
-                    { flag: '-Type A/MX/AAAA/NS/TXT/PTR', desc: 'Record-Typ' },
-                    { flag: '-Server <DNS>',   desc: 'DNS-Server angeben' },
-                    { flag: '-DnsOnly',        desc: 'Nur DNS (kein Cache/Hosts)' },
+                    { flag: '-Type A/MX/AAAA/NS/TXT/PTR', desc: { de: 'Record-Typ', en: 'Record type' } },
+                    { flag: '-Server <DNS>',   desc: { de: 'DNS-Server angeben', en: 'Specify DNS server' } },
+                    { flag: '-DnsOnly',        desc: { de: 'Nur DNS (kein Cache/Hosts)', en: 'DNS only (no cache/hosts)' } },
                 ],
                 examples: [
-                    { cmd: 'Resolve-DnsName example.com -Type MX',              desc: 'MX-Records abfragen' },
-                    { cmd: 'Resolve-DnsName example.com -Server 8.8.8.8',      desc: 'Abfrage \u00fcber Google DNS' },
+                    { cmd: 'Resolve-DnsName example.com -Type MX',              desc: { de: 'MX-Records abfragen', en: 'Query MX records' } },
+                    { cmd: 'Resolve-DnsName example.com -Server 8.8.8.8',      desc: { de: 'Abfrage über Google DNS', en: 'Query via Google DNS' } },
                 ]
             },
             linux: {
                 cmd: 'host',
                 syntax: 'host [-t <Typ>] <Name> [Server]',
                 switches: [
-                    { flag: '-t <Typ>',   desc: 'Record-Typ (A, MX, NS, TXT, AAAA)' },
-                    { flag: '-a',         desc: 'Alle verf\u00fcgbaren Records' },
-                    { flag: '<Server>',   desc: 'DNS-Server als 2. Argument' },
+                    { flag: '-t <Typ>',   desc: { de: 'Record-Typ (A, MX, NS, TXT, AAAA)', en: 'Record type (A, MX, NS, TXT, AAAA)' } },
+                    { flag: '-a',         desc: { de: 'Alle verfügbaren Records', en: 'All available records' } },
+                    { flag: '<Server>',   desc: { de: 'DNS-Server als 2. Argument', en: 'DNS server as 2nd argument' } },
                 ],
                 examples: [
-                    { cmd: 'host -t MX example.com',           desc: 'MX-Records abfragen' },
-                    { cmd: 'host example.com 8.8.8.8',         desc: 'Abfrage \u00fcber Google DNS' },
-                    { cmd: 'host -a example.com',              desc: 'Alle DNS-Records' },
+                    { cmd: 'host -t MX example.com',           desc: { de: 'MX-Records abfragen', en: 'Query MX records' } },
+                    { cmd: 'host example.com 8.8.8.8',         desc: { de: 'Abfrage über Google DNS', en: 'Query via Google DNS' } },
+                    { cmd: 'host -a example.com',              desc: { de: 'Alle DNS-Records', en: 'All DNS records' } },
                 ]
             }
         },
@@ -423,98 +467,98 @@ function init_netzwerk_befehle(container) {
         // ===== ROUTING (3) =====
         {
             id: 'route', name: 'route / ip route', cat: 'routing',
-            desc: 'Routing-Tabelle anzeigen und Routen verwalten',
+            desc: { de: 'Routing-Tabelle anzeigen und Routen verwalten', en: 'Display routing table and manage routes' },
             win: {
                 cmd: 'route',
                 syntax: 'route [print|add|delete] ...',
                 switches: [
-                    { flag: 'print',       desc: 'Routing-Tabelle anzeigen' },
-                    { flag: 'add <Netz> mask <Maske> <GW>', desc: 'Route hinzuf\u00fcgen' },
-                    { flag: 'delete <Netz>', desc: 'Route entfernen' },
-                    { flag: '-p',          desc: 'Route persistent (bleibt nach Neustart)' },
+                    { flag: 'print',       desc: { de: 'Routing-Tabelle anzeigen', en: 'Show routing table' } },
+                    { flag: 'add <Netz> mask <Maske> <GW>', desc: { de: 'Route hinzufügen', en: 'Add route' } },
+                    { flag: 'delete <Netz>', desc: { de: 'Route entfernen', en: 'Remove route' } },
+                    { flag: '-p',          desc: { de: 'Route persistent (bleibt nach Neustart)', en: 'Persistent route (survives reboot)' } },
                 ],
                 examples: [
-                    { cmd: 'route print',                                          desc: 'Routing-Tabelle anzeigen' },
-                    { cmd: 'route add 10.0.0.0 mask 255.0.0.0 192.168.1.1 -p',   desc: 'Persistente Route hinzuf\u00fcgen' },
+                    { cmd: 'route print',                                          desc: { de: 'Routing-Tabelle anzeigen', en: 'Show routing table' } },
+                    { cmd: 'route add 10.0.0.0 mask 255.0.0.0 192.168.1.1 -p',   desc: { de: 'Persistente Route hinzufügen', en: 'Add persistent route' } },
                 ]
             },
             linux: {
                 cmd: 'ip route',
                 syntax: 'ip route [show|add|del|get] ...',
                 switches: [
-                    { flag: 'show',          desc: 'Routing-Tabelle anzeigen' },
-                    { flag: 'add <Netz>/<CIDR> via <GW>', desc: 'Route hinzuf\u00fcgen' },
-                    { flag: 'del <Netz>/<CIDR>', desc: 'Route entfernen' },
-                    { flag: 'add default via <GW>', desc: 'Standard-Gateway setzen' },
-                    { flag: 'get <IP>',      desc: 'Route f\u00fcr eine IP nachschlagen' },
+                    { flag: 'show',          desc: { de: 'Routing-Tabelle anzeigen', en: 'Show routing table' } },
+                    { flag: 'add <Netz>/<CIDR> via <GW>', desc: { de: 'Route hinzufügen', en: 'Add route' } },
+                    { flag: 'del <Netz>/<CIDR>', desc: { de: 'Route entfernen', en: 'Remove route' } },
+                    { flag: 'add default via <GW>', desc: { de: 'Standard-Gateway setzen', en: 'Set default gateway' } },
+                    { flag: 'get <IP>',      desc: { de: 'Route für eine IP nachschlagen', en: 'Look up route for an IP' } },
                 ],
                 examples: [
-                    { cmd: 'ip route show',                              desc: 'Routing-Tabelle anzeigen' },
-                    { cmd: 'ip route add 10.0.0.0/8 via 192.168.1.1',   desc: 'Route hinzuf\u00fcgen' },
-                    { cmd: 'ip route get 8.8.8.8',                      desc: 'Welche Route wird genutzt?' },
+                    { cmd: 'ip route show',                              desc: { de: 'Routing-Tabelle anzeigen', en: 'Show routing table' } },
+                    { cmd: 'ip route add 10.0.0.0/8 via 192.168.1.1',   desc: { de: 'Route hinzufügen', en: 'Add route' } },
+                    { cmd: 'ip route get 8.8.8.8',                      desc: { de: 'Welche Route wird genutzt?', en: 'Which route is used?' } },
                 ]
             }
         },
         {
             id: 'arp', name: 'arp / ip neigh', cat: 'routing',
-            desc: 'ARP-Tabelle anzeigen (IP \u2194 MAC-Zuordnung)',
+            desc: { de: 'ARP-Tabelle anzeigen (IP ↔ MAC-Zuordnung)', en: 'Display ARP table (IP ↔ MAC mapping)' },
             win: {
                 cmd: 'arp',
                 syntax: 'arp [Optionen]',
                 switches: [
-                    { flag: '-a',          desc: 'ARP-Cache anzeigen' },
-                    { flag: '-d <IP>',     desc: 'Eintrag l\u00f6schen' },
-                    { flag: '-s <IP> <MAC>', desc: 'Statischen Eintrag hinzuf\u00fcgen' },
+                    { flag: '-a',          desc: { de: 'ARP-Cache anzeigen', en: 'Show ARP cache' } },
+                    { flag: '-d <IP>',     desc: { de: 'Eintrag löschen', en: 'Delete entry' } },
+                    { flag: '-s <IP> <MAC>', desc: { de: 'Statischen Eintrag hinzufügen', en: 'Add static entry' } },
                 ],
                 examples: [
-                    { cmd: 'arp -a',                  desc: 'ARP-Tabelle anzeigen' },
-                    { cmd: 'arp -d 192.168.1.1',     desc: 'Eintrag l\u00f6schen' },
+                    { cmd: 'arp -a',                  desc: { de: 'ARP-Tabelle anzeigen', en: 'Show ARP table' } },
+                    { cmd: 'arp -d 192.168.1.1',     desc: { de: 'Eintrag löschen', en: 'Delete entry' } },
                 ]
             },
             linux: {
                 cmd: 'ip neigh',
                 syntax: 'ip neigh [show|add|del|flush] ...',
                 switches: [
-                    { flag: 'show',        desc: 'Nachbar-Tabelle anzeigen' },
-                    { flag: 'add <IP> lladdr <MAC> dev <IF>', desc: 'Statisch hinzuf\u00fcgen' },
-                    { flag: 'del <IP> dev <IF>', desc: 'Eintrag l\u00f6schen' },
-                    { flag: 'flush dev <IF>', desc: 'Alle Eintr\u00e4ge l\u00f6schen' },
+                    { flag: 'show',        desc: { de: 'Nachbar-Tabelle anzeigen', en: 'Show neighbor table' } },
+                    { flag: 'add <IP> lladdr <MAC> dev <IF>', desc: { de: 'Statisch hinzufügen', en: 'Add static entry' } },
+                    { flag: 'del <IP> dev <IF>', desc: { de: 'Eintrag löschen', en: 'Delete entry' } },
+                    { flag: 'flush dev <IF>', desc: { de: 'Alle Einträge löschen', en: 'Delete all entries' } },
                 ],
                 examples: [
-                    { cmd: 'ip neigh show',            desc: 'ARP-/Nachbar-Tabelle anzeigen' },
-                    { cmd: 'ip neigh flush dev eth0',  desc: 'Cache f\u00fcr eth0 leeren' },
+                    { cmd: 'ip neigh show',            desc: { de: 'ARP-/Nachbar-Tabelle anzeigen', en: 'Show ARP/neighbor table' } },
+                    { cmd: 'ip neigh flush dev eth0',  desc: { de: 'Cache für eth0 leeren', en: 'Flush cache for eth0' } },
                 ]
             }
         },
         {
             id: 'nbtstat', name: 'nbtstat / nbtscan', cat: 'routing',
-            desc: 'NetBIOS-Namensinformationen und -Scanning',
+            desc: { de: 'NetBIOS-Namensinformationen und -Scanning', en: 'NetBIOS name information and scanning' },
             win: {
                 cmd: 'nbtstat',
                 syntax: 'nbtstat [Optionen]',
                 switches: [
-                    { flag: '-a <Name>',   desc: 'NetBIOS-Tabelle nach Name' },
-                    { flag: '-A <IP>',     desc: 'NetBIOS-Tabelle nach IP' },
-                    { flag: '-n',          desc: 'Lokale NetBIOS-Tabelle' },
-                    { flag: '-r',          desc: 'Aufgel\u00f6ste Namen-Statistik' },
-                    { flag: '-c',          desc: 'NetBIOS-Cache anzeigen' },
+                    { flag: '-a <Name>',   desc: { de: 'NetBIOS-Tabelle nach Name', en: 'NetBIOS table by name' } },
+                    { flag: '-A <IP>',     desc: { de: 'NetBIOS-Tabelle nach IP', en: 'NetBIOS table by IP' } },
+                    { flag: '-n',          desc: { de: 'Lokale NetBIOS-Tabelle', en: 'Local NetBIOS table' } },
+                    { flag: '-r',          desc: { de: 'Aufgelöste Namen-Statistik', en: 'Resolved name statistics' } },
+                    { flag: '-c',          desc: { de: 'NetBIOS-Cache anzeigen', en: 'Show NetBIOS cache' } },
                 ],
                 examples: [
-                    { cmd: 'nbtstat -A 192.168.1.1',  desc: 'NetBIOS-Info einer IP' },
-                    { cmd: 'nbtstat -n',               desc: 'Lokale NetBIOS-Namen' },
+                    { cmd: 'nbtstat -A 192.168.1.1',  desc: { de: 'NetBIOS-Info einer IP', en: 'NetBIOS info of an IP' } },
+                    { cmd: 'nbtstat -n',               desc: { de: 'Lokale NetBIOS-Namen', en: 'Local NetBIOS names' } },
                 ]
             },
             linux: {
                 cmd: 'nbtscan',
                 syntax: 'nbtscan [Optionen] <Ziel/Bereich>',
                 switches: [
-                    { flag: '-r <Bereich>', desc: 'Netzbereich scannen (CIDR)' },
-                    { flag: '-e',           desc: 'Erweiterte Ausgabe' },
-                    { flag: '-v',           desc: 'Ausf\u00fchrliche Ausgabe' },
+                    { flag: '-r <Bereich>', desc: { de: 'Netzbereich scannen (CIDR)', en: 'Scan network range (CIDR)' } },
+                    { flag: '-e',           desc: { de: 'Erweiterte Ausgabe', en: 'Extended output' } },
+                    { flag: '-v',           desc: { de: 'Ausführliche Ausgabe', en: 'Verbose output' } },
                 ],
                 examples: [
-                    { cmd: 'nbtscan 192.168.1.0/24',  desc: 'Gesamtes Subnetz scannen' },
-                    { cmd: 'nbtscan -v 10.0.0.0/8',   desc: 'Ausf\u00fchrlicher Scan' },
+                    { cmd: 'nbtscan 192.168.1.0/24',  desc: { de: 'Gesamtes Subnetz scannen', en: 'Scan entire subnet' } },
+                    { cmd: 'nbtscan -v 10.0.0.0/8',   desc: { de: 'Ausführlicher Scan', en: 'Verbose scan' } },
                 ]
             }
         },
@@ -522,160 +566,160 @@ function init_netzwerk_befehle(container) {
         // ===== TRANSFER (5) =====
         {
             id: 'ftp', name: 'ftp', cat: 'transfer',
-            desc: 'Datei\u00fcbertragung \u00fcber das FTP-Protokoll',
+            desc: { de: 'Dateiübertragung über das FTP-Protokoll', en: 'File transfer via FTP protocol' },
             win: {
                 cmd: 'ftp',
                 syntax: 'ftp [Optionen] <Host>',
                 switches: [
-                    { flag: '-s:<Datei>',  desc: 'Script-Datei f\u00fcr Batch-Betrieb' },
-                    { flag: '-n',          desc: 'Kein Auto-Login' },
-                    { flag: '-i',          desc: 'Nicht interaktiv (kein Prompt)' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe deaktivieren' },
+                    { flag: '-s:<Datei>',  desc: { de: 'Script-Datei für Batch-Betrieb', en: 'Script file for batch mode' } },
+                    { flag: '-n',          desc: { de: 'Kein Auto-Login', en: 'No auto-login' } },
+                    { flag: '-i',          desc: { de: 'Nicht interaktiv (kein Prompt)', en: 'Non-interactive (no prompt)' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe deaktivieren', en: 'Disable verbose output' } },
                 ],
                 examples: [
-                    { cmd: 'ftp server1',                  desc: 'FTP-Verbindung herstellen' },
-                    { cmd: 'ftp -s:upload.txt server1',    desc: 'Batch-Upload per Script' },
+                    { cmd: 'ftp server1',                  desc: { de: 'FTP-Verbindung herstellen', en: 'Establish FTP connection' } },
+                    { cmd: 'ftp -s:upload.txt server1',    desc: { de: 'Batch-Upload per Script', en: 'Batch upload via script' } },
                 ]
             },
             linux: {
                 cmd: 'ftp',
                 syntax: 'ftp [Optionen] <Host>',
                 switches: [
-                    { flag: '-n',          desc: 'Kein Auto-Login' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe' },
-                    { flag: '-i',          desc: 'Nicht interaktiv' },
-                    { flag: 'mget / mput', desc: 'Mehrere Dateien holen/senden' },
-                    { flag: 'bin / ascii', desc: 'Bin\u00e4r-/Textmodus umschalten' },
+                    { flag: '-n',          desc: { de: 'Kein Auto-Login', en: 'No auto-login' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe', en: 'Verbose output' } },
+                    { flag: '-i',          desc: { de: 'Nicht interaktiv', en: 'Non-interactive' } },
+                    { flag: 'mget / mput', desc: { de: 'Mehrere Dateien holen/senden', en: 'Get/put multiple files' } },
+                    { flag: 'bin / ascii', desc: { de: 'Binär-/Textmodus umschalten', en: 'Switch binary/text mode' } },
                 ],
                 examples: [
-                    { cmd: 'ftp server1',                     desc: 'Interaktive FTP-Sitzung' },
-                    { cmd: 'ftp -n server1 < script.txt',     desc: 'Automatisiert per Script' },
+                    { cmd: 'ftp server1',                     desc: { de: 'Interaktive FTP-Sitzung', en: 'Interactive FTP session' } },
+                    { cmd: 'ftp -n server1 < script.txt',     desc: { de: 'Automatisiert per Script', en: 'Automated via script' } },
                 ]
             }
         },
         {
             id: 'tftp', name: 'tftp', cat: 'transfer',
-            desc: 'Einfache Datei\u00fcbertragung (Trivial FTP, kein Auth)',
+            desc: { de: 'Einfache Dateiübertragung (Trivial FTP, kein Auth)', en: 'Simple file transfer (Trivial FTP, no auth)' },
             win: {
                 cmd: 'tftp',
                 syntax: 'tftp [-i] <Host> [GET|PUT] <Datei>',
                 switches: [
-                    { flag: '-i',          desc: 'Bin\u00e4rmodus (f\u00fcr Firmware etc.)' },
-                    { flag: 'GET <Datei>', desc: 'Datei vom Server holen' },
-                    { flag: 'PUT <Datei>', desc: 'Datei zum Server senden' },
+                    { flag: '-i',          desc: { de: 'Binärmodus (für Firmware etc.)', en: 'Binary mode (for firmware etc.)' } },
+                    { flag: 'GET <Datei>', desc: { de: 'Datei vom Server holen', en: 'Get file from server' } },
+                    { flag: 'PUT <Datei>', desc: { de: 'Datei zum Server senden', en: 'Send file to server' } },
                 ],
                 examples: [
-                    { cmd: 'tftp -i 192.168.1.1 GET firmware.bin',  desc: 'Firmware herunterladen' },
-                    { cmd: 'tftp -i 192.168.1.1 PUT config.cfg',   desc: 'Konfiguration hochladen' },
+                    { cmd: 'tftp -i 192.168.1.1 GET firmware.bin',  desc: { de: 'Firmware herunterladen', en: 'Download firmware' } },
+                    { cmd: 'tftp -i 192.168.1.1 PUT config.cfg',   desc: { de: 'Konfiguration hochladen', en: 'Upload configuration' } },
                 ]
             },
             linux: {
                 cmd: 'tftp',
                 syntax: 'tftp <Host> [-c get|put <Datei>]',
                 switches: [
-                    { flag: '-c get <Datei>', desc: 'Datei holen (Command-Line)' },
-                    { flag: '-c put <Datei>', desc: 'Datei senden' },
-                    { flag: '-m binary',      desc: 'Bin\u00e4rmodus' },
+                    { flag: '-c get <Datei>', desc: { de: 'Datei holen (Command-Line)', en: 'Get file (command line)' } },
+                    { flag: '-c put <Datei>', desc: { de: 'Datei senden', en: 'Send file' } },
+                    { flag: '-m binary',      desc: { de: 'Binärmodus', en: 'Binary mode' } },
                 ],
                 examples: [
-                    { cmd: 'tftp 192.168.1.1 -c get firmware.bin',  desc: 'Firmware herunterladen' },
-                    { cmd: 'tftp 192.168.1.1 -c put config.cfg',   desc: 'Konfiguration hochladen' },
+                    { cmd: 'tftp 192.168.1.1 -c get firmware.bin',  desc: { de: 'Firmware herunterladen', en: 'Download firmware' } },
+                    { cmd: 'tftp 192.168.1.1 -c put config.cfg',   desc: { de: 'Konfiguration hochladen', en: 'Upload configuration' } },
                 ]
             }
         },
         {
             id: 'curl', name: 'curl', cat: 'transfer',
-            desc: 'HTTP(S)-Anfragen und Daten\u00fcbertragung (ab Win10)',
+            desc: { de: 'HTTP(S)-Anfragen und Datenübertragung (ab Win10)', en: 'HTTP(S) requests and data transfer (Win10+)' },
             win: {
                 cmd: 'curl',
                 syntax: 'curl [Optionen] <URL>',
                 switches: [
-                    { flag: '-o <Datei>',  desc: 'Ausgabe in Datei speichern' },
-                    { flag: '-O',          desc: 'Dateiname vom Server \u00fcbernehmen' },
-                    { flag: '-I',          desc: 'Nur HTTP-Header anzeigen' },
-                    { flag: '-X <Method>', desc: 'HTTP-Methode (GET, POST, PUT, DELETE)' },
-                    { flag: '-H "Header"', desc: 'HTTP-Header mitgeben' },
-                    { flag: '-d "Daten"',  desc: 'POST-Daten senden' },
-                    { flag: '-L',          desc: 'Redirects automatisch folgen' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe' },
+                    { flag: '-o <Datei>',  desc: { de: 'Ausgabe in Datei speichern', en: 'Save output to file' } },
+                    { flag: '-O',          desc: { de: 'Dateiname vom Server übernehmen', en: 'Use filename from server' } },
+                    { flag: '-I',          desc: { de: 'Nur HTTP-Header anzeigen', en: 'Show HTTP headers only' } },
+                    { flag: '-X <Method>', desc: { de: 'HTTP-Methode (GET, POST, PUT, DELETE)', en: 'HTTP method (GET, POST, PUT, DELETE)' } },
+                    { flag: '-H "Header"', desc: { de: 'HTTP-Header mitgeben', en: 'Include HTTP header' } },
+                    { flag: '-d "Daten"',  desc: { de: 'POST-Daten senden', en: 'Send POST data' } },
+                    { flag: '-L',          desc: { de: 'Redirects automatisch folgen', en: 'Follow redirects automatically' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe', en: 'Verbose output' } },
                 ],
                 examples: [
-                    { cmd: 'curl -I https://example.com',                          desc: 'HTTP-Header abfragen' },
-                    { cmd: 'curl -o datei.zip https://example.com/datei.zip',      desc: 'Datei herunterladen' },
+                    { cmd: 'curl -I https://example.com',                          desc: { de: 'HTTP-Header abfragen', en: 'Query HTTP headers' } },
+                    { cmd: 'curl -o datei.zip https://example.com/datei.zip',      desc: { de: 'Datei herunterladen', en: 'Download file' } },
                 ]
             },
             linux: {
                 cmd: 'curl',
                 syntax: 'curl [Optionen] <URL>',
                 switches: [
-                    { flag: '-o <Datei>',  desc: 'Ausgabe in Datei speichern' },
-                    { flag: '-O',          desc: 'Dateiname vom Server \u00fcbernehmen' },
-                    { flag: '-I',          desc: 'Nur HTTP-Header anzeigen' },
-                    { flag: '-X <Method>', desc: 'HTTP-Methode' },
-                    { flag: '-H "Header"', desc: 'HTTP-Header mitgeben' },
-                    { flag: '-d "Daten"',  desc: 'POST-Daten senden' },
-                    { flag: '-s',          desc: 'Silent-Modus (kein Fortschritt)' },
-                    { flag: '-k',          desc: 'TLS-Zertifikat nicht pr\u00fcfen' },
+                    { flag: '-o <Datei>',  desc: { de: 'Ausgabe in Datei speichern', en: 'Save output to file' } },
+                    { flag: '-O',          desc: { de: 'Dateiname vom Server übernehmen', en: 'Use filename from server' } },
+                    { flag: '-I',          desc: { de: 'Nur HTTP-Header anzeigen', en: 'Show HTTP headers only' } },
+                    { flag: '-X <Method>', desc: { de: 'HTTP-Methode', en: 'HTTP method' } },
+                    { flag: '-H "Header"', desc: { de: 'HTTP-Header mitgeben', en: 'Include HTTP header' } },
+                    { flag: '-d "Daten"',  desc: { de: 'POST-Daten senden', en: 'Send POST data' } },
+                    { flag: '-s',          desc: { de: 'Silent-Modus (kein Fortschritt)', en: 'Silent mode (no progress)' } },
+                    { flag: '-k',          desc: { de: 'TLS-Zertifikat nicht prüfen', en: 'Skip TLS certificate check' } },
                 ],
                 examples: [
-                    { cmd: 'curl -sL https://example.com | head',                  desc: 'Erste Zeilen einer Seite' },
-                    { cmd: 'curl -X POST -H "Content-Type: application/json" -d \'{"key":"val"}\' https://api.example.com', desc: 'JSON-POST an API' },
+                    { cmd: 'curl -sL https://example.com | head',                  desc: { de: 'Erste Zeilen einer Seite', en: 'First lines of a page' } },
+                    { cmd: 'curl -X POST -H "Content-Type: application/json" -d \'{"key":"val"}\' https://api.example.com', desc: { de: 'JSON-POST an API', en: 'JSON POST to API' } },
                 ]
             }
         },
         {
             id: 'wget', name: 'wget', cat: 'transfer',
-            desc: 'Dateien und Webseiten herunterladen (rekursiv m\u00f6glich)',
+            desc: { de: 'Dateien und Webseiten herunterladen (rekursiv möglich)', en: 'Download files and websites (recursive possible)' },
             win: null,
-            winHint: 'Nicht in Windows enthalten. Verwende curl -O oder Invoke-WebRequest (PowerShell).',
+            winHint: { de: 'Nicht in Windows enthalten. Verwende curl -O oder Invoke-WebRequest (PowerShell).', en: 'Not included in Windows. Use curl -O or Invoke-WebRequest (PowerShell).' },
             linux: {
                 cmd: 'wget',
                 syntax: 'wget [Optionen] <URL>',
                 switches: [
-                    { flag: '-O <Datei>',  desc: 'Zieldateiname festlegen' },
-                    { flag: '-q',          desc: 'Stille Ausgabe' },
-                    { flag: '-r',          desc: 'Rekursiver Download' },
-                    { flag: '-c',          desc: 'Abgebrochenen Download fortsetzen' },
-                    { flag: '--mirror',    desc: 'Komplette Website spiegeln' },
-                    { flag: '-P <Ordner>', desc: 'Zielverzeichnis festlegen' },
+                    { flag: '-O <Datei>',  desc: { de: 'Zieldateiname festlegen', en: 'Set target filename' } },
+                    { flag: '-q',          desc: { de: 'Stille Ausgabe', en: 'Quiet output' } },
+                    { flag: '-r',          desc: { de: 'Rekursiver Download', en: 'Recursive download' } },
+                    { flag: '-c',          desc: { de: 'Abgebrochenen Download fortsetzen', en: 'Resume interrupted download' } },
+                    { flag: '--mirror',    desc: { de: 'Komplette Website spiegeln', en: 'Mirror complete website' } },
+                    { flag: '-P <Ordner>', desc: { de: 'Zielverzeichnis festlegen', en: 'Set target directory' } },
                 ],
                 examples: [
-                    { cmd: 'wget https://example.com/datei.zip',            desc: 'Datei herunterladen' },
-                    { cmd: 'wget -r -l 2 https://example.com/docs/',       desc: 'Rekursiv (2 Ebenen tief)' },
-                    { cmd: 'wget -c https://example.com/grossedatei.iso',  desc: 'Download fortsetzen' },
+                    { cmd: 'wget https://example.com/datei.zip',            desc: { de: 'Datei herunterladen', en: 'Download file' } },
+                    { cmd: 'wget -r -l 2 https://example.com/docs/',       desc: { de: 'Rekursiv (2 Ebenen tief)', en: 'Recursive (2 levels deep)' } },
+                    { cmd: 'wget -c https://example.com/grossedatei.iso',  desc: { de: 'Download fortsetzen', en: 'Resume download' } },
                 ]
             }
         },
         {
             id: 'scp', name: 'scp', cat: 'transfer',
-            desc: 'Sichere Datei\u00fcbertragung \u00fcber SSH (OpenSSH)',
+            desc: { de: 'Sichere Dateiübertragung über SSH (OpenSSH)', en: 'Secure file transfer via SSH (OpenSSH)' },
             win: {
                 cmd: 'scp',
                 syntax: 'scp [Optionen] <Quelle> <Ziel>',
                 switches: [
-                    { flag: '-P <Port>',   desc: 'SSH-Port angeben (gro\u00dfes P)' },
-                    { flag: '-r',          desc: 'Rekursiv (Verzeichnisse)' },
-                    { flag: '-i <Key>',    desc: 'Private-Key-Datei angeben' },
-                    { flag: '-C',          desc: 'Kompression aktivieren' },
+                    { flag: '-P <Port>',   desc: { de: 'SSH-Port angeben (großes P)', en: 'Specify SSH port (capital P)' } },
+                    { flag: '-r',          desc: { de: 'Rekursiv (Verzeichnisse)', en: 'Recursive (directories)' } },
+                    { flag: '-i <Key>',    desc: { de: 'Private-Key-Datei angeben', en: 'Specify private key file' } },
+                    { flag: '-C',          desc: { de: 'Kompression aktivieren', en: 'Enable compression' } },
                 ],
                 examples: [
-                    { cmd: 'scp datei.txt user@server:/home/user/',  desc: 'Datei zum Server kopieren' },
-                    { cmd: 'scp -r ordner/ user@server:/backup/',    desc: 'Verzeichnis rekursiv kopieren' },
+                    { cmd: 'scp datei.txt user@server:/home/user/',  desc: { de: 'Datei zum Server kopieren', en: 'Copy file to server' } },
+                    { cmd: 'scp -r ordner/ user@server:/backup/',    desc: { de: 'Verzeichnis rekursiv kopieren', en: 'Copy directory recursively' } },
                 ]
             },
             linux: {
                 cmd: 'scp',
                 syntax: 'scp [Optionen] <Quelle> <Ziel>',
                 switches: [
-                    { flag: '-P <Port>',   desc: 'SSH-Port angeben' },
-                    { flag: '-r',          desc: 'Rekursiv (Verzeichnisse)' },
-                    { flag: '-i <Key>',    desc: 'Private-Key-Datei angeben' },
-                    { flag: '-C',          desc: 'Kompression aktivieren' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe' },
+                    { flag: '-P <Port>',   desc: { de: 'SSH-Port angeben', en: 'Specify SSH port' } },
+                    { flag: '-r',          desc: { de: 'Rekursiv (Verzeichnisse)', en: 'Recursive (directories)' } },
+                    { flag: '-i <Key>',    desc: { de: 'Private-Key-Datei angeben', en: 'Specify private key file' } },
+                    { flag: '-C',          desc: { de: 'Kompression aktivieren', en: 'Enable compression' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe', en: 'Verbose output' } },
                 ],
                 examples: [
-                    { cmd: 'scp user@server:/var/log/syslog .',             desc: 'Datei vom Server holen' },
-                    { cmd: 'scp -P 2222 -r /data/ user@server:/backup/',   desc: '\u00dcber Port 2222 rekursiv' },
+                    { cmd: 'scp user@server:/var/log/syslog .',             desc: { de: 'Datei vom Server holen', en: 'Get file from server' } },
+                    { cmd: 'scp -P 2222 -r /data/ user@server:/backup/',   desc: { de: 'Über Port 2222 rekursiv', en: 'Recursive via port 2222' } },
                 ]
             }
         },
@@ -683,96 +727,96 @@ function init_netzwerk_befehle(container) {
         // ===== REMOTE (3) =====
         {
             id: 'ssh', name: 'ssh', cat: 'remote',
-            desc: 'Sichere Fernverbindung (Secure Shell, ab Win10)',
+            desc: { de: 'Sichere Fernverbindung (Secure Shell, ab Win10)', en: 'Secure remote connection (Secure Shell, Win10+)' },
             win: {
                 cmd: 'ssh',
                 syntax: 'ssh [Optionen] <user@host>',
                 switches: [
-                    { flag: '-p <Port>',   desc: 'SSH-Port angeben' },
-                    { flag: '-i <Key>',    desc: 'Private-Key-Datei' },
-                    { flag: '-L <lokal:host:remote>', desc: 'Port-Forwarding (lokal)' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe (Debug)' },
+                    { flag: '-p <Port>',   desc: { de: 'SSH-Port angeben', en: 'Specify SSH port' } },
+                    { flag: '-i <Key>',    desc: { de: 'Private-Key-Datei', en: 'Private key file' } },
+                    { flag: '-L <lokal:host:remote>', desc: { de: 'Port-Forwarding (lokal)', en: 'Port forwarding (local)' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe (Debug)', en: 'Verbose output (debug)' } },
                 ],
                 examples: [
-                    { cmd: 'ssh user@server',                         desc: 'Verbindung herstellen' },
-                    { cmd: 'ssh -p 2222 -i key.pem user@server',     desc: 'Port + Key angeben' },
+                    { cmd: 'ssh user@server',                         desc: { de: 'Verbindung herstellen', en: 'Establish connection' } },
+                    { cmd: 'ssh -p 2222 -i key.pem user@server',     desc: { de: 'Port + Key angeben', en: 'Specify port + key' } },
                 ]
             },
             linux: {
                 cmd: 'ssh',
                 syntax: 'ssh [Optionen] <user@host>',
                 switches: [
-                    { flag: '-p <Port>',   desc: 'SSH-Port angeben' },
-                    { flag: '-i <Key>',    desc: 'Private-Key-Datei' },
-                    { flag: '-L <lokal:host:remote>', desc: 'Port-Forwarding (lokal)' },
-                    { flag: '-R <remote:host:lokal>', desc: 'Reverse-Tunnel' },
-                    { flag: '-D <Port>',   desc: 'SOCKS-Proxy (dynamisch)' },
-                    { flag: '-X',          desc: 'X11-Forwarding (GUI)' },
+                    { flag: '-p <Port>',   desc: { de: 'SSH-Port angeben', en: 'Specify SSH port' } },
+                    { flag: '-i <Key>',    desc: { de: 'Private-Key-Datei', en: 'Private key file' } },
+                    { flag: '-L <lokal:host:remote>', desc: { de: 'Port-Forwarding (lokal)', en: 'Port forwarding (local)' } },
+                    { flag: '-R <remote:host:lokal>', desc: { de: 'Reverse-Tunnel', en: 'Reverse tunnel' } },
+                    { flag: '-D <Port>',   desc: { de: 'SOCKS-Proxy (dynamisch)', en: 'SOCKS proxy (dynamic)' } },
+                    { flag: '-X',          desc: { de: 'X11-Forwarding (GUI)', en: 'X11 forwarding (GUI)' } },
                 ],
                 examples: [
-                    { cmd: 'ssh user@server',                             desc: 'Verbindung herstellen' },
-                    { cmd: 'ssh -L 8080:localhost:80 user@server',       desc: 'Lokaler Tunnel (Port 8080 \u2192 80)' },
-                    { cmd: 'ssh -D 9090 user@proxy',                     desc: 'SOCKS-Proxy auf Port 9090' },
+                    { cmd: 'ssh user@server',                             desc: { de: 'Verbindung herstellen', en: 'Establish connection' } },
+                    { cmd: 'ssh -L 8080:localhost:80 user@server',       desc: { de: 'Lokaler Tunnel (Port 8080 → 80)', en: 'Local tunnel (port 8080 → 80)' } },
+                    { cmd: 'ssh -D 9090 user@proxy',                     desc: { de: 'SOCKS-Proxy auf Port 9090', en: 'SOCKS proxy on port 9090' } },
                 ]
             }
         },
         {
             id: 'telnet', name: 'telnet', cat: 'remote',
-            desc: 'Unverschl\u00fcsselte Fernverbindung / Port-Test',
+            desc: { de: 'Unverschlüsselte Fernverbindung / Port-Test', en: 'Unencrypted remote connection / port test' },
             win: {
                 cmd: 'telnet',
                 syntax: 'telnet <Host> [Port]',
                 switches: [
-                    { flag: '<Host> <Port>', desc: 'Verbindung zu Host auf Port' },
-                    { flag: '(Hinweis)',     desc: 'Muss unter "Windows-Features" aktiviert werden' },
+                    { flag: '<Host> <Port>', desc: { de: 'Verbindung zu Host auf Port', en: 'Connect to host on port' } },
+                    { flag: '(Hinweis)',     desc: { de: 'Muss unter "Windows-Features" aktiviert werden', en: 'Must be enabled in "Windows Features"' } },
                 ],
                 examples: [
-                    { cmd: 'telnet server1 25',       desc: 'SMTP-Port testen' },
-                    { cmd: 'telnet 192.168.1.1 80',   desc: 'HTTP-Port testen' },
+                    { cmd: 'telnet server1 25',       desc: { de: 'SMTP-Port testen', en: 'Test SMTP port' } },
+                    { cmd: 'telnet 192.168.1.1 80',   desc: { de: 'HTTP-Port testen', en: 'Test HTTP port' } },
                 ]
             },
             linux: {
                 cmd: 'telnet',
                 syntax: 'telnet <Host> [Port]',
                 switches: [
-                    { flag: '<Host> <Port>', desc: 'Verbindung zu Host auf Port' },
+                    { flag: '<Host> <Port>', desc: { de: 'Verbindung zu Host auf Port', en: 'Connect to host on port' } },
                 ],
                 examples: [
-                    { cmd: 'telnet server1 25',        desc: 'SMTP-Port testen' },
-                    { cmd: 'telnet 192.168.1.1 443',   desc: 'HTTPS-Port testen' },
+                    { cmd: 'telnet server1 25',        desc: { de: 'SMTP-Port testen', en: 'Test SMTP port' } },
+                    { cmd: 'telnet 192.168.1.1 443',   desc: { de: 'HTTPS-Port testen', en: 'Test HTTPS port' } },
                 ]
             }
         },
         {
             id: 'netuse', name: 'net use / smbclient', cat: 'remote',
-            desc: 'Netzlaufwerke (SMB/CIFS) verbinden und verwalten',
+            desc: { de: 'Netzlaufwerke (SMB/CIFS) verbinden und verwalten', en: 'Connect and manage network drives (SMB/CIFS)' },
             win: {
                 cmd: 'net use',
                 syntax: 'net use [Laufwerk:] \\\\Server\\Freigabe [Optionen]',
                 switches: [
-                    { flag: '/user:<Dom\\User>', desc: 'Benutzername angeben' },
-                    { flag: '/persistent:yes',   desc: 'Nach Neustart wiederherstellen' },
-                    { flag: '/delete',           desc: 'Laufwerk trennen' },
-                    { flag: '(ohne Parameter)',  desc: 'Aktive Verbindungen anzeigen' },
+                    { flag: '/user:<Dom\\User>', desc: { de: 'Benutzername angeben', en: 'Specify username' } },
+                    { flag: '/persistent:yes',   desc: { de: 'Nach Neustart wiederherstellen', en: 'Restore after reboot' } },
+                    { flag: '/delete',           desc: { de: 'Laufwerk trennen', en: 'Disconnect drive' } },
+                    { flag: '(ohne Parameter)',  desc: { de: 'Aktive Verbindungen anzeigen', en: 'Show active connections' } },
                 ],
                 examples: [
-                    { cmd: 'net use',                                           desc: 'Verbundene Laufwerke anzeigen' },
-                    { cmd: 'net use Z: \\\\server\\share /user:domain\\user',  desc: 'Netzlaufwerk verbinden' },
-                    { cmd: 'net use Z: /delete',                               desc: 'Laufwerk Z: trennen' },
+                    { cmd: 'net use',                                           desc: { de: 'Verbundene Laufwerke anzeigen', en: 'Show connected drives' } },
+                    { cmd: 'net use Z: \\\\server\\share /user:domain\\user',  desc: { de: 'Netzlaufwerk verbinden', en: 'Map network drive' } },
+                    { cmd: 'net use Z: /delete',                               desc: { de: 'Laufwerk Z: trennen', en: 'Disconnect drive Z:' } },
                 ]
             },
             linux: {
                 cmd: 'smbclient',
                 syntax: 'smbclient //<Server>/<Freigabe> [Optionen]',
                 switches: [
-                    { flag: '-U <User>',   desc: 'Benutzername angeben' },
-                    { flag: '-L <Server>', desc: 'Verf\u00fcgbare Freigaben auflisten' },
-                    { flag: '-c "<Befehl>"', desc: 'Befehl direkt ausf\u00fchren' },
-                    { flag: '-N',          desc: 'Kein Passwort (anonym)' },
+                    { flag: '-U <User>',   desc: { de: 'Benutzername angeben', en: 'Specify username' } },
+                    { flag: '-L <Server>', desc: { de: 'Verfügbare Freigaben auflisten', en: 'List available shares' } },
+                    { flag: '-c "<Befehl>"', desc: { de: 'Befehl direkt ausführen', en: 'Execute command directly' } },
+                    { flag: '-N',          desc: { de: 'Kein Passwort (anonym)', en: 'No password (anonymous)' } },
                 ],
                 examples: [
-                    { cmd: 'smbclient //server/share -U user',    desc: 'Interaktive SMB-Sitzung' },
-                    { cmd: 'smbclient -L server -U user',         desc: 'Freigaben auflisten' },
+                    { cmd: 'smbclient //server/share -U user',    desc: { de: 'Interaktive SMB-Sitzung', en: 'Interactive SMB session' } },
+                    { cmd: 'smbclient -L server -U user',         desc: { de: 'Freigaben auflisten', en: 'List shares' } },
                 ]
             }
         },
@@ -780,614 +824,615 @@ function init_netzwerk_befehle(container) {
         // ===== INFO (4) =====
         {
             id: 'whoami', name: 'whoami', cat: 'info',
-            desc: 'Aktuellen Benutzer, Gruppen und Berechtigungen anzeigen',
+            desc: { de: 'Aktuellen Benutzer, Gruppen und Berechtigungen anzeigen', en: 'Show current user, groups and permissions' },
             win: {
                 cmd: 'whoami',
                 syntax: 'whoami [Optionen]',
                 switches: [
-                    { flag: '(ohne)',      desc: 'Aktuellen Benutzernamen anzeigen' },
-                    { flag: '/user',       desc: 'Benutzer-SID anzeigen' },
-                    { flag: '/groups',     desc: 'Gruppenmitgliedschaften anzeigen' },
-                    { flag: '/priv',       desc: 'Zugewiesene Berechtigungen anzeigen' },
-                    { flag: '/all',        desc: 'Alle Informationen (User, SID, Gruppen, Priv)' },
-                    { flag: '/fo TABLE|LIST|CSV', desc: 'Ausgabeformat festlegen' },
+                    { flag: '(ohne)',      desc: { de: 'Aktuellen Benutzernamen anzeigen', en: 'Show current username' } },
+                    { flag: '/user',       desc: { de: 'Benutzer-SID anzeigen', en: 'Show user SID' } },
+                    { flag: '/groups',     desc: { de: 'Gruppenmitgliedschaften anzeigen', en: 'Show group memberships' } },
+                    { flag: '/priv',       desc: { de: 'Zugewiesene Berechtigungen anzeigen', en: 'Show assigned privileges' } },
+                    { flag: '/all',        desc: { de: 'Alle Informationen (User, SID, Gruppen, Priv)', en: 'All information (user, SID, groups, priv)' } },
+                    { flag: '/fo TABLE|LIST|CSV', desc: { de: 'Ausgabeformat festlegen', en: 'Set output format' } },
                 ],
                 examples: [
-                    { cmd: 'whoami',            desc: 'Benutzername (DOMAIN\\User)' },
-                    { cmd: 'whoami /all',       desc: 'Vollst\u00e4ndige Info (SID, Gruppen, Priv)' },
-                    { cmd: 'whoami /groups',    desc: 'Gruppenmitgliedschaften' },
+                    { cmd: 'whoami',            desc: { de: 'Benutzername (DOMAIN\\User)', en: 'Username (DOMAIN\\User)' } },
+                    { cmd: 'whoami /all',       desc: { de: 'Vollständige Info (SID, Gruppen, Priv)', en: 'Complete info (SID, groups, priv)' } },
+                    { cmd: 'whoami /groups',    desc: { de: 'Gruppenmitgliedschaften', en: 'Group memberships' } },
                 ]
             },
             linux: {
                 cmd: 'whoami / id',
                 syntax: 'whoami | id [Optionen] [Benutzer]',
                 switches: [
-                    { flag: 'whoami',      desc: 'Aktuellen Benutzernamen anzeigen' },
-                    { flag: 'id',          desc: 'UID, GID und Gruppen anzeigen' },
-                    { flag: 'id -u',       desc: 'Nur User-ID (UID)' },
-                    { flag: 'id -g',       desc: 'Nur Group-ID (GID)' },
-                    { flag: 'id -Gn',      desc: 'Alle Gruppennamen' },
-                    { flag: 'groups',      desc: 'Gruppenmitgliedschaften' },
+                    { flag: 'whoami',      desc: { de: 'Aktuellen Benutzernamen anzeigen', en: 'Show current username' } },
+                    { flag: 'id',          desc: { de: 'UID, GID und Gruppen anzeigen', en: 'Show UID, GID and groups' } },
+                    { flag: 'id -u',       desc: { de: 'Nur User-ID (UID)', en: 'User ID (UID) only' } },
+                    { flag: 'id -g',       desc: { de: 'Nur Group-ID (GID)', en: 'Group ID (GID) only' } },
+                    { flag: 'id -Gn',      desc: { de: 'Alle Gruppennamen', en: 'All group names' } },
+                    { flag: 'groups',      desc: { de: 'Gruppenmitgliedschaften', en: 'Group memberships' } },
                 ],
                 examples: [
-                    { cmd: 'whoami',       desc: 'Benutzername anzeigen' },
-                    { cmd: 'id',           desc: 'UID, GID und alle Gruppen' },
-                    { cmd: 'id -Gn',       desc: 'Alle Gruppennamen auflisten' },
+                    { cmd: 'whoami',       desc: { de: 'Benutzername anzeigen', en: 'Show username' } },
+                    { cmd: 'id',           desc: { de: 'UID, GID und alle Gruppen', en: 'UID, GID and all groups' } },
+                    { cmd: 'id -Gn',       desc: { de: 'Alle Gruppennamen auflisten', en: 'List all group names' } },
                 ]
             }
         },
         {
             id: 'systeminfo', name: 'systeminfo / uname', cat: 'info',
-            desc: 'Systeminformationen anzeigen (OS, Hardware, Netzwerk)',
+            desc: { de: 'Systeminformationen anzeigen (OS, Hardware, Netzwerk)', en: 'Display system information (OS, hardware, network)' },
             win: {
                 cmd: 'systeminfo',
                 syntax: 'systeminfo [Optionen]',
                 switches: [
-                    { flag: '/s <Server>',  desc: 'Remotecomputer abfragen' },
-                    { flag: '/fo TABLE|LIST|CSV', desc: 'Ausgabeformat' },
-                    { flag: '| findstr "..."', desc: 'Ausgabe filtern' },
+                    { flag: '/s <Server>',  desc: { de: 'Remotecomputer abfragen', en: 'Query remote computer' } },
+                    { flag: '/fo TABLE|LIST|CSV', desc: { de: 'Ausgabeformat', en: 'Output format' } },
+                    { flag: '| findstr "..."', desc: { de: 'Ausgabe filtern', en: 'Filter output' } },
                 ],
                 examples: [
-                    { cmd: 'systeminfo',                                 desc: 'Vollst\u00e4ndige Systeminfo' },
-                    { cmd: 'systeminfo | findstr "Betriebssystem"',     desc: 'Nur OS-Infos filtern' },
-                    { cmd: 'systeminfo /fo CSV > info.csv',             desc: 'Als CSV exportieren' },
+                    { cmd: 'systeminfo',                                 desc: { de: 'Vollständige Systeminfo', en: 'Complete system info' } },
+                    { cmd: 'systeminfo | findstr "Betriebssystem"',     desc: { de: 'Nur OS-Infos filtern', en: 'Filter OS info only' } },
+                    { cmd: 'systeminfo /fo CSV > info.csv',             desc: { de: 'Als CSV exportieren', en: 'Export as CSV' } },
                 ]
             },
             linux: {
                 cmd: 'uname / hostnamectl',
                 syntax: 'uname [Optionen] | hostnamectl',
                 switches: [
-                    { flag: '-a',          desc: 'Alle Systeminfos (Kernel, Arch)' },
-                    { flag: '-r',          desc: 'Nur Kernel-Version' },
-                    { flag: '-m',          desc: 'Maschinen-Architektur (x86_64)' },
-                    { flag: 'hostnamectl', desc: 'Ausf\u00fchrlich (OS, Kernel, Chassis)' },
+                    { flag: '-a',          desc: { de: 'Alle Systeminfos (Kernel, Arch)', en: 'All system info (kernel, arch)' } },
+                    { flag: '-r',          desc: { de: 'Nur Kernel-Version', en: 'Kernel version only' } },
+                    { flag: '-m',          desc: { de: 'Maschinen-Architektur (x86_64)', en: 'Machine architecture (x86_64)' } },
+                    { flag: 'hostnamectl', desc: { de: 'Ausführlich (OS, Kernel, Chassis)', en: 'Detailed (OS, kernel, chassis)' } },
                 ],
                 examples: [
-                    { cmd: 'uname -a',            desc: 'Kernel + Architektur' },
-                    { cmd: 'hostnamectl',          desc: 'Ausf\u00fchrliche System-Info' },
-                    { cmd: 'cat /etc/os-release',  desc: 'Distribution + Version' },
+                    { cmd: 'uname -a',            desc: { de: 'Kernel + Architektur', en: 'Kernel + architecture' } },
+                    { cmd: 'hostnamectl',          desc: { de: 'Ausführliche System-Info', en: 'Detailed system info' } },
+                    { cmd: 'cat /etc/os-release',  desc: { de: 'Distribution + Version', en: 'Distribution + version' } },
                 ]
             }
         },
         {
             id: 'porttest', name: 'Test-NetConnection / nc', cat: 'info',
-            desc: 'Port-Erreichbarkeit testen und Netzwerk-Diagnose',
+            desc: { de: 'Port-Erreichbarkeit testen und Netzwerk-Diagnose', en: 'Test port reachability and network diagnostics' },
             win: {
                 cmd: 'Test-NetConnection',
                 syntax: 'Test-NetConnection <Host> [-Port <Port>] [Optionen]',
                 switches: [
-                    { flag: '-Port <Port>',                desc: 'TCP-Port pr\u00fcfen' },
-                    { flag: '-InformationLevel Detailed',  desc: 'Ausf\u00fchrliche Ausgabe' },
-                    { flag: '-TraceRoute',                 desc: 'Routenverfolgung einschlie\u00dfen' },
+                    { flag: '-Port <Port>',                desc: { de: 'TCP-Port prüfen', en: 'Check TCP port' } },
+                    { flag: '-InformationLevel Detailed',  desc: { de: 'Ausführliche Ausgabe', en: 'Detailed output' } },
+                    { flag: '-TraceRoute',                 desc: { de: 'Routenverfolgung einschließen', en: 'Include route tracing' } },
                 ],
                 examples: [
-                    { cmd: 'Test-NetConnection example.com -Port 443',       desc: 'HTTPS-Port pr\u00fcfen' },
-                    { cmd: 'Test-NetConnection 8.8.8.8 -TraceRoute',         desc: 'Ping + Traceroute' },
+                    { cmd: 'Test-NetConnection example.com -Port 443',       desc: { de: 'HTTPS-Port prüfen', en: 'Check HTTPS port' } },
+                    { cmd: 'Test-NetConnection 8.8.8.8 -TraceRoute',         desc: { de: 'Ping + Traceroute', en: 'Ping + traceroute' } },
                 ]
             },
             linux: {
                 cmd: 'nc (netcat)',
                 syntax: 'nc [Optionen] <Host> <Port>',
                 switches: [
-                    { flag: '-z',          desc: 'Scan-Modus (nur pr\u00fcfen, keine Daten)' },
-                    { flag: '-v',          desc: 'Ausf\u00fchrliche Ausgabe' },
-                    { flag: '-w <Sek>',    desc: 'Timeout in Sekunden' },
-                    { flag: '-l',          desc: 'Listen-Modus (Server)' },
-                    { flag: '-p <Port>',   desc: 'Lokalen Port festlegen' },
-                    { flag: '-u',          desc: 'UDP statt TCP' },
+                    { flag: '-z',          desc: { de: 'Scan-Modus (nur prüfen, keine Daten)', en: 'Scan mode (check only, no data)' } },
+                    { flag: '-v',          desc: { de: 'Ausführliche Ausgabe', en: 'Verbose output' } },
+                    { flag: '-w <Sek>',    desc: { de: 'Timeout in Sekunden', en: 'Timeout in seconds' } },
+                    { flag: '-l',          desc: { de: 'Listen-Modus (Server)', en: 'Listen mode (server)' } },
+                    { flag: '-p <Port>',   desc: { de: 'Lokalen Port festlegen', en: 'Set local port' } },
+                    { flag: '-u',          desc: { de: 'UDP statt TCP', en: 'UDP instead of TCP' } },
                 ],
                 examples: [
-                    { cmd: 'nc -zv example.com 443',    desc: 'Port 443 pr\u00fcfen' },
-                    { cmd: 'nc -l -p 8080',              desc: 'Auf Port 8080 lauschen' },
-                    { cmd: 'nc -zv server1 20-25',       desc: 'Port-Range scannen' },
+                    { cmd: 'nc -zv example.com 443',    desc: { de: 'Port 443 prüfen', en: 'Check port 443' } },
+                    { cmd: 'nc -l -p 8080',              desc: { de: 'Auf Port 8080 lauschen', en: 'Listen on port 8080' } },
+                    { cmd: 'nc -zv server1 20-25',       desc: { de: 'Port-Range scannen', en: 'Scan port range' } },
                 ]
             }
         },
         {
             id: 'capture', name: 'pktmon / tcpdump', cat: 'info',
-            desc: 'Netzwerkverkehr mitschneiden und analysieren',
+            desc: { de: 'Netzwerkverkehr mitschneiden und analysieren', en: 'Capture and analyze network traffic' },
             win: {
                 cmd: 'pktmon / netsh trace',
                 syntax: 'pktmon <Aktion> [Optionen]',
                 switches: [
-                    { flag: 'pktmon start --capture',  desc: 'Mitschnitt starten' },
-                    { flag: 'pktmon stop',             desc: 'Mitschnitt beenden' },
-                    { flag: 'pktmon list',             desc: 'Interfaces auflisten' },
-                    { flag: 'pktmon counters',         desc: 'Paket-Z\u00e4hler anzeigen' },
-                    { flag: 'netsh trace start capture=yes', desc: 'Alternative: netsh trace' },
-                    { flag: 'netsh trace stop',        desc: 'netsh trace beenden' },
+                    { flag: 'pktmon start --capture',  desc: { de: 'Mitschnitt starten', en: 'Start capture' } },
+                    { flag: 'pktmon stop',             desc: { de: 'Mitschnitt beenden', en: 'Stop capture' } },
+                    { flag: 'pktmon list',             desc: { de: 'Interfaces auflisten', en: 'List interfaces' } },
+                    { flag: 'pktmon counters',         desc: { de: 'Paket-Zähler anzeigen', en: 'Show packet counters' } },
+                    { flag: 'netsh trace start capture=yes', desc: { de: 'Alternative: netsh trace', en: 'Alternative: netsh trace' } },
+                    { flag: 'netsh trace stop',        desc: { de: 'netsh trace beenden', en: 'Stop netsh trace' } },
                 ],
                 examples: [
-                    { cmd: 'pktmon start --capture -c',                            desc: 'Packet Monitor starten' },
-                    { cmd: 'netsh trace start capture=yes tracefile=trace.etl',    desc: 'Trace in Datei' },
+                    { cmd: 'pktmon start --capture -c',                            desc: { de: 'Packet Monitor starten', en: 'Start Packet Monitor' } },
+                    { cmd: 'netsh trace start capture=yes tracefile=trace.etl',    desc: { de: 'Trace in Datei', en: 'Trace to file' } },
                 ]
             },
             linux: {
                 cmd: 'tcpdump',
                 syntax: 'tcpdump [Optionen] [Filter]',
                 switches: [
-                    { flag: '-i <IF>',     desc: 'Interface w\u00e4hlen (any = alle)' },
-                    { flag: '-n',          desc: 'Keine DNS-Aufl\u00f6sung' },
-                    { flag: '-c <Anz>',    desc: 'Nach n Paketen stoppen' },
-                    { flag: '-w <Datei>',  desc: 'In PCAP-Datei schreiben' },
-                    { flag: '-r <Datei>',  desc: 'PCAP-Datei lesen' },
-                    { flag: 'port <Port>', desc: 'Nach Port filtern' },
-                    { flag: 'host <Host>', desc: 'Nach Host filtern' },
-                    { flag: '-X',          desc: 'Hex + ASCII Ausgabe' },
+                    { flag: '-i <IF>',     desc: { de: 'Interface wählen (any = alle)', en: 'Select interface (any = all)' } },
+                    { flag: '-n',          desc: { de: 'Keine DNS-Auflösung', en: 'No DNS resolution' } },
+                    { flag: '-c <Anz>',    desc: { de: 'Nach n Paketen stoppen', en: 'Stop after n packets' } },
+                    { flag: '-w <Datei>',  desc: { de: 'In PCAP-Datei schreiben', en: 'Write to PCAP file' } },
+                    { flag: '-r <Datei>',  desc: { de: 'PCAP-Datei lesen', en: 'Read PCAP file' } },
+                    { flag: 'port <Port>', desc: { de: 'Nach Port filtern', en: 'Filter by port' } },
+                    { flag: 'host <Host>', desc: { de: 'Nach Host filtern', en: 'Filter by host' } },
+                    { flag: '-X',          desc: { de: 'Hex + ASCII Ausgabe', en: 'Hex + ASCII output' } },
                 ],
                 examples: [
-                    { cmd: 'tcpdump -i eth0 -n port 80',       desc: 'HTTP-Traffic auf eth0' },
-                    { cmd: 'tcpdump -i any -w capture.pcap',   desc: 'Alles in Datei mitschneiden' },
-                    { cmd: 'tcpdump -r capture.pcap',           desc: 'PCAP-Datei analysieren' },
+                    { cmd: 'tcpdump -i eth0 -n port 80',       desc: { de: 'HTTP-Traffic auf eth0', en: 'HTTP traffic on eth0' } },
+                    { cmd: 'tcpdump -i any -w capture.pcap',   desc: { de: 'Alles in Datei mitschneiden', en: 'Capture everything to file' } },
+                    { cmd: 'tcpdump -r capture.pcap',           desc: { de: 'PCAP-Datei analysieren', en: 'Analyze PCAP file' } },
                 ]
             }
         },
-        // ===== WINDOWS CPL-MODULE (15) =====
+
+        // ===== WINDOWS CPL-MODULE (16) =====
         {
             id: 'firewall-cpl', name: 'firewall.cpl', cat: 'win-cpl',
-            desc: 'Windows Defender Firewall \u00f6ffnen',
+            desc: { de: 'Windows Defender Firewall öffnen', en: 'Open Windows Defender Firewall' },
             win: {
                 cmd: 'firewall.cpl',
                 syntax: 'firewall.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Startet direkt die Windows Defender Firewall' },
+                    { flag: '(keine)', desc: { de: 'Startet direkt die Windows Defender Firewall', en: 'Directly opens Windows Defender Firewall' } },
                 ],
                 examples: [
-                    { cmd: 'firewall.cpl',           desc: 'Firewall-Einstellungen \u00f6ffnen' },
-                    { cmd: 'control firewall.cpl',   desc: 'Alternative \u00fcber control' },
+                    { cmd: 'firewall.cpl',           desc: { de: 'Firewall-Einstellungen öffnen', en: 'Open firewall settings' } },
+                    { cmd: 'control firewall.cpl',   desc: { de: 'Alternative über control', en: 'Alternative via control' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Kein direktes Pendant. Verwende ufw (Befehlszeile) oder iptables.'
+            linuxHint: { de: 'Kein direktes Pendant. Verwende ufw (Befehlszeile) oder iptables.', en: 'No direct equivalent. Use ufw (command line) or iptables.' }
         },
         {
             id: 'inetcpl', name: 'inetcpl.cpl', cat: 'win-cpl',
-            desc: 'Interneteigenschaften (Proxy, Sicherheit, Zertifikate)',
+            desc: { de: 'Interneteigenschaften (Proxy, Sicherheit, Zertifikate)', en: 'Internet Properties (proxy, security, certificates)' },
             win: {
                 cmd: 'inetcpl.cpl',
                 syntax: 'inetcpl.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Startet Interneteigenschaften (IE/System-Proxy)' },
+                    { flag: '(keine)', desc: { de: 'Startet Interneteigenschaften (IE/System-Proxy)', en: 'Opens Internet Properties (IE/system proxy)' } },
                 ],
                 examples: [
-                    { cmd: 'inetcpl.cpl',          desc: 'Interneteigenschaften \u00f6ffnen' },
-                    { cmd: 'control inetcpl.cpl',  desc: 'Alternative \u00fcber control' },
+                    { cmd: 'inetcpl.cpl',          desc: { de: 'Interneteigenschaften öffnen', en: 'Open Internet Properties' } },
+                    { cmd: 'control inetcpl.cpl',  desc: { de: 'Alternative über control', en: 'Alternative via control' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Proxy-Einstellungen \u00fcber /etc/environment oder Einstellungen der Desktop-Umgebung.'
+            linuxHint: { de: 'Proxy-Einstellungen über /etc/environment oder Einstellungen der Desktop-Umgebung.', en: 'Proxy settings via /etc/environment or desktop environment settings.' }
         },
         {
             id: 'sysdm', name: 'sysdm.cpl', cat: 'win-cpl',
-            desc: 'Systemeigenschaften (Computername, Hardware, Remotedesktop)',
+            desc: { de: 'Systemeigenschaften (Computername, Hardware, Remotedesktop)', en: 'System Properties (computer name, hardware, remote desktop)' },
             win: {
                 cmd: 'sysdm.cpl',
                 syntax: 'sysdm.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Systemeigenschaften \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Systemeigenschaften öffnen', en: 'Open System Properties' } },
                 ],
                 examples: [
-                    { cmd: 'sysdm.cpl',      desc: 'Systemeigenschaften \u00f6ffnen' },
-                    { cmd: 'sysdm.cpl ,3',   desc: 'Direkt Tab "Erweitert" \u00f6ffnen' },
+                    { cmd: 'sysdm.cpl',      desc: { de: 'Systemeigenschaften öffnen', en: 'Open System Properties' } },
+                    { cmd: 'sysdm.cpl ,3',   desc: { de: 'Direkt Tab "Erweitert" öffnen', en: 'Open "Advanced" tab directly' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Systeminfos: hostnamectl, uname -a, /etc/os-release.'
+            linuxHint: { de: 'Systeminfos: hostnamectl, uname -a, /etc/os-release.', en: 'System info: hostnamectl, uname -a, /etc/os-release.' }
         },
         {
             id: 'appwiz', name: 'appwiz.cpl', cat: 'win-cpl',
-            desc: 'Programme und Features (Deinstallation)',
+            desc: { de: 'Programme und Features (Deinstallation)', en: 'Programs and Features (uninstall)' },
             win: {
                 cmd: 'appwiz.cpl',
                 syntax: 'appwiz.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Liste aller installierten Programme' },
+                    { flag: '(keine)', desc: { de: 'Liste aller installierten Programme', en: 'List of all installed programs' } },
                 ],
                 examples: [
-                    { cmd: 'appwiz.cpl',          desc: 'Programme und Features \u00f6ffnen' },
-                    { cmd: 'control appwiz.cpl',  desc: 'Alternative \u00fcber control' },
+                    { cmd: 'appwiz.cpl',          desc: { de: 'Programme und Features öffnen', en: 'Open Programs and Features' } },
+                    { cmd: 'control appwiz.cpl',  desc: { de: 'Alternative über control', en: 'Alternative via control' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Paketverwaltung: apt list --installed, dnf list installed, dpkg -l.'
+            linuxHint: { de: 'Paketverwaltung: apt list --installed, dnf list installed, dpkg -l.', en: 'Package management: apt list --installed, dnf list installed, dpkg -l.' }
         },
         {
             id: 'powercfg-cpl', name: 'powercfg.cpl', cat: 'win-cpl',
-            desc: 'Energieoptionen (Energiesparpl\u00e4ne, Ruhezustand)',
+            desc: { de: 'Energieoptionen (Energiesparpläne, Ruhezustand)', en: 'Power Options (power plans, hibernation)' },
             win: {
                 cmd: 'powercfg.cpl',
                 syntax: 'powercfg.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Energieoptionen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Energieoptionen öffnen', en: 'Open Power Options' } },
                 ],
                 examples: [
-                    { cmd: 'powercfg.cpl',   desc: 'Energieoptionen \u00f6ffnen' },
-                    { cmd: 'powercfg /l',    desc: 'Energiep\u00e4ne per CLI auflisten' },
+                    { cmd: 'powercfg.cpl',   desc: { de: 'Energieoptionen öffnen', en: 'Open Power Options' } },
+                    { cmd: 'powercfg /l',    desc: { de: 'Energiepäne per CLI auflisten', en: 'List power plans via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Energieverwaltung: TLP, powertop, systemctl suspend/hibernate.'
+            linuxHint: { de: 'Energieverwaltung: TLP, powertop, systemctl suspend/hibernate.', en: 'Power management: TLP, powertop, systemctl suspend/hibernate.' }
         },
         {
             id: 'timedate', name: 'timedate.cpl', cat: 'win-cpl',
-            desc: 'Datum und Uhrzeit (Zeitzone, NTP-Synchronisation)',
+            desc: { de: 'Datum und Uhrzeit (Zeitzone, NTP-Synchronisation)', en: 'Date and Time (timezone, NTP sync)' },
             win: {
                 cmd: 'timedate.cpl',
                 syntax: 'timedate.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Datum- und Uhrzeit-Einstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Datum- und Uhrzeit-Einstellungen öffnen', en: 'Open Date and Time settings' } },
                 ],
                 examples: [
-                    { cmd: 'timedate.cpl',    desc: 'Datums- und Uhrzeit-Dialog \u00f6ffnen' },
-                    { cmd: 'w32tm /resync',   desc: 'Zeit per CLI sofort synchronisieren' },
+                    { cmd: 'timedate.cpl',    desc: { de: 'Datums- und Uhrzeit-Dialog öffnen', en: 'Open Date and Time dialog' } },
+                    { cmd: 'w32tm /resync',   desc: { de: 'Zeit per CLI sofort synchronisieren', en: 'Sync time immediately via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Zeitverwaltung: timedatectl, timedatectl set-timezone Europe/Berlin.'
+            linuxHint: { de: 'Zeitverwaltung: timedatectl, timedatectl set-timezone Europe/Berlin.', en: 'Time management: timedatectl, timedatectl set-timezone Europe/Berlin.' }
         },
         {
             id: 'intl', name: 'intl.cpl', cat: 'win-cpl',
-            desc: 'Region und Sprache (Zahlenformat, W\u00e4hrung, Tastaturlayout)',
+            desc: { de: 'Region und Sprache (Zahlenformat, Währung, Tastaturlayout)', en: 'Region and Language (number format, currency, keyboard layout)' },
             win: {
                 cmd: 'intl.cpl',
                 syntax: 'intl.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Regions- und Spracheinstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Regions- und Spracheinstellungen öffnen', en: 'Open Region and Language settings' } },
                 ],
                 examples: [
-                    { cmd: 'intl.cpl',         desc: 'Regionseinstellungen \u00f6ffnen' },
-                    { cmd: 'control intl.cpl', desc: 'Alternative \u00fcber control' },
+                    { cmd: 'intl.cpl',         desc: { de: 'Regionseinstellungen öffnen', en: 'Open Region settings' } },
+                    { cmd: 'control intl.cpl', desc: { de: 'Alternative über control', en: 'Alternative via control' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Regionseinstellungen: localectl, /etc/locale.conf, locale-gen.'
+            linuxHint: { de: 'Regionseinstellungen: localectl, /etc/locale.conf, locale-gen.', en: 'Region settings: localectl, /etc/locale.conf, locale-gen.' }
         },
         {
             id: 'wscui', name: 'wscui.cpl', cat: 'win-cpl',
-            desc: 'Sicherheit und Wartung (Action Center)',
+            desc: { de: 'Sicherheit und Wartung (Action Center)', en: 'Security and Maintenance (Action Center)' },
             win: {
                 cmd: 'wscui.cpl',
                 syntax: 'wscui.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Sicherheits- und Wartungscenter \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Sicherheits- und Wartungscenter öffnen', en: 'Open Security and Maintenance Center' } },
                 ],
                 examples: [
-                    { cmd: 'wscui.cpl', desc: 'Sicherheit und Wartung \u00f6ffnen' },
+                    { cmd: 'wscui.cpl', desc: { de: 'Sicherheit und Wartung öffnen', en: 'Open Security and Maintenance' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Kein direktes Pendant. Sicherheitsstatus: ufw status, rkhunter --check.'
+            linuxHint: { de: 'Kein direktes Pendant. Sicherheitsstatus: ufw status, rkhunter --check.', en: 'No direct equivalent. Security status: ufw status, rkhunter --check.' }
         },
         {
             id: 'desk', name: 'desk.cpl', cat: 'win-cpl',
-            desc: 'Anzeigeeinstellungen (Aufl\u00f6sung, Orientierung, Mehrere Monitore)',
+            desc: { de: 'Anzeigeeinstellungen (Auflösung, Orientierung, Mehrere Monitore)', en: 'Display Settings (resolution, orientation, multiple monitors)' },
             win: {
                 cmd: 'desk.cpl',
                 syntax: 'desk.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Anzeigeeinstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Anzeigeeinstellungen öffnen', en: 'Open Display Settings' } },
                 ],
                 examples: [
-                    { cmd: 'desk.cpl', desc: 'Anzeigeeinstellungen \u00f6ffnen' },
+                    { cmd: 'desk.cpl', desc: { de: 'Anzeigeeinstellungen öffnen', en: 'Open Display Settings' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Anzeigeeinstellungen: xrandr, arandr (GUI), GNOME/KDE Bildschirmeinstellungen.'
+            linuxHint: { de: 'Anzeigeeinstellungen: xrandr, arandr (GUI), GNOME/KDE Bildschirmeinstellungen.', en: 'Display settings: xrandr, arandr (GUI), GNOME/KDE display settings.' }
         },
         {
             id: 'mmsys', name: 'mmsys.cpl', cat: 'win-cpl',
-            desc: 'Sound-Einstellungen (Wiedergabe, Aufnahme, Systemkl\u00e4nge)',
+            desc: { de: 'Sound-Einstellungen (Wiedergabe, Aufnahme, Systemklänge)', en: 'Sound Settings (playback, recording, system sounds)' },
             win: {
                 cmd: 'mmsys.cpl',
                 syntax: 'mmsys.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Soundeinstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Soundeinstellungen öffnen', en: 'Open Sound Settings' } },
                 ],
                 examples: [
-                    { cmd: 'mmsys.cpl',      desc: 'Sound-Dialog \u00f6ffnen' },
-                    { cmd: 'mmsys.cpl ,1',   desc: 'Direkt Tab "Aufnahme" \u00f6ffnen' },
+                    { cmd: 'mmsys.cpl',      desc: { de: 'Sound-Dialog öffnen', en: 'Open Sound dialog' } },
+                    { cmd: 'mmsys.cpl ,1',   desc: { de: 'Direkt Tab "Aufnahme" öffnen', en: 'Open "Recording" tab directly' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Audioeinstellungen: alsamixer (TUI), pavucontrol (GUI), pactl list sinks.'
+            linuxHint: { de: 'Audioeinstellungen: alsamixer (TUI), pavucontrol (GUI), pactl list sinks.', en: 'Audio settings: alsamixer (TUI), pavucontrol (GUI), pactl list sinks.' }
         },
         {
             id: 'main-cpl', name: 'main.cpl', cat: 'win-cpl',
-            desc: 'Maus-Einstellungen (Zeiger, Tasten, Zeigerrad)',
+            desc: { de: 'Maus-Einstellungen (Zeiger, Tasten, Zeigerrad)', en: 'Mouse Settings (pointer, buttons, scroll wheel)' },
             win: {
                 cmd: 'main.cpl',
                 syntax: 'main.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Mauseinstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Mauseinstellungen öffnen', en: 'Open Mouse Settings' } },
                 ],
                 examples: [
-                    { cmd: 'main.cpl', desc: 'Maus-Einstellungen \u00f6ffnen' },
+                    { cmd: 'main.cpl', desc: { de: 'Maus-Einstellungen öffnen', en: 'Open Mouse Settings' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Mauseinstellungen: xinput, xset m, GNOME/KDE Mauseinstellungen.'
+            linuxHint: { de: 'Mauseinstellungen: xinput, xset m, GNOME/KDE Mauseinstellungen.', en: 'Mouse settings: xinput, xset m, GNOME/KDE mouse settings.' }
         },
         {
             id: 'bthprops', name: 'bthprops.cpl', cat: 'win-cpl',
-            desc: 'Bluetooth-Ger\u00e4te verwalten',
+            desc: { de: 'Bluetooth-Geräte verwalten', en: 'Manage Bluetooth devices' },
             win: {
                 cmd: 'bthprops.cpl',
                 syntax: 'bthprops.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Bluetooth-Einstellungen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Bluetooth-Einstellungen öffnen', en: 'Open Bluetooth Settings' } },
                 ],
                 examples: [
-                    { cmd: 'bthprops.cpl', desc: 'Bluetooth-Einstellungen \u00f6ffnen' },
+                    { cmd: 'bthprops.cpl', desc: { de: 'Bluetooth-Einstellungen öffnen', en: 'Open Bluetooth Settings' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Bluetooth: bluetoothctl, blueman-manager (GUI).'
+            linuxHint: { de: 'Bluetooth: bluetoothctl, blueman-manager (GUI).', en: 'Bluetooth: bluetoothctl, blueman-manager (GUI).' }
         },
         {
             id: 'joy', name: 'joy.cpl', cat: 'win-cpl',
-            desc: 'Gamecontroller und Joysticks konfigurieren',
+            desc: { de: 'Gamecontroller und Joysticks konfigurieren', en: 'Configure game controllers and joysticks' },
             win: {
                 cmd: 'joy.cpl',
                 syntax: 'joy.cpl',
                 switches: [
-                    { flag: '(keine)', desc: '\u00d6ffnet den Gamecontroller-Dialog' },
+                    { flag: '(keine)', desc: { de: 'Öffnet den Gamecontroller-Dialog', en: 'Opens the Game Controller dialog' } },
                 ],
                 examples: [
-                    { cmd: 'joy.cpl', desc: 'Gamecontroller-Einstellungen \u00f6ffnen' },
+                    { cmd: 'joy.cpl', desc: { de: 'Gamecontroller-Einstellungen öffnen', en: 'Open Game Controller settings' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Controller-Test: jstest /dev/input/js0, evtest.'
+            linuxHint: { de: 'Controller-Test: jstest /dev/input/js0, evtest.', en: 'Controller test: jstest /dev/input/js0, evtest.' }
         },
         {
             id: 'hdwwiz', name: 'hdwwiz.cpl', cat: 'win-cpl',
-            desc: 'Hardware-Assistent (Legacy-Ger\u00e4te manuell installieren)',
+            desc: { de: 'Hardware-Assistent (Legacy-Geräte manuell installieren)', en: 'Hardware Wizard (manually install legacy devices)' },
             win: {
                 cmd: 'hdwwiz.cpl',
                 syntax: 'hdwwiz.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Hardware-Assistent starten' },
+                    { flag: '(keine)', desc: { de: 'Hardware-Assistent starten', en: 'Start Hardware Wizard' } },
                 ],
                 examples: [
-                    { cmd: 'hdwwiz.cpl', desc: 'Hardware-Assistent \u00f6ffnen' },
+                    { cmd: 'hdwwiz.cpl', desc: { de: 'Hardware-Assistent öffnen', en: 'Open Hardware Wizard' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Hardware-Erkennung: udev, modprobe, lspci -k, lsusb.'
+            linuxHint: { de: 'Hardware-Erkennung: udev, modprobe, lspci -k, lsusb.', en: 'Hardware detection: udev, modprobe, lspci -k, lsusb.' }
         },
         {
             id: 'access', name: 'access.cpl', cat: 'win-cpl',
-            desc: 'Center f\u00fcr erleichterte Bedienung (Barrierefreiheit)',
+            desc: { de: 'Center für erleichterte Bedienung (Barrierefreiheit)', en: 'Ease of Access Center (accessibility)' },
             win: {
                 cmd: 'access.cpl',
                 syntax: 'access.cpl',
                 switches: [
-                    { flag: '(keine)', desc: 'Bedienungshilfen \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Bedienungshilfen öffnen', en: 'Open Ease of Access' } },
                 ],
                 examples: [
-                    { cmd: 'access.cpl', desc: 'Bedienungshilfen \u00f6ffnen' },
+                    { cmd: 'access.cpl', desc: { de: 'Bedienungshilfen öffnen', en: 'Open Ease of Access' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Bedienungshilfen: Zug\u00e4nglichkeitseinstellungen in GNOME/KDE.'
+            linuxHint: { de: 'Bedienungshilfen: Zugänglichkeitseinstellungen in GNOME/KDE.', en: 'Accessibility: accessibility settings in GNOME/KDE.' }
         },
 
         // ===== WINDOWS MSC-SNAPINS (13) =====
         {
             id: 'compmgmt', name: 'compmgmt.msc', cat: 'win-msc',
-            desc: 'Computerverwaltung (Ger\u00e4te, Dienste, Datentr\u00e4ger, lokale Benutzer)',
+            desc: { de: 'Computerverwaltung (Geräte, Dienste, Datenträger, lokale Benutzer)', en: 'Computer Management (devices, services, disks, local users)' },
             win: {
                 cmd: 'compmgmt.msc',
                 syntax: 'compmgmt.msc',
                 switches: [
-                    { flag: '(keine)', desc: '\u00d6ffnet die Computerverwaltung' },
+                    { flag: '(keine)', desc: { de: 'Öffnet die Computerverwaltung', en: 'Opens Computer Management' } },
                 ],
                 examples: [
-                    { cmd: 'compmgmt.msc', desc: 'Computerverwaltung \u00f6ffnen' },
+                    { cmd: 'compmgmt.msc', desc: { de: 'Computerverwaltung öffnen', en: 'Open Computer Management' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Kein direktes Pendant — entspricht einer Sammlung aus: systemctl, lsblk, useradd u.a.'
+            linuxHint: { de: 'Kein direktes Pendant — entspricht einer Sammlung aus: systemctl, lsblk, useradd u.a.', en: 'No direct equivalent — corresponds to a collection of: systemctl, lsblk, useradd etc.' }
         },
         {
             id: 'devmgmt', name: 'devmgmt.msc', cat: 'win-msc',
-            desc: 'Ger\u00e4te-Manager (Treiber, Hardware-Status, Fehlerdiagnose)',
+            desc: { de: 'Geräte-Manager (Treiber, Hardware-Status, Fehlerdiagnose)', en: 'Device Manager (drivers, hardware status, troubleshooting)' },
             win: {
                 cmd: 'devmgmt.msc',
                 syntax: 'devmgmt.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Ger\u00e4te-Manager \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Geräte-Manager öffnen', en: 'Open Device Manager' } },
                 ],
                 examples: [
-                    { cmd: 'devmgmt.msc', desc: 'Ger\u00e4te-Manager \u00f6ffnen' },
+                    { cmd: 'devmgmt.msc', desc: { de: 'Geräte-Manager öffnen', en: 'Open Device Manager' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Ger\u00e4te-Info: lspci, lsusb, lshw, dmesg | grep -i error.'
+            linuxHint: { de: 'Geräte-Info: lspci, lsusb, lshw, dmesg | grep -i error.', en: 'Device info: lspci, lsusb, lshw, dmesg | grep -i error.' }
         },
         {
             id: 'diskmgmt', name: 'diskmgmt.msc', cat: 'win-msc',
-            desc: 'Datentr\u00e4gerverwaltung (Partitionen, Laufwerksbuchstaben, Volumes)',
+            desc: { de: 'Datenträgerverwaltung (Partitionen, Laufwerksbuchstaben, Volumes)', en: 'Disk Management (partitions, drive letters, volumes)' },
             win: {
                 cmd: 'diskmgmt.msc',
                 syntax: 'diskmgmt.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Datentr\u00e4gerverwaltung \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Datenträgerverwaltung öffnen', en: 'Open Disk Management' } },
                 ],
                 examples: [
-                    { cmd: 'diskmgmt.msc',  desc: 'Datentr\u00e4gerverwaltung \u00f6ffnen' },
-                    { cmd: 'diskpart',      desc: 'CLI-Alternative f\u00fcr Partitionierung' },
+                    { cmd: 'diskmgmt.msc',  desc: { de: 'Datenträgerverwaltung öffnen', en: 'Open Disk Management' } },
+                    { cmd: 'diskpart',      desc: { de: 'CLI-Alternative für Partitionierung', en: 'CLI alternative for partitioning' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Partitionierung: fdisk, parted, gparted (GUI), lsblk.'
+            linuxHint: { de: 'Partitionierung: fdisk, parted, gparted (GUI), lsblk.', en: 'Partitioning: fdisk, parted, gparted (GUI), lsblk.' }
         },
         {
             id: 'services', name: 'services.msc', cat: 'win-msc',
-            desc: 'Dienste (starten, stoppen, Starttyp konfigurieren)',
+            desc: { de: 'Dienste (starten, stoppen, Starttyp konfigurieren)', en: 'Services (start, stop, configure startup type)' },
             win: {
                 cmd: 'services.msc',
                 syntax: 'services.msc',
                 switches: [
-                    { flag: '(keine)', desc: '\u00d6ffnet die Diensteverwaltung' },
+                    { flag: '(keine)', desc: { de: 'Öffnet die Diensteverwaltung', en: 'Opens Services Management' } },
                 ],
                 examples: [
-                    { cmd: 'services.msc',       desc: 'Dienste-Manager \u00f6ffnen' },
-                    { cmd: 'sc query <Dienst>',  desc: 'Dienststatus per CLI abfragen' },
+                    { cmd: 'services.msc',       desc: { de: 'Dienste-Manager öffnen', en: 'Open Services Manager' } },
+                    { cmd: 'sc query <Dienst>',  desc: { de: 'Dienststatus per CLI abfragen', en: 'Query service status via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Dienstverwaltung: systemctl start/stop/status <Dienst>.'
+            linuxHint: { de: 'Dienstverwaltung: systemctl start/stop/status <Dienst>.', en: 'Service management: systemctl start/stop/status <service>.' }
         },
         {
             id: 'taskschd', name: 'taskschd.msc', cat: 'win-msc',
-            desc: 'Aufgabenplanung (geplante Tasks erstellen und verwalten)',
+            desc: { de: 'Aufgabenplanung (geplante Tasks erstellen und verwalten)', en: 'Task Scheduler (create and manage scheduled tasks)' },
             win: {
                 cmd: 'taskschd.msc',
                 syntax: 'taskschd.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Aufgabenplanung \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Aufgabenplanung öffnen', en: 'Open Task Scheduler' } },
                 ],
                 examples: [
-                    { cmd: 'taskschd.msc',    desc: 'Aufgabenplanung \u00f6ffnen' },
-                    { cmd: 'schtasks /query', desc: 'Alle Tasks per CLI auflisten' },
+                    { cmd: 'taskschd.msc',    desc: { de: 'Aufgabenplanung öffnen', en: 'Open Task Scheduler' } },
+                    { cmd: 'schtasks /query', desc: { de: 'Alle Tasks per CLI auflisten', en: 'List all tasks via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Aufgabenplanung: crontab -e (cron), systemctl list-timers (systemd timer).'
+            linuxHint: { de: 'Aufgabenplanung: crontab -e (cron), systemctl list-timers (systemd timer).', en: 'Task scheduling: crontab -e (cron), systemctl list-timers (systemd timer).' }
         },
         {
             id: 'eventvwr', name: 'eventvwr.msc', cat: 'win-msc',
-            desc: 'Ereignisanzeige (System-, Anwendungs- und Sicherheitslogs)',
+            desc: { de: 'Ereignisanzeige (System-, Anwendungs- und Sicherheitslogs)', en: 'Event Viewer (system, application and security logs)' },
             win: {
                 cmd: 'eventvwr.msc',
                 syntax: 'eventvwr.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Ereignisanzeige \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Ereignisanzeige öffnen', en: 'Open Event Viewer' } },
                 ],
                 examples: [
-                    { cmd: 'eventvwr.msc',        desc: 'Ereignisanzeige \u00f6ffnen' },
-                    { cmd: 'eventvwr /l:System',  desc: 'Direkt Systemlog \u00f6ffnen' },
+                    { cmd: 'eventvwr.msc',        desc: { de: 'Ereignisanzeige öffnen', en: 'Open Event Viewer' } },
+                    { cmd: 'eventvwr /l:System',  desc: { de: 'Direkt Systemlog öffnen', en: 'Open system log directly' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Systemlogs: journalctl -xe, journalctl -u <Dienst>, /var/log/.'
+            linuxHint: { de: 'Systemlogs: journalctl -xe, journalctl -u <Dienst>, /var/log/.', en: 'System logs: journalctl -xe, journalctl -u <service>, /var/log/.' }
         },
         {
             id: 'lusrmgr', name: 'lusrmgr.msc', cat: 'win-msc',
-            desc: 'Lokale Benutzer und Gruppen (Konten, Kennw\u00f6rter, Gruppenmitgliedschaft)',
+            desc: { de: 'Lokale Benutzer und Gruppen (Konten, Kennwörter, Gruppenmitgliedschaft)', en: 'Local Users and Groups (accounts, passwords, group membership)' },
             win: {
                 cmd: 'lusrmgr.msc',
                 syntax: 'lusrmgr.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Benutzerverwaltung \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Benutzerverwaltung öffnen', en: 'Open User Management' } },
                 ],
                 examples: [
-                    { cmd: 'lusrmgr.msc',  desc: 'Lokale Benutzer und Gruppen \u00f6ffnen' },
-                    { cmd: 'net user',     desc: 'Alle lokalen Benutzer per CLI' },
+                    { cmd: 'lusrmgr.msc',  desc: { de: 'Lokale Benutzer und Gruppen öffnen', en: 'Open Local Users and Groups' } },
+                    { cmd: 'net user',     desc: { de: 'Alle lokalen Benutzer per CLI', en: 'All local users via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Benutzerverwaltung: useradd, usermod, passwd, groupadd, /etc/passwd.'
+            linuxHint: { de: 'Benutzerverwaltung: useradd, usermod, passwd, groupadd, /etc/passwd.', en: 'User management: useradd, usermod, passwd, groupadd, /etc/passwd.' }
         },
         {
             id: 'gpedit', name: 'gpedit.msc', cat: 'win-msc',
-            desc: 'Gruppenrichtlinien-Editor (lokale Richtlinien f\u00fcr System und Benutzer)',
+            desc: { de: 'Gruppenrichtlinien-Editor (lokale Richtlinien für System und Benutzer)', en: 'Group Policy Editor (local policies for system and user)' },
             win: {
                 cmd: 'gpedit.msc',
                 syntax: 'gpedit.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Gruppenrichtlinien-Editor \u00f6ffnen (nur Pro/Enterprise)' },
+                    { flag: '(keine)', desc: { de: 'Gruppenrichtlinien-Editor öffnen (nur Pro/Enterprise)', en: 'Open Group Policy Editor (Pro/Enterprise only)' } },
                 ],
                 examples: [
-                    { cmd: 'gpedit.msc',       desc: 'Lokale Gruppenrichtlinien \u00f6ffnen' },
-                    { cmd: 'gpupdate /force',  desc: 'Richtlinien sofort anwenden' },
+                    { cmd: 'gpedit.msc',       desc: { de: 'Lokale Gruppenrichtlinien öffnen', en: 'Open Local Group Policies' } },
+                    { cmd: 'gpupdate /force',  desc: { de: 'Richtlinien sofort anwenden', en: 'Apply policies immediately' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Kein direktes Pendant. Einstellungen \u00fcber /etc/security/, PAM-Module oder Ansible.'
+            linuxHint: { de: 'Kein direktes Pendant. Einstellungen über /etc/security/, PAM-Module oder Ansible.', en: 'No direct equivalent. Settings via /etc/security/, PAM modules or Ansible.' }
         },
         {
             id: 'secpol', name: 'secpol.msc', cat: 'win-msc',
-            desc: 'Lokale Sicherheitsrichtlinie (Kennwortrichtlinien, Auditing, Benutzerrechte)',
+            desc: { de: 'Lokale Sicherheitsrichtlinie (Kennwortrichtlinien, Auditing, Benutzerrechte)', en: 'Local Security Policy (password policies, auditing, user rights)' },
             win: {
                 cmd: 'secpol.msc',
                 syntax: 'secpol.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Sicherheitsrichtlinie \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Sicherheitsrichtlinie öffnen', en: 'Open Security Policy' } },
                 ],
                 examples: [
-                    { cmd: 'secpol.msc', desc: 'Lokale Sicherheitsrichtlinie \u00f6ffnen' },
+                    { cmd: 'secpol.msc', desc: { de: 'Lokale Sicherheitsrichtlinie öffnen', en: 'Open Local Security Policy' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Sicherheitsrichtlinien: /etc/security/limits.conf, PAM-Konfiguration, /etc/pam.d/.'
+            linuxHint: { de: 'Sicherheitsrichtlinien: /etc/security/limits.conf, PAM-Konfiguration, /etc/pam.d/.', en: 'Security policies: /etc/security/limits.conf, PAM configuration, /etc/pam.d/.' }
         },
         {
             id: 'perfmon', name: 'perfmon.msc', cat: 'win-msc',
-            desc: 'Leistungs\u00fcberwachung (CPU, RAM, Datentr\u00e4ger, Netzwerk — Live-Graphen)',
+            desc: { de: 'Leistungsüberwachung (CPU, RAM, Datenträger, Netzwerk — Live-Graphen)', en: 'Performance Monitor (CPU, RAM, disk, network — live graphs)' },
             win: {
                 cmd: 'perfmon.msc',
                 syntax: 'perfmon.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Leistungs\u00fcberwachung \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Leistungsüberwachung öffnen', en: 'Open Performance Monitor' } },
                 ],
                 examples: [
-                    { cmd: 'perfmon.msc',      desc: 'Leistungs\u00fcberwachung \u00f6ffnen' },
-                    { cmd: 'perfmon /report',  desc: 'Systemdiagnose-Bericht erstellen' },
+                    { cmd: 'perfmon.msc',      desc: { de: 'Leistungsüberwachung öffnen', en: 'Open Performance Monitor' } },
+                    { cmd: 'perfmon /report',  desc: { de: 'Systemdiagnose-Bericht erstellen', en: 'Generate system diagnostics report' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Leistungs\u00fcberwachung: top, htop, iostat, vmstat, nmon, glances.'
+            linuxHint: { de: 'Leistungsüberwachung: top, htop, iostat, vmstat, nmon, glances.', en: 'Performance monitoring: top, htop, iostat, vmstat, nmon, glances.' }
         },
         {
             id: 'wf', name: 'wf.msc', cat: 'win-msc',
-            desc: 'Windows Defender Firewall mit erweiterter Sicherheit (Eingehend/Ausgehend)',
+            desc: { de: 'Windows Defender Firewall mit erweiterter Sicherheit (Eingehend/Ausgehend)', en: 'Windows Defender Firewall with Advanced Security (inbound/outbound)' },
             win: {
                 cmd: 'wf.msc',
                 syntax: 'wf.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Erweiterte Firewall-Konsole \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Erweiterte Firewall-Konsole öffnen', en: 'Open Advanced Firewall console' } },
                 ],
                 examples: [
-                    { cmd: 'wf.msc',                       desc: 'Erweiterte Firewall \u00f6ffnen' },
-                    { cmd: 'netsh advfirewall show all',   desc: 'Firewall-Status per CLI' },
+                    { cmd: 'wf.msc',                       desc: { de: 'Erweiterte Firewall öffnen', en: 'Open Advanced Firewall' } },
+                    { cmd: 'netsh advfirewall show all',   desc: { de: 'Firewall-Status per CLI', en: 'Firewall status via CLI' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Firewall: iptables -L -v, ufw status verbose, nftables.'
+            linuxHint: { de: 'Firewall: iptables -L -v, ufw status verbose, nftables.', en: 'Firewall: iptables -L -v, ufw status verbose, nftables.' }
         },
         {
             id: 'certmgr', name: 'certmgr.msc', cat: 'win-msc',
-            desc: 'Zertifikat-Manager (Benutzer-Zertifikate, pers\u00f6nlich, vertrauensw\u00fcrdige Stellen)',
+            desc: { de: 'Zertifikat-Manager (Benutzer-Zertifikate, persönlich, vertrauenswürdige Stellen)', en: 'Certificate Manager (user certificates, personal, trusted authorities)' },
             win: {
                 cmd: 'certmgr.msc',
                 syntax: 'certmgr.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Zertifikatspeicher des aktuellen Benutzers \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Zertifikatspeicher des aktuellen Benutzers öffnen', en: 'Open current user certificate store' } },
                 ],
                 examples: [
-                    { cmd: 'certmgr.msc', desc: 'Benutzer-Zertifikate \u00f6ffnen' },
+                    { cmd: 'certmgr.msc', desc: { de: 'Benutzer-Zertifikate öffnen', en: 'Open user certificates' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Zertifikatsverwaltung: /etc/ssl/certs/, update-ca-certificates, openssl x509 -in cert.pem -text.'
+            linuxHint: { de: 'Zertifikatsverwaltung: /etc/ssl/certs/, update-ca-certificates, openssl x509 -in cert.pem -text.', en: 'Certificate management: /etc/ssl/certs/, update-ca-certificates, openssl x509 -in cert.pem -text.' }
         },
         {
             id: 'certlm', name: 'certlm.msc', cat: 'win-msc',
-            desc: 'Zertifikate des lokalen Computers (Maschinenweite Zertifikate, IIS, VPN)',
+            desc: { de: 'Zertifikate des lokalen Computers (Maschinenweite Zertifikate, IIS, VPN)', en: 'Local Computer Certificates (machine-wide certificates, IIS, VPN)' },
             win: {
                 cmd: 'certlm.msc',
                 syntax: 'certlm.msc',
                 switches: [
-                    { flag: '(keine)', desc: 'Zertifikatspeicher des lokalen Computers \u00f6ffnen' },
+                    { flag: '(keine)', desc: { de: 'Zertifikatspeicher des lokalen Computers öffnen', en: 'Open local computer certificate store' } },
                 ],
                 examples: [
-                    { cmd: 'certlm.msc', desc: 'Computer-Zertifikate \u00f6ffnen' },
+                    { cmd: 'certlm.msc', desc: { de: 'Computer-Zertifikate öffnen', en: 'Open computer certificates' } },
                 ]
             },
             linux: null,
-            linuxHint: 'Systemweite Zertifikate: /etc/ssl/certs/, update-ca-certificates, /usr/local/share/ca-certificates/.'
+            linuxHint: { de: 'Systemweite Zertifikate: /etc/ssl/certs/, update-ca-certificates, /usr/local/share/ca-certificates/.', en: 'System-wide certificates: /etc/ssl/certs/, update-ca-certificates, /usr/local/share/ca-certificates/.' }
         },
     ];
 
@@ -1398,21 +1443,21 @@ function init_netzwerk_befehle(container) {
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card nb-input-card">
-            <label for="nb-search">Suche (Befehl, Beschreibung oder Schalter)</label>
+            <label for="nb-search">${t('nb.searchLabel')}</label>
             <input type="text" id="nb-search"
-                   placeholder="z.B. ping, DNS, Firewall..."
+                   placeholder="${t('nb.searchPlaceholder')}"
                    autocomplete="off" spellcheck="false">
-            <label class="nb-cat-label">Kategorie</label>
+            <label class="nb-cat-label">${t('nb.catLabel')}</label>
             <div class="nb-cat-chips" id="nb-cat-chips">
-                ${Object.entries(CATEGORIES).map(([key, cat]) =>
-                    `<span class="chip nb-cat-chip${key === 'all' ? ' active' : ''}" data-cat="${key}" data-color="${cat.color}">${cat.label}</span>`
+                ${Object.entries(CAT_KEYS).map(([key, cat]) =>
+                    `<span class="chip nb-cat-chip${key === 'all' ? ' active' : ''}" data-cat="${key}" data-color="${cat.color}">${t(cat.tKey)}</span>`
                 ).join('')}
             </div>
         </section>
         <section class="card nb-result-card" id="nb-result-card">
             <div class="nb-result-header">
-                <h3>Befehls-Referenz</h3>
-                <span class="nb-count" id="nb-count">${COMMANDS.length} Befehle</span>
+                <h3>${t('nb.title')}</h3>
+                <span class="nb-count" id="nb-count">${COMMANDS.length} ${t('nb.commands', { n: COMMANDS.length })}</span>
             </div>
             <div class="nb-list" id="nb-list"></div>
         </section>
@@ -1455,6 +1500,7 @@ function init_netzwerk_befehle(container) {
     // --- Render platform column ---
     function renderPlatform(platform, label, icon, hint) {
         if (!platform) {
+            const hintText = hint ? txt(hint) : '';
             return `<div class="nb-platform">
                 <div class="nb-platform-header">
                     <span class="nb-platform-icon">${icon}</span>
@@ -1462,28 +1508,28 @@ function init_netzwerk_befehle(container) {
                 </div>
                 <div class="nb-no-equivalent">
                     <span class="nb-no-equiv-icon">\u2205</span>
-                    <span>Kein direktes Pendant unter ${label}.</span>
-                    ${hint ? `<span class="nb-no-equiv-hint">${escHtml(hint)}</span>` : ''}
+                    <span>${t('nb.noEquiv', { platform: label })}</span>
+                    ${hintText ? `<span class="nb-no-equiv-hint">${escHtml(hintText)}</span>` : ''}
                 </div>
             </div>`;
         }
 
         const switchRows = platform.switches.map(s =>
-            `<tr><td class="nb-switch-flag"><code>${escHtml(s.flag)}</code></td><td class="nb-switch-desc">${escHtml(s.desc)}</td></tr>`
+            `<tr><td class="nb-switch-flag"><code>${escHtml(s.flag)}</code></td><td class="nb-switch-desc">${escHtml(txt(s.desc))}</td></tr>`
         ).join('');
 
         const exampleBlocks = platform.examples.map(ex =>
             `<div class="nb-example">
                 <div class="nb-code-row">
                     <code class="nb-code">${escHtml(ex.cmd)}</code>
-                    <button class="nb-copy-btn" data-copy="${escHtml(ex.cmd)}" title="Kopieren">${COPY_ICON}</button>
+                    <button class="nb-copy-btn" data-copy="${escHtml(ex.cmd)}" title="${t('nb.copy')}">${COPY_ICON}</button>
                 </div>
-                <span class="nb-example-desc">${escHtml(ex.desc)}</span>
+                <span class="nb-example-desc">${escHtml(txt(ex.desc))}</span>
             </div>`
         ).join('');
 
         const helpHint = label === 'Windows'
-            ? `<div class="nb-help-hint"><code>${escHtml(platform.cmd.split(' ')[0])} /?</code> \u2014 Alle Parameter anzeigen</div>`
+            ? `<div class="nb-help-hint"><code>${escHtml(platform.cmd.split(' ')[0])} /?</code> \u2014 ${t('nb.helpWin')}</div>`
             : `<div class="nb-help-hint"><code>${escHtml(platform.cmd.split(' ')[0])} --help</code> oder <code>man ${escHtml(platform.cmd.split(' ')[0])}</code></div>`;
 
         return `<div class="nb-platform">
@@ -1491,15 +1537,15 @@ function init_netzwerk_befehle(container) {
                 <span class="nb-platform-icon">${icon}</span>
                 <span class="nb-platform-label ${label === 'Windows' ? 'win' : 'linux'}">${label}</span>
             </div>
-            <div class="nb-section-label">Syntax</div>
+            <div class="nb-section-label">${t('nb.syntax')}</div>
             <div class="nb-code-row">
                 <code class="nb-code">${escHtml(platform.syntax)}</code>
-                <button class="nb-copy-btn" data-copy="${escHtml(platform.cmd)}" title="Kopieren">${COPY_ICON}</button>
+                <button class="nb-copy-btn" data-copy="${escHtml(platform.cmd)}" title="${t('nb.copy')}">${COPY_ICON}</button>
             </div>
-            <div class="nb-section-label">Wichtige Schalter</div>
+            <div class="nb-section-label">${t('nb.switches')}</div>
             <table class="nb-switch-table">${switchRows}</table>
             ${helpHint}
-            <div class="nb-section-label">Beispiele</div>
+            <div class="nb-section-label">${t('nb.examples')}</div>
             ${exampleBlocks}
         </div>`;
     }
@@ -1511,11 +1557,11 @@ function init_netzwerk_befehle(container) {
                p.syntax.toLowerCase().includes(query) ||
                p.switches.some(s =>
                    s.flag.toLowerCase().includes(query) ||
-                   s.desc.toLowerCase().includes(query)
+                   txt(s.desc).toLowerCase().includes(query)
                ) ||
                p.examples.some(ex =>
                    ex.cmd.toLowerCase().includes(query) ||
-                   ex.desc.toLowerCase().includes(query)
+                   txt(ex.desc).toLowerCase().includes(query)
                );
     }
 
@@ -1527,17 +1573,18 @@ function init_netzwerk_befehle(container) {
             if (!matchesCat) return false;
             if (!query) return true;
             return cmd.name.toLowerCase().includes(query) ||
-                   cmd.desc.toLowerCase().includes(query) ||
+                   txt(cmd.desc).toLowerCase().includes(query) ||
                    searchPlatform(cmd.win, query) ||
                    searchPlatform(cmd.linux, query) ||
-                   (cmd.winHint && cmd.winHint.toLowerCase().includes(query)) ||
-                   (cmd.linuxHint && cmd.linuxHint.toLowerCase().includes(query));
+                   (cmd.winHint && txt(cmd.winHint).toLowerCase().includes(query)) ||
+                   (cmd.linuxHint && txt(cmd.linuxHint).toLowerCase().includes(query));
         });
 
-        nbCount.textContent = `${filtered.length} Befehl${filtered.length !== 1 ? 'e' : ''}`;
+        const n = filtered.length;
+        nbCount.textContent = n === 1 ? t('nb.command', { n }) : t('nb.commands', { n });
 
-        if (filtered.length === 0) {
-            nbList.innerHTML = '<div class="nb-empty">Keine Befehle gefunden</div>';
+        if (n === 0) {
+            nbList.innerHTML = `<div class="nb-empty">${t('nb.noResults')}</div>`;
             return;
         }
 
@@ -1547,19 +1594,19 @@ function init_netzwerk_befehle(container) {
             // Gruppen-Überschrift für Windows CPL/MSC
             const group = WIN_GROUPS_MAP[cmd.id];
             if (group && group !== lastGroup) {
-                html += `<div class="nb-group-header">${WIN_GROUPS[group]}</div>`;
+                html += `<div class="nb-group-header">${t(WIN_GROUP_KEYS[group])}</div>`;
                 lastGroup = group;
             }
-            const cat = CATEGORIES[cmd.cat] || CATEGORIES.all;
+            const cat = CAT_KEYS[cmd.cat] || CAT_KEYS.all;
             const isExpanded = expandedId === cmd.id;
             html += `
                 <div class="nb-row${isExpanded ? ' expanded' : ''}" data-id="${cmd.id}">
                     <div class="nb-row-header">
                         <div class="nb-name-block">
                             <span class="nb-name">${escHtml(cmd.name)}</span>
-                            <span class="nb-desc">${escHtml(cmd.desc)}</span>
+                            <span class="nb-desc">${escHtml(txt(cmd.desc))}</span>
                         </div>
-                        <span class="nb-cat-badge" style="color:${cat.color};background:${cat.color}15;border-color:${cat.color}40">${cat.label}</span>
+                        <span class="nb-cat-badge" style="color:${cat.color};background:${cat.color}15;border-color:${cat.color}40">${t(cat.tKey)}</span>
                         <span class="nb-expand-icon">&#9658;</span>
                     </div>
                     <div class="nb-detail">
