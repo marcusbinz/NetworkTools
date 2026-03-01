@@ -95,6 +95,34 @@ header h1 {
     transform: scale(0.9);
 }
 
+/* Language Toggle */
+.lang-toggle {
+    position: absolute;
+    right: 48px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: all 0.2s;
+}
+
+.lang-toggle:active {
+    transform: scale(0.9);
+}
+
+.lang-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+}
+
 [data-theme="dark"] .icon-moon,
 :root:not([data-theme="light"]) .icon-moon {
     display: none;
@@ -571,9 +599,15 @@ footer .footer-version {
         justify-content: flex-start;
     }
 
+    .lang-toggle {
+        position: relative;
+        right: auto;
+        margin-left: auto;
+    }
+
     .theme-toggle {
         position: relative;
-        margin-left: auto;
+        margin-left: 8px;
     }
 
     /* --- Result Grid: 4 Spalten statt 2 --- */

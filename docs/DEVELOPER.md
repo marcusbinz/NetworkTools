@@ -1,6 +1,6 @@
 # Network-Tools — Entwickler-Dokumentation
 
-> **Version:** 5.1.1 | **Build:** 101 | **Stand:** 2026-03-01
+> **Version:** 5.2.0 | **Build:** 102 | **Stand:** 2026-03-01
 > **Autor:** Dipl.-Ing. Marcus Binz | **GitHub:** [marcusbinz/NetworkTools](https://github.com/marcusbinz/NetworkTools)
 
 ---
@@ -54,6 +54,7 @@ NetworkTools/
 |   |-- netzwerk-wiki.css   # (.wiki- Prefix)
 |
 |-- js/
+|   |-- i18n.js              # Internationalisierung (DE/EN), t()-Funktion, Sprachverwaltung
 |   |-- app.js               # Router, Theme, Drawer, Tool-Registry, Service Worker, escHtml()
 |   |-- ip-rechner.js        # IPv4-Subnetz-Rechner
 |   |-- ipv6-rechner.js      # IPv6-Rechner
@@ -830,4 +831,4 @@ Oder: Incognito-Modus verwenden
 
 ---
 
-*Letzte Aktualisierung: 2026-03-01 | v5.1.1*
+*Letzte Aktualisierung: 2026-03-01 | v5.2.0*

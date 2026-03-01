@@ -18,7 +18,10 @@
         <header>
             <div class="header-row">
                 <h1>Network-Tools</h1>
-                <button class="theme-toggle" id="theme-toggle" aria-label="Theme wechseln">
+                <button class="lang-toggle" id="lang-toggle" data-i18n-aria="app.langToggle" aria-label="Sprache wechseln">
+                    <span class="lang-label" id="lang-label">DE</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle" data-i18n-aria="app.themeToggle" aria-label="Theme wechseln">
                     <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                     <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 </button>
@@ -31,12 +34,12 @@
         </main>
 
         <footer>
-            <p class="footer-install">Installiere als App: Teilen &rarr; Zum Home-Bildschirm</p>
-            <p class="footer-copyright">&copy; 2026 Dipl.-Ing. Marcus Binz &mdash; with my CoPilot Claude Code</p>
+            <p class="footer-install" data-i18n="app.installHint">Installiere als App: Teilen &rarr; Zum Home-Bildschirm</p>
+            <p class="footer-copyright" data-i18n="app.copyright">&copy; 2026 Dipl.-Ing. Marcus Binz &mdash; with my CoPilot Claude Code</p>
             <p class="footer-legal">
-                <a href="https://mbinz.de/impressum.html" target="_blank" rel="noopener">Impressum</a>
+                <a href="https://mbinz.de/impressum.html" target="_blank" rel="noopener" data-i18n="app.impressum">Impressum</a>
                 <span class="footer-legal-sep">|</span>
-                <a href="https://mbinz.de/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+                <a href="https://mbinz.de/datenschutz.html" target="_blank" rel="noopener" data-i18n="app.datenschutz">Datenschutz</a>
             </p>
             <p class="footer-version" id="footer-version"></p>
         </footer>
@@ -44,12 +47,12 @@
 
     <!-- Update Banner -->
     <div class="update-banner" id="update-banner">
-        <span>Update verfügbar</span>
-        <button id="update-btn">Jetzt aktualisieren</button>
+        <span data-i18n="app.updateAvailable">Update verfügbar</span>
+        <button id="update-btn" data-i18n="app.updateNow">Jetzt aktualisieren</button>
     </div>
 
     <!-- App Launcher -->
-    <button class="launcher-fab" id="launcher-fab" aria-label="Tools öffnen">
+    <button class="launcher-fab" id="launcher-fab" data-i18n-aria="app.toolsOpen" aria-label="Tools öffnen">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
     </button>
     <div class="drawer-overlay" id="drawer-overlay"></div>
@@ -58,6 +61,7 @@
         <div class="drawer-grid" id="drawer-grid"></div>
     </nav>
 
+    <script src="js/i18n.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

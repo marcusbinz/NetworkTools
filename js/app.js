@@ -173,7 +173,7 @@ function navigateTo(toolId) {
 
     // Clear content
     contentArea.innerHTML = '';
-    subtitle.textContent = tool.subtitle;
+    subtitle.textContent = t('app.sub.' + tool.id);
 
     // Load CSS (once)
     if (!document.querySelector(`link[href="${tool.cssFile}"]`)) {
@@ -229,7 +229,7 @@ function renderDrawer() {
     const toolItems = TOOLS.map(tool => `
         <button class="drawer-item" data-tool="${tool.id}">
             <span class="drawer-item-icon">${tool.icon}</span>
-            <span class="drawer-item-label">${tool.label}</span>
+            <span class="drawer-item-label">${t('app.label.' + tool.id)}</span>
         </button>
     `).join('');
 
@@ -297,6 +297,46 @@ setTheme(savedTheme);
 themeToggle.addEventListener('click', () => {
     const current = root.getAttribute('data-theme') || 'dark';
     setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// --- Language Toggle ---
+const langToggle = document.getElementById('lang-toggle');
+const langLabel = document.getElementById('lang-label');
+
+// Initial: Label auf aktuelle Sprache setzen
+langLabel.textContent = I18N.getLang().toUpperCase();
+
+langToggle.addEventListener('click', () => {
+    const current = I18N.getLang();
+    I18N.setLang(current === 'de' ? 'en' : 'de');
+});
+
+// --- Language Change Handler ---
+window.addEventListener('langchange', () => {
+    const lang = I18N.getLang();
+
+    // Toggle-Label aktualisieren
+    langLabel.textContent = lang.toUpperCase();
+
+    // Subtitle aktualisieren
+    if (currentToolId) {
+        subtitle.textContent = t('app.sub.' + currentToolId);
+    }
+
+    // Drawer neu rendern (Labels uebersetzen)
+    renderDrawer();
+    updateDrawerActive();
+
+    // Statische data-i18n Elemente aktualisieren (Footer, aria-labels etc.)
+    I18N.updateStaticElements();
+
+    // Aktuelles Tool teardown + re-init (komplett neu rendern)
+    if (currentToolId) {
+        const teardownFn = window['teardown_' + currentToolId.replace(/-/g, '_')];
+        if (typeof teardownFn === 'function') teardownFn();
+        contentArea.innerHTML = '';
+        initTool(currentToolId);
+    }
 });
 
 // --- Hash Change ---

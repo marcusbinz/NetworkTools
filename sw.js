@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'network-tools-v101';
+﻿const CACHE_NAME = 'network-tools-v102';
 const ASSETS = [
     './',
     './index.html',
@@ -18,6 +18,7 @@ const ASSETS = [
     './css/passwort-gen.css',
     './css/mein-netzwerk.css',
     './css/ping-test.css',
+    './js/i18n.js',
     './js/app.js',
     './js/ip-rechner.js',
     './js/mx-lookup.js',
