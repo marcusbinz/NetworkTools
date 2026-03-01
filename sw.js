@@ -45,12 +45,11 @@ const ASSETS = [
     './js/qr-generator.js'
 ];
 
-// Install: cache all assets
+// Install: cache all assets (SW waits until user confirms update)
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
     );
-    self.skipWaiting();
 });
 
 // Activate: clean old caches

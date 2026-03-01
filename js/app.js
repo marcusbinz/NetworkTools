@@ -417,13 +417,17 @@ function showUpdateBanner() {
 }
 
 document.getElementById('update-btn').addEventListener('click', () => {
-    // Tell waiting SW to take over, then reload
+    // Tell waiting SW to take over
     navigator.serviceWorker.getRegistration().then(reg => {
         if (reg && reg.waiting) {
             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
-        window.location.reload();
     });
+});
+
+// Reload when new SW takes control
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
 });
 
 // Load and display version + check for remote updates
