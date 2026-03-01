@@ -98,7 +98,7 @@ header h1 {
 /* Language Toggle */
 .lang-toggle {
     position: absolute;
-    right: 48px;
+    left: 0;
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: 50%;
@@ -601,7 +601,7 @@ footer .footer-version {
 
     .lang-toggle {
         position: relative;
-        right: auto;
+        left: auto;
         margin-left: auto;
     }
 
