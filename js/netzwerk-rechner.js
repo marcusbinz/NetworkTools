@@ -3,6 +3,40 @@
 let _nrDebounceTimer = null;
 
 function init_netzwerk_rechner(container) {
+    // --- i18n Strings ---
+    I18N.register('nr', {
+        de: {
+            'bandwidth':    'Bandbreite',
+            'filesize':     'Dateigr\u00f6\u00dfe',
+            'examples':     'Beispiele',
+            'swapDir':      'Richtung umschalten',
+            'bwConversion': 'Bandbreiten-Umrechnung',
+            'transferTime': 'Transferzeit',
+            'transferStd':  'Transferzeit f\u00fcr g\u00e4ngige Dateigr\u00f6\u00dfen',
+            'commonBw':     'G\u00e4ngige Bandbreiten',
+            'connection':   'Verbindung',
+            'download':     'Download',
+            'upload':       'Upload',
+            'at':           'bei',
+            'enterFilesize':'Dateigr\u00f6\u00dfe eingeben f\u00fcr Berechnung',
+        },
+        en: {
+            'bandwidth':    'Bandwidth',
+            'filesize':     'File Size',
+            'examples':     'Examples',
+            'swapDir':      'Swap direction',
+            'bwConversion': 'Bandwidth Conversion',
+            'transferTime': 'Transfer Time',
+            'transferStd':  'Transfer time for common file sizes',
+            'commonBw':     'Common Bandwidths',
+            'connection':   'Connection',
+            'download':     'Download',
+            'upload':       'Upload',
+            'at':           'at',
+            'enterFilesize':'Enter file size to calculate',
+        }
+    });
+
     // --- State ---
     let activeBwUnit = 'mbps';
     let activeFsUnit = 'gb';
@@ -38,7 +72,7 @@ function init_netzwerk_rechner(container) {
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card nr-input-card">
-            <label>Bandbreite</label>
+            <label>${t('nr.bandwidth')}</label>
             <input type="text" class="nr-input" id="nr-bandwidth" placeholder="100" inputmode="decimal" autocomplete="off">
             <div class="nr-unit-chips" id="nr-bw-units">
                 <span class="chip nr-unit-chip" data-unit="kbps">Kbps</span>
@@ -46,7 +80,7 @@ function init_netzwerk_rechner(container) {
                 <span class="chip nr-unit-chip" data-unit="gbps">Gbps</span>
             </div>
 
-            <button class="nr-swap-btn" id="nr-swap-btn" title="Richtung umschalten">
+            <button class="nr-swap-btn" id="nr-swap-btn" title="${t('nr.swapDir')}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="7 3 7 21"></polyline>
                     <polyline points="3 7 7 3 11 7"></polyline>
@@ -55,7 +89,7 @@ function init_netzwerk_rechner(container) {
                 </svg>
             </button>
 
-            <label>Dateigr\u00f6\u00dfe</label>
+            <label>${t('nr.filesize')}</label>
             <input type="text" class="nr-input" id="nr-filesize" placeholder="50" inputmode="decimal" autocomplete="off">
             <div class="nr-unit-chips" id="nr-fs-units">
                 <span class="chip nr-unit-chip" data-unit="kb">KB</span>
@@ -64,7 +98,7 @@ function init_netzwerk_rechner(container) {
                 <span class="chip nr-unit-chip" data-unit="tb">TB</span>
             </div>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('nr.examples')}</label>
             <div class="quick-examples nr-examples">
                 <span class="chip" data-bw="100" data-bwu="mbps" data-fs="50" data-fsu="gb">50 GB @ 100 Mbps</span>
                 <span class="chip" data-bw="1" data-bwu="gbps" data-fs="1" data-fsu="tb">1 TB @ 1 Gbps</span>
@@ -74,24 +108,24 @@ function init_netzwerk_rechner(container) {
         </section>
 
         <section class="card nr-result-card" id="nr-result-card" style="display:none;">
-            <div class="nr-section-label">Bandbreiten-Umrechnung</div>
+            <div class="nr-section-label">${t('nr.bwConversion')}</div>
             <div class="nr-result-grid" id="nr-bw-grid"></div>
 
-            <div class="nr-section-label" style="margin-top:20px">Transferzeit</div>
+            <div class="nr-section-label" style="margin-top:20px">${t('nr.transferTime')}</div>
             <div class="nr-result-grid" id="nr-transfer-result"></div>
 
-            <div class="nr-section-label" style="margin-top:20px">Transferzeit f\u00fcr g\u00e4ngige Dateigr\u00f6\u00dfen</div>
+            <div class="nr-section-label" style="margin-top:20px">${t('nr.transferStd')}</div>
             <div class="nr-transfer-grid" id="nr-transfer-grid"></div>
         </section>
 
         <section class="card">
-            <div class="nr-section-label">G\u00e4ngige Bandbreiten</div>
+            <div class="nr-section-label">${t('nr.commonBw')}</div>
             <table class="nr-ref-table">
                 <thead>
                     <tr>
-                        <th>Verbindung</th>
-                        <th>Download</th>
-                        <th>Upload</th>
+                        <th>${t('nr.connection')}</th>
+                        <th>${t('nr.download')}</th>
+                        <th>${t('nr.upload')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -210,7 +244,7 @@ function init_netzwerk_rechner(container) {
         transferResult.innerHTML =
             '<div class="nr-result-item full-width nr-result-highlight">' +
                 '<span class="nr-result-value">' + timeStr + '</span>' +
-                '<span class="nr-result-label">' + fsLabel + ' bei ' + bwLabel + '</span>' +
+                '<span class="nr-result-label">' + fsLabel + ' ' + t('nr.at') + ' ' + bwLabel + '</span>' +
             '</div>';
     }
 
@@ -258,8 +292,8 @@ function init_netzwerk_rechner(container) {
         } else {
             transferResult.innerHTML =
                 '<div class="nr-result-item full-width">' +
-                    '<span class="nr-result-value" style="font-size:14px; color:var(--text-dim)">Dateigr\u00f6\u00dfe eingeben f\u00fcr Berechnung</span>' +
-                    '<span class="nr-result-label">Transferzeit</span>' +
+                    '<span class="nr-result-value" style="font-size:14px; color:var(--text-dim)">' + t('nr.enterFilesize') + '</span>' +
+                    '<span class="nr-result-label">' + t('nr.transferTime') + '</span>' +
                 '</div>';
         }
 

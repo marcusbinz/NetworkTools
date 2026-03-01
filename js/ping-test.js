@@ -4,10 +4,60 @@ let _pingAbortController = null;
 let _pingInterval = null;
 
 function init_ping_test(container) {
+    // --- i18n Strings ---
+    I18N.register('ping', {
+        de: {
+            'label':        'Website / Host',
+            'pingCount':    'Anzahl Pings',
+            'continuous':   '\u221e Dauer',
+            'examples':     'Beispiele',
+            'loss':         'Verlust',
+            'sent':         'Gesendet',
+            'received':     'Empfangen',
+            'lost':         'Verloren',
+            'invalidHost':  'Bitte gib einen g\u00fcltigen Hostnamen, Domain oder IP-Adresse ein (z.B. nas, server.local, google.com oder 192.168.1.1)',
+            'continuousLabel':'(Dauerping)',
+            'ptrResolving': 'PTR wird aufgel\u00f6st\u2026',
+            'ptrNotFound':  'Kein PTR-Record gefunden',
+            'ptrLocalNA':   'Reverse-DNS f\u00fcr lokale IPs nicht m\u00f6glich (Browser-Einschr\u00e4nkung)',
+            'localIp':      'Lokale IP-Adresse erkannt.',
+            'localHost':    'Lokaler Hostname erkannt.',
+            'localFqdn':    'Lokaler FQDN erkannt.',
+            'localHint':    'Browser k\u00f6nnen keinen echten ICMP-Ping senden. Die Messung erfolgt per HTTP-Request und enth\u00e4lt zus\u00e4tzlichen Overhead (TCP/HTTP). Die Werte weichen daher deutlich von einem Konsolen-Ping ab.',
+            'localHostHint':'Der Hostname muss im lokalen Netzwerk aufl\u00f6sbar sein.',
+            'publicHint':   'Kein echter ICMP-Ping \u2014 Messung per HTTPS-Request (inkl. DNS + TLS + HTTP Overhead).',
+            'timeout':      'Timeout',
+            'error':        'Fehler: {msg}',
+        },
+        en: {
+            'label':        'Website / Host',
+            'pingCount':    'Number of Pings',
+            'continuous':   '\u221e Continuous',
+            'examples':     'Examples',
+            'loss':         'Loss',
+            'sent':         'Sent',
+            'received':     'Received',
+            'lost':         'Lost',
+            'invalidHost':  'Please enter a valid hostname, domain or IP address (e.g. nas, server.local, google.com or 192.168.1.1)',
+            'continuousLabel':'(Continuous)',
+            'ptrResolving': 'Resolving PTR\u2026',
+            'ptrNotFound':  'No PTR record found',
+            'ptrLocalNA':   'Reverse DNS not available for local IPs (browser limitation)',
+            'localIp':      'Local IP address detected.',
+            'localHost':    'Local hostname detected.',
+            'localFqdn':    'Local FQDN detected.',
+            'localHint':    'Browsers cannot send real ICMP pings. Measurement uses HTTP requests with additional overhead (TCP/HTTP). Values will differ significantly from console ping.',
+            'localHostHint':'The hostname must be resolvable in the local network.',
+            'publicHint':   'Not a real ICMP ping \u2014 measured via HTTPS request (incl. DNS + TLS + HTTP overhead).',
+            'timeout':      'Timeout',
+            'error':        'Error: {msg}',
+        }
+    });
+
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card ping-input-card">
-            <label for="ping-host">Website / Host</label>
+            <label for="ping-host">${t('ping.label')}</label>
             <div class="ping-input-row">
                 <input type="text" id="ping-host" placeholder="google.com / nas / 192.168.1.1" autocomplete="off" spellcheck="false">
                 <button class="ping-start-btn" id="ping-start-btn">
@@ -15,16 +65,16 @@ function init_ping_test(container) {
                 </button>
             </div>
 
-            <label class="ping-count-label">Anzahl Pings</label>
+            <label class="ping-count-label">${t('ping.pingCount')}</label>
             <div class="ping-count-chips" id="ping-count-chips">
                 <span class="chip ping-count-chip" data-count="5">5</span>
                 <span class="chip ping-count-chip active" data-count="10">10</span>
                 <span class="chip ping-count-chip" data-count="20">20</span>
                 <span class="chip ping-count-chip" data-count="50">50</span>
-                <span class="chip ping-count-chip" data-count="0">\u221e Dauer</span>
+                <span class="chip ping-count-chip" data-count="0">${t('ping.continuous')}</span>
             </div>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('ping.examples')}</label>
             <div class="quick-examples ping-examples">
                 <span class="chip" data-host="mbinz.de">mbinz.de</span>
                 <span class="chip" data-host="google.com">Google</span>
@@ -59,17 +109,17 @@ function init_ping_test(container) {
                 </div>
                 <div class="ping-stat">
                     <span class="ping-stat-num" id="ping-stat-loss">0%</span>
-                    <span class="ping-stat-label">Verlust</span>
+                    <span class="ping-stat-label">${t('ping.loss')}</span>
                 </div>
             </div>
 
             <!-- Packet stats -->
             <div class="ping-pkt-stats" id="ping-pkt-stats">
-                <span><strong id="ping-pkt-sent">0</strong> Gesendet</span>
+                <span><strong id="ping-pkt-sent">0</strong> ${t('ping.sent')}</span>
                 <span class="ping-pkt-sep">\u2022</span>
-                <span><strong id="ping-pkt-recv">0</strong> Empfangen</span>
+                <span><strong id="ping-pkt-recv">0</strong> ${t('ping.received')}</span>
                 <span class="ping-pkt-sep">\u2022</span>
-                <span><strong id="ping-pkt-lost" style="color:var(--green)">0</strong> Verloren</span>
+                <span><strong id="ping-pkt-lost" style="color:var(--green)">0</strong> ${t('ping.lost')}</span>
             </div>
 
             <!-- Progress -->
@@ -251,7 +301,7 @@ function init_ping_test(container) {
         } else {
             entry.innerHTML = `
                 <span class="ping-log-num">#${index + 1}</span>
-                <span class="ping-log-time" style="color:var(--red)">Timeout</span>
+                <span class="ping-log-time" style="color:var(--red)">${t('ping.timeout')}</span>
             `;
         }
 
@@ -273,7 +323,7 @@ function init_ping_test(container) {
         var isDomain = !isIP && !isLocalHostname && /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(host);
 
         if (!isIP && !isLocalHostname && !isDomain) {
-            showError('Bitte gib einen g\u00fcltigen Hostnamen, Domain oder IP-Adresse ein (z.B. nas, server.local, google.com oder 192.168.1.1)');
+            showError(t('ping.invalidHost'));
             return;
         }
         hostInput.value = host;
@@ -291,7 +341,7 @@ function init_ping_test(container) {
         document.getElementById('ping-chart').innerHTML = '';
         const isContinuous = pingCount === 0;
         document.getElementById('ping-progress-fill').style.width = '0%';
-        document.getElementById('ping-progress-text').textContent = isContinuous ? '0 (Dauerping)' : `0 / ${pingCount}`;
+        document.getElementById('ping-progress-text').textContent = isContinuous ? '0 ' + t('ping.continuousLabel') : `0 / ${pingCount}`;
 
         resultCard.style.display = 'block';
         stopBtn.style.display = 'inline-block';
@@ -306,19 +356,19 @@ function init_ping_test(container) {
         rdnsEl.style.color = '';
 
         if (isIP && !isLocal) {
-            rdnsEl.textContent = 'PTR wird aufgel\u00f6st\u2026';
+            rdnsEl.textContent = t('ping.ptrResolving');
             rdnsEl.style.color = 'var(--text-dim)';
             reverseDNS(host).then(function(hostname) {
                 if (hostname) {
                     rdnsEl.textContent = '\u2194 ' + hostname;
                     rdnsEl.style.color = 'var(--green)';
                 } else {
-                    rdnsEl.textContent = 'Kein PTR-Record gefunden';
+                    rdnsEl.textContent = t('ping.ptrNotFound');
                     rdnsEl.style.color = 'var(--text-dim)';
                 }
             });
         } else if (isIP && isLocal) {
-            rdnsEl.textContent = 'Reverse-DNS f\u00fcr lokale IPs nicht m\u00f6glich (Browser-Einschr\u00e4nkung)';
+            rdnsEl.textContent = t('ping.ptrLocalNA');
             rdnsEl.style.color = 'var(--text-dim)';
         }
 
@@ -326,16 +376,14 @@ function init_ping_test(container) {
         const hintEl = document.getElementById('ping-hint');
         const infoIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
         if (isLocal) {
-            var localNote = isIP ? 'Lokale IP-Adresse erkannt.' : (isLocalHostname ? 'Lokaler Hostname erkannt.' : 'Lokaler FQDN erkannt.');
+            var localNote = isIP ? t('ping.localIp') : (isLocalHostname ? t('ping.localHost') : t('ping.localFqdn'));
             hintEl.innerHTML = infoIcon + ' ' +
-                '<span><strong>' + localNote + '</strong> Browser k\u00f6nnen keinen echten ICMP-Ping senden. ' +
-                'Die Messung erfolgt per HTTP-Request und enth\u00e4lt zus\u00e4tzlichen Overhead (TCP/HTTP). ' +
-                'Die Werte weichen daher deutlich von einem Konsolen-Ping ab.' +
-                (isLocalHostname ? ' Der Hostname muss im lokalen Netzwerk aufl\u00f6sbar sein.' : '') +
+                '<span><strong>' + localNote + '</strong> ' + t('ping.localHint') +
+                (isLocalHostname ? ' ' + t('ping.localHostHint') : '') +
                 '</span>';
         } else {
             hintEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> ' +
-                '<span>Kein echter ICMP-Ping \u2014 Messung per HTTPS-Request (inkl. DNS + TLS + HTTP Overhead).</span>';
+                '<span>' + t('ping.publicHint') + '</span>';
         }
 
         try {
@@ -350,7 +398,7 @@ function init_ping_test(container) {
 
                 if (isContinuous) {
                     document.getElementById('ping-progress-fill').style.width = '100%';
-                    document.getElementById('ping-progress-text').textContent = `${i + 1} (Dauerping)`;
+                    document.getElementById('ping-progress-text').textContent = (i + 1) + ' ' + t('ping.continuousLabel');
                 } else {
                     const pct = Math.round(((i + 1) / pingCount) * 100);
                     document.getElementById('ping-progress-fill').style.width = pct + '%';
@@ -367,7 +415,7 @@ function init_ping_test(container) {
             }
         } catch (err) {
             if (err.name === 'AbortError') return;
-            showError(`Fehler: ${err.message}`);
+            showError(t('ping.error', { msg: err.message }));
         }
 
         isRunning = false;

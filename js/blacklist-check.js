@@ -3,34 +3,99 @@
 let _blAbortController = null;
 
 function init_blacklist_check(container) {
+    // --- i18n Strings ---
+    I18N.register('bl', {
+        de: {
+            'label':         'IP-Adresse pr\u00fcfen',
+            'myIp':          'Meine IP verwenden',
+            'myIpLoading':   'Ermittle IP...',
+            'examples':      'Beispiele',
+            'loading':       'Blacklists werden gepr\u00fcft...',
+            'checking':      'Pr\u00fcfe Blacklists... ({done}/{total})',
+            'invalidIp':     'Bitte gib eine g\u00fcltige IPv4-Adresse ein (z.B. 8.8.8.8)',
+            'clean':         'Sauber',
+            'listed':        '{count}x gelistet',
+            'summaryClean':  'Sauber',
+            'summaryListed': 'Gelistet',
+            'summaryError':  'Fehler',
+            'notListed':     'Nicht gelistet',
+            'timeoutError':  'Timeout/Fehler',
+            'checkError':    'Fehler bei der Pr\u00fcfung: {msg}',
+            'ipError':       'IP-Adresse konnte nicht ermittelt werden.',
+            // Blacklist-Beschreibungen
+            'desc.zen':      'Kombinierte Blocklist (SBL+XBL+PBL)',
+            'desc.barracuda':'Barracuda Reputation Block List',
+            'desc.spamcop':  'SpamCop Blocking List',
+            'desc.sorbs':    'Spam and Open Relay Blocking System',
+            'desc.sorbsspam':'SORBS Spam-Quellen',
+            'desc.backscatter':'Backscatter-Quellen',
+            'desc.psbl':     'Passive Spam Block List',
+            'desc.dyna':     'Dynamische IP-Adressen',
+            'desc.noptr':    'Kein Reverse-DNS',
+            'desc.spam':     'Bekannte Spam-Quellen',
+            'desc.s5h':      'All-in-One Blocklist',
+            'desc.uceprotect':'Einzelne IP-Adressen',
+        },
+        en: {
+            'label':         'Check IP address',
+            'myIp':          'Use my IP',
+            'myIpLoading':   'Detecting IP...',
+            'examples':      'Examples',
+            'loading':       'Checking blacklists...',
+            'checking':      'Checking blacklists... ({done}/{total})',
+            'invalidIp':     'Please enter a valid IPv4 address (e.g. 8.8.8.8)',
+            'clean':         'Clean',
+            'listed':        'Listed {count}x',
+            'summaryClean':  'Clean',
+            'summaryListed': 'Listed',
+            'summaryError':  'Error',
+            'notListed':     'Not listed',
+            'timeoutError':  'Timeout/Error',
+            'checkError':    'Check error: {msg}',
+            'ipError':       'Could not detect IP address.',
+            'desc.zen':      'Combined blocklist (SBL+XBL+PBL)',
+            'desc.barracuda':'Barracuda Reputation Block List',
+            'desc.spamcop':  'SpamCop Blocking List',
+            'desc.sorbs':    'Spam and Open Relay Blocking System',
+            'desc.sorbsspam':'SORBS spam sources',
+            'desc.backscatter':'Backscatter sources',
+            'desc.psbl':     'Passive Spam Block List',
+            'desc.dyna':     'Dynamic IP addresses',
+            'desc.noptr':    'No reverse DNS',
+            'desc.spam':     'Known spam sources',
+            'desc.s5h':      'All-in-one blocklist',
+            'desc.uceprotect':'Individual IP addresses',
+        }
+    });
+
     // --- Known DNS Blacklists ---
     const BLACKLISTS = [
-        { id: 'zen.spamhaus.org', name: 'Spamhaus ZEN', desc: 'Kombinierte Blocklist (SBL+XBL+PBL)' },
-        { id: 'b.barracudacentral.org', name: 'Barracuda', desc: 'Barracuda Reputation Block List' },
-        { id: 'bl.spamcop.net', name: 'SpamCop', desc: 'SpamCop Blocking List' },
-        { id: 'dnsbl.sorbs.net', name: 'SORBS', desc: 'Spam and Open Relay Blocking System' },
-        { id: 'spam.dnsbl.sorbs.net', name: 'SORBS Spam', desc: 'SORBS Spam-Quellen' },
-        { id: 'ips.backscatterer.org', name: 'Backscatterer', desc: 'Backscatter-Quellen' },
-        { id: 'psbl.surriel.com', name: 'PSBL', desc: 'Passive Spam Block List' },
-        { id: 'dyna.spamrats.com', name: 'SpamRATS Dyna', desc: 'Dynamische IP-Adressen' },
-        { id: 'noptr.spamrats.com', name: 'SpamRATS NoPtr', desc: 'Kein Reverse-DNS' },
-        { id: 'spam.spamrats.com', name: 'SpamRATS Spam', desc: 'Bekannte Spam-Quellen' },
-        { id: 'all.s5h.net', name: 'S5H', desc: 'All-in-One Blocklist' },
-        { id: 'dnsbl-1.uceprotect.net', name: 'UCEPROTECT 1', desc: 'Einzelne IP-Adressen' },
+        { id: 'zen.spamhaus.org', name: 'Spamhaus ZEN', desc: t('bl.desc.zen') },
+        { id: 'b.barracudacentral.org', name: 'Barracuda', desc: t('bl.desc.barracuda') },
+        { id: 'bl.spamcop.net', name: 'SpamCop', desc: t('bl.desc.spamcop') },
+        { id: 'dnsbl.sorbs.net', name: 'SORBS', desc: t('bl.desc.sorbs') },
+        { id: 'spam.dnsbl.sorbs.net', name: 'SORBS Spam', desc: t('bl.desc.sorbsspam') },
+        { id: 'ips.backscatterer.org', name: 'Backscatterer', desc: t('bl.desc.backscatter') },
+        { id: 'psbl.surriel.com', name: 'PSBL', desc: t('bl.desc.psbl') },
+        { id: 'dyna.spamrats.com', name: 'SpamRATS Dyna', desc: t('bl.desc.dyna') },
+        { id: 'noptr.spamrats.com', name: 'SpamRATS NoPtr', desc: t('bl.desc.noptr') },
+        { id: 'spam.spamrats.com', name: 'SpamRATS Spam', desc: t('bl.desc.spam') },
+        { id: 'all.s5h.net', name: 'S5H', desc: t('bl.desc.s5h') },
+        { id: 'dnsbl-1.uceprotect.net', name: 'UCEPROTECT 1', desc: t('bl.desc.uceprotect') },
     ];
 
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card bl-input-card">
-            <label for="bl-input">IP-Adresse prüfen</label>
+            <label for="bl-input">${t('bl.label')}</label>
             <div class="bl-input-row">
                 <input type="text" id="bl-input" placeholder="8.8.8.8" autocomplete="off" spellcheck="false">
                 <button class="bl-search-btn" id="bl-search-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>
             </div>
-            <button class="bl-myip-btn chip" id="bl-myip-btn">Meine IP verwenden</button>
-            <label class="quick-examples-label">Beispiele</label>
+            <button class="bl-myip-btn chip" id="bl-myip-btn">${t('bl.myIp')}</button>
+            <label class="quick-examples-label">${t('bl.examples')}</label>
             <div class="quick-examples bl-examples">
                 <span class="chip" data-ip="8.8.8.8">Google DNS</span>
                 <span class="chip" data-ip="1.1.1.1">Cloudflare</span>
@@ -41,7 +106,7 @@ function init_blacklist_check(container) {
         <section class="card bl-loading" id="bl-loading" style="display:none;">
             <div class="bl-spinner-row">
                 <span class="bl-spinner"></span>
-                <span id="bl-loading-text">Blacklists werden geprüft...</span>
+                <span id="bl-loading-text">${t('bl.loading')}</span>
             </div>
             <div class="bl-progress-bar">
                 <div class="bl-progress-fill" id="bl-progress-fill"></div>
@@ -106,11 +171,11 @@ function init_blacklist_check(container) {
                 return { ...bl, status: 'listed', detail: returnCode };
             } else {
                 // Not listed (NXDOMAIN or empty response)
-                return { ...bl, status: 'clean', detail: 'Nicht gelistet' };
+                return { ...bl, status: 'clean', detail: t('bl.notListed') };
             }
         } catch (err) {
             if (err.name === 'AbortError') throw err;
-            return { ...bl, status: 'error', detail: 'Timeout/Fehler' };
+            return { ...bl, status: 'error', detail: t('bl.timeoutError') };
         }
     }
 
@@ -120,7 +185,7 @@ function init_blacklist_check(container) {
         if (!ip) return;
 
         if (!isValidIPv4(ip)) {
-            showError('Bitte gib eine gültige IPv4-Adresse ein (z.B. 8.8.8.8)');
+            showError(t('bl.invalidIp'));
             return;
         }
 
@@ -148,7 +213,7 @@ function init_blacklist_check(container) {
                 completed += batch.length;
                 const pct = Math.round((completed / BLACKLISTS.length) * 100);
                 progressFill.style.width = pct + '%';
-                loadingText.textContent = `Prüfe Blacklists... (${completed}/${BLACKLISTS.length})`;
+                loadingText.textContent = t('bl.checking', { done: completed, total: BLACKLISTS.length });
             }
 
             loadingCard.style.display = 'none';
@@ -162,25 +227,25 @@ function init_blacklist_check(container) {
 
             const statusEl = document.getElementById('bl-result-status');
             if (listed.length === 0) {
-                statusEl.textContent = 'Sauber';
+                statusEl.textContent = t('bl.clean');
                 statusEl.className = 'bl-result-status bl-status-clean';
             } else {
-                statusEl.textContent = `${listed.length}x gelistet`;
+                statusEl.textContent = t('bl.listed', { count: listed.length });
                 statusEl.className = 'bl-result-status bl-status-listed';
             }
 
             document.getElementById('bl-summary').innerHTML = `
                 <div class="bl-summary-item bl-summary-clean">
                     <span class="bl-summary-num">${clean.length}</span>
-                    <span class="bl-summary-label">Sauber</span>
+                    <span class="bl-summary-label">${t('bl.summaryClean')}</span>
                 </div>
                 <div class="bl-summary-item bl-summary-listed">
                     <span class="bl-summary-num">${listed.length}</span>
-                    <span class="bl-summary-label">Gelistet</span>
+                    <span class="bl-summary-label">${t('bl.summaryListed')}</span>
                 </div>
                 <div class="bl-summary-item bl-summary-error">
                     <span class="bl-summary-num">${errors.length}</span>
-                    <span class="bl-summary-label">Fehler</span>
+                    <span class="bl-summary-label">${t('bl.summaryError')}</span>
                 </div>
             `;
 
@@ -216,22 +281,22 @@ function init_blacklist_check(container) {
         } catch (err) {
             if (err.name === 'AbortError') return;
             loadingCard.style.display = 'none';
-            showError(`Fehler bei der Prüfung: ${err.message}`);
+            showError(t('bl.checkError', { msg: err.message }));
         }
     }
 
     // --- Get My IP ---
     async function getMyIP() {
         try {
-            myIpBtn.textContent = 'Ermittle IP...';
+            myIpBtn.textContent = t('bl.myIpLoading');
             // Try IPv4 first
             const res = await fetch('https://api.ipify.org?format=json');
             const data = await res.json();
             ipInput.value = data.ip;
-            myIpBtn.textContent = 'Meine IP verwenden';
+            myIpBtn.textContent = t('bl.myIp');
         } catch {
-            myIpBtn.textContent = 'Meine IP verwenden';
-            showError('IP-Adresse konnte nicht ermittelt werden.');
+            myIpBtn.textContent = t('bl.myIp');
+            showError(t('bl.ipError'));
         }
     }
 

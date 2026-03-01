@@ -3,10 +3,38 @@
 let _dnsAbortController = null;
 
 function init_dns_lookup(container) {
+    // --- i18n Strings ---
+    I18N.register('dns', {
+        de: {
+            'label':        'Hostname / Domain',
+            'recordType':   'Record-Typ',
+            'all':          'Alle',
+            'examples':     'Beispiele',
+            'loading':      'DNS Records werden abgefragt...',
+            'invalidDomain':'Bitte gib eine g\u00fcltige Domain ein (z.B. google.com)',
+            'noRecords':    'Keine DNS Records f\u00fcr "{domain}" gefunden{suffix}.',
+            'queryError':   'Fehler bei der Abfrage: {msg}',
+            'record':       'Record',
+            'records':      'Records',
+        },
+        en: {
+            'label':        'Hostname / Domain',
+            'recordType':   'Record Type',
+            'all':          'All',
+            'examples':     'Examples',
+            'loading':      'Querying DNS records...',
+            'invalidDomain':'Please enter a valid domain (e.g. google.com)',
+            'noRecords':    'No DNS records found for "{domain}"{suffix}.',
+            'queryError':   'Query error: {msg}',
+            'record':       'record',
+            'records':      'records',
+        }
+    });
+
     // --- HTML Template ---
     container.innerHTML = `
         <section class="card dns-input-card">
-            <label for="dns-domain">Hostname / Domain</label>
+            <label for="dns-domain">${t('dns.label')}</label>
             <div class="dns-input-row">
                 <input type="text" id="dns-domain" placeholder="example.com" autocomplete="off" spellcheck="false">
                 <button class="dns-search-btn" id="dns-search-btn">
@@ -14,9 +42,9 @@ function init_dns_lookup(container) {
                 </button>
             </div>
 
-            <label class="dns-type-label">Record-Typ</label>
+            <label class="dns-type-label">${t('dns.recordType')}</label>
             <div class="dns-type-chips" id="dns-type-chips">
-                <span class="chip dns-type-chip active" data-type="ALL">Alle</span>
+                <span class="chip dns-type-chip active" data-type="ALL">${t('dns.all')}</span>
                 <span class="chip dns-type-chip" data-type="A">A</span>
                 <span class="chip dns-type-chip" data-type="AAAA">AAAA</span>
                 <span class="chip dns-type-chip" data-type="CNAME">CNAME</span>
@@ -26,7 +54,7 @@ function init_dns_lookup(container) {
                 <span class="chip dns-type-chip" data-type="SOA">SOA</span>
             </div>
 
-            <label class="quick-examples-label">Beispiele</label>
+            <label class="quick-examples-label">${t('dns.examples')}</label>
             <div class="quick-examples dns-examples">
                 <span class="chip" data-domain="google.com">Google</span>
                 <span class="chip" data-domain="cloudflare.com">Cloudflare</span>
@@ -38,7 +66,7 @@ function init_dns_lookup(container) {
         <section class="card dns-loading" id="dns-loading" style="display:none;">
             <div class="dns-spinner-row">
                 <span class="dns-spinner"></span>
-                <span>DNS Records werden abgefragt...</span>
+                <span>${t('dns.loading')}</span>
             </div>
         </section>
 
@@ -177,7 +205,7 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
             <div class="dns-section">
                 <div class="dns-section-header">
                     <span class="dns-type-badge" style="color:${color}; background:${color}15; border-color:${color}40">${type}</span>
-                    <span class="dns-section-count">${records.length} Record${records.length !== 1 ? 's' : ''}</span>
+                    <span class="dns-section-count">${records.length} ${records.length !== 1 ? t('dns.records') : t('dns.record')}</span>
                 </div>
                 ${rows}
             </div>
@@ -194,7 +222,7 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
         domainInput.value = domain;
 
         if (!domain.includes('.') || domain.length < 3 || !/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?\.[a-z]{2,}$/.test(domain)) {
-            showError('Bitte gib eine gültige Domain ein (z.B. google.com)');
+            showError(t('dns.invalidDomain'));
             return;
         }
 
@@ -241,13 +269,13 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
             });
 
             if (totalRecords === 0) {
-                showError(`Keine DNS Records für "${domain}" gefunden${selectedType !== 'ALL' ? ` (Typ: ${selectedType})` : ''}.`);
+                showError(t('dns.noRecords', { domain: domain, suffix: selectedType !== 'ALL' ? ` (${selectedType})` : '' }));
                 return;
             }
 
             // Render
             document.getElementById('dns-result-domain').textContent = domain;
-            document.getElementById('dns-total-count').textContent = `${totalRecords} Record${totalRecords !== 1 ? 's' : ''}`;
+            document.getElementById('dns-total-count').textContent = `${totalRecords} ${totalRecords !== 1 ? t('dns.records') : t('dns.record')}`;
 
             // Render sections in defined order
             const order = ['A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SOA'];
@@ -264,7 +292,7 @@ Min TTL: ${formatTTL(parseInt(parts[6]))}`;
         } catch (err) {
             if (err.name === 'AbortError') return;
             loadingCard.style.display = 'none';
-            showError(`Fehler bei der Abfrage: ${err.message}`);
+            showError(t('dns.queryError', { msg: err.message }));
         }
     }
 
