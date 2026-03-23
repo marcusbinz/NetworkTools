@@ -61,17 +61,12 @@
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* IP Button Row */
-.ip-btn-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
-}
-
+/* My IP Button */
 .my-ip-btn {
-    flex: 1;
-    padding: 12px 10px;
-    font-size: 14px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #fff;
     background: linear-gradient(135deg, var(--accent), var(--purple));
@@ -93,6 +88,21 @@
 .my-ip-btn:disabled {
     opacity: 0.6;
     cursor: wait;
+}
+
+/* Local IP Toggle Link */
+.ip-local-toggle {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ip-local-toggle:hover {
+    color: var(--accent);
 }
 
 /* Local IP Hint */

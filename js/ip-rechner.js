@@ -8,13 +8,12 @@ function init_ip_rechner(container) {
         de: {
             'label':        'IP-Adresse',
             'cidrLabel':    'Subnetzmaske / CIDR',
-            'myLocalIp':    'Meine lokale IP',
             'myPublicIp':   'Meine Internet-IP',
             'myIpLoading':  'Ermittle...',
             'myIpV6Only':   'Nur IPv6 verf\u00fcgbar \u2014 IPv4 nicht gefunden',
             'myIpError':    'Fehler \u2014 nochmal versuchen',
-            'localIpBlocked':'Lokale IP vom Browser blockiert',
-            'localIpHint':  'Dein Browser gibt die lokale IP nicht frei. So findest du sie:',
+            'localIpToggle':'Lokale IP finden?',
+            'localIpHint':  'Browser k\u00f6nnen die lokale IP nicht auslesen. So findest du sie:',
             'localIpIos':   'iPhone/iPad: Einstellungen \u2192 WLAN \u2192 \u24d8',
             'localIpMac':   'Mac: Systemeinstellungen \u2192 Netzwerk',
             'localIpWin':   'Windows: ipconfig in Eingabeaufforderung',
@@ -78,13 +77,12 @@ function init_ip_rechner(container) {
         en: {
             'label':        'IP Address',
             'cidrLabel':    'Subnet Mask / CIDR',
-            'myLocalIp':    'My local IP',
             'myPublicIp':   'My internet IP',
             'myIpLoading':  'Detecting...',
             'myIpV6Only':   'IPv6 only \u2014 IPv4 not found',
             'myIpError':    'Error \u2014 try again',
-            'localIpBlocked':'Local IP blocked by browser',
-            'localIpHint':  'Your browser does not expose the local IP. How to find it:',
+            'localIpToggle':'Find local IP?',
+            'localIpHint':  'Browsers cannot read the local IP. How to find it:',
             'localIpIos':   'iPhone/iPad: Settings \u2192 Wi-Fi \u2192 \u24d8',
             'localIpMac':   'Mac: System Settings \u2192 Network',
             'localIpWin':   'Windows: ipconfig in Command Prompt',
@@ -158,17 +156,19 @@ function init_ip_rechner(container) {
             <label for="cidr-select">${t('ip.cidrLabel')}</label>
             <select id="cidr-select"></select>
 
-            <div class="ip-btn-row">
-                <button class="my-ip-btn" id="my-local-ip-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
-                    ${t('ip.myLocalIp')}
-                </button>
-                <button class="my-ip-btn" id="my-public-ip-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                    ${t('ip.myPublicIp')}
-                </button>
+            <button class="my-ip-btn" id="my-public-ip-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                ${t('ip.myPublicIp')}
+            </button>
+            <a class="ip-local-toggle" id="ip-local-toggle" href="#">${t('ip.localIpToggle')}</a>
+            <div class="ip-local-hint" id="ip-local-hint" style="display:none;">
+                <p>${t('ip.localIpHint')}</p>
+                <ul>
+                    <li>${t('ip.localIpIos')}</li>
+                    <li>${t('ip.localIpMac')}</li>
+                    <li>${t('ip.localIpWin')}</li>
+                </ul>
             </div>
-            <div class="ip-local-hint" id="ip-local-hint" style="display:none;"></div>
 
             <label class="quick-examples-label">${t('ip.examples')}</label>
             <div class="quick-examples">
@@ -325,8 +325,8 @@ function init_ip_rechner(container) {
     const geoContent = document.getElementById('geo-content');
     const geoError = document.getElementById('geo-error');
     const geoErrorMsg = document.getElementById('geo-error-msg');
-    const myLocalIpBtn = document.getElementById('my-local-ip-btn');
     const myPublicIpBtn = document.getElementById('my-public-ip-btn');
+    const localToggle = document.getElementById('ip-local-toggle');
     const localHint = document.getElementById('ip-local-hint');
 
     let lastGeoIP = null;
@@ -640,44 +640,6 @@ function init_ip_rechner(container) {
         });
     });
 
-    // --- Local IP via WebRTC ---
-    function detectLocalIP() {
-        return new Promise((resolve, reject) => {
-            try {
-                const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-                const timeout = setTimeout(() => { pc.close(); reject(new Error('timeout')); }, 5000);
-
-                pc.createDataChannel('');
-                pc.onicecandidate = (e) => {
-                    if (!e.candidate) return;
-                    const c = e.candidate.candidate;
-                    // Only accept "typ host" candidates (local IP), ignore srflx (public)
-                    if (!c.includes('typ host')) return;
-                    const match = c.match(/(\d{1,3}\.){3}\d{1,3}/);
-                    if (match) {
-                        const ip = match[0];
-                        // Filter out mDNS placeholder 0.0.0.0
-                        if (ip !== '0.0.0.0') {
-                            clearTimeout(timeout);
-                            pc.close();
-                            resolve(ip);
-                        }
-                    }
-                };
-                pc.onicegatheringstatechange = () => {
-                    if (pc.iceGatheringState === 'complete') {
-                        clearTimeout(timeout);
-                        pc.close();
-                        reject(new Error('blocked'));
-                    }
-                };
-                pc.createOffer().then(offer => pc.setLocalDescription(offer)).catch(reject);
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
-
     // Helper: reset button after delay
     function resetBtn(btn, svgHtml, labelKey) {
         setTimeout(() => {
@@ -686,36 +648,12 @@ function init_ip_rechner(container) {
         }, 2000);
     }
 
-    const localSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M9 12h6M12 9v6"/></svg>';
     const publicSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
 
-    // Local IP Button
-    myLocalIpBtn.addEventListener('click', () => {
-        myLocalIpBtn.disabled = true;
-        myLocalIpBtn.textContent = t('ip.myIpLoading');
-        localHint.style.display = 'none';
-
-        detectLocalIP()
-            .then(ip => {
-                ipInput.value = ip;
-                cidrSelect.value = 24;
-                calculate();
-            })
-            .catch(() => {
-                myLocalIpBtn.textContent = t('ip.localIpBlocked');
-                // Show hint with manual instructions
-                localHint.innerHTML = `
-                    <p>${t('ip.localIpHint')}</p>
-                    <ul>
-                        <li>${t('ip.localIpIos')}</li>
-                        <li>${t('ip.localIpMac')}</li>
-                        <li>${t('ip.localIpWin')}</li>
-                    </ul>`;
-                localHint.style.display = 'block';
-            })
-            .finally(() => {
-                resetBtn(myLocalIpBtn, localSvg, 'ip.myLocalIp');
-            });
+    // Local IP hint toggle
+    localToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        localHint.style.display = localHint.style.display === 'none' ? 'block' : 'none';
     });
 
     // Public IP Button
