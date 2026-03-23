@@ -650,8 +650,10 @@ function init_ip_rechner(container) {
                 pc.createDataChannel('');
                 pc.onicecandidate = (e) => {
                     if (!e.candidate) return;
-                    // Extract IPv4 from ICE candidate
-                    const match = e.candidate.candidate.match(/(\d{1,3}\.){3}\d{1,3}/);
+                    const c = e.candidate.candidate;
+                    // Only accept "typ host" candidates (local IP), ignore srflx (public)
+                    if (!c.includes('typ host')) return;
+                    const match = c.match(/(\d{1,3}\.){3}\d{1,3}/);
                     if (match) {
                         const ip = match[0];
                         // Filter out mDNS placeholder 0.0.0.0
