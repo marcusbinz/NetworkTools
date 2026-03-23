@@ -61,12 +61,17 @@
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* My IP Button */
-.my-ip-btn {
-    width: 100%;
+/* IP Button Row */
+.ip-btn-row {
+    display: flex;
+    gap: 8px;
     margin-top: 16px;
-    padding: 12px 16px;
-    font-size: 15px;
+}
+
+.my-ip-btn {
+    flex: 1;
+    padding: 12px 10px;
+    font-size: 14px;
     font-weight: 600;
     color: #fff;
     background: linear-gradient(135deg, var(--accent), var(--purple));
@@ -76,8 +81,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
 }
 
 .my-ip-btn:active {
@@ -87,6 +93,33 @@
 .my-ip-btn:disabled {
     opacity: 0.6;
     cursor: wait;
+}
+
+/* Local IP Hint */
+.ip-local-hint {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: var(--accent-glow);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+.ip-local-hint p {
+    margin: 0 0 8px 0;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.ip-local-hint ul {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+
+.ip-local-hint li {
+    margin-bottom: 4px;
 }
 
 /* Result Card */
