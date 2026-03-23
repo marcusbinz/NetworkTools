@@ -644,7 +644,7 @@ function init_ip_rechner(container) {
     function detectLocalIP() {
         return new Promise((resolve, reject) => {
             try {
-                const pc = new RTCPeerConnection({ iceServers: [] });
+                const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
                 const timeout = setTimeout(() => { pc.close(); reject(new Error('timeout')); }, 5000);
 
                 pc.createDataChannel('');
